@@ -41,9 +41,9 @@ use yii\widgets\ActiveForm;
 
     <?php // echo $form->field($model, 'userAddress') ?>
 
-    <?php // echo $form->field($model, 'userLiasion') ?>
+    <?php // echo $form->field($model, 'userLiaison') ?>
 
-    <?php // echo $form->field($model, 'userLiasionID') ?>
+    <?php // echo $form->field($model, 'userLiaisonID') ?>
 
     <?php // echo $form->field($model, 'userRole') ?>
 

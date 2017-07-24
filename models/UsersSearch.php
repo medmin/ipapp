@@ -18,8 +18,8 @@ class UsersSearch extends Users
     public function rules()
     {
         return [
-            [['userID', 'userLiasionID', 'userRole', 'UnixTimestamp'], 'integer'],
-            [['userUsername', 'userPassword', 'userOrganization', 'userFullname', 'userFirstname', 'userGivenname', 'userNationality', 'userCitizenID', 'userEmail', 'userCellphone', 'userLandline', 'userAddress', 'userLiasion', 'userNote', 'authKey'], 'safe'],
+            [['userID', 'userLiaisonID', 'userRole', 'UnixTimestamp'], 'integer'],
+            [['userUsername', 'userPassword', 'userOrganization', 'userFullname', 'userFirstname', 'userGivenname', 'userNationality', 'userCitizenID', 'userEmail', 'userCellphone', 'userLandline', 'userAddress', 'userLiaison', 'userNote', 'authKey'], 'safe'],
         ];
     }
 
@@ -60,7 +60,7 @@ class UsersSearch extends Users
         // grid filtering conditions
         $query->andFilterWhere([
             'userID' => $this->userID,
-            'userLiasionID' => $this->userLiasionID,
+            'userLiaisonID' => $this->userLiaisonID,
             'userRole' => $this->userRole,
             'UnixTimestamp' => $this->UnixTimestamp,
         ]);
@@ -77,7 +77,7 @@ class UsersSearch extends Users
             ->andFilterWhere(['like', 'userCellphone', $this->userCellphone])
             ->andFilterWhere(['like', 'userLandline', $this->userLandline])
             ->andFilterWhere(['like', 'userAddress', $this->userAddress])
-            ->andFilterWhere(['like', 'userLiasion', $this->userLiasion])
+            ->andFilterWhere(['like', 'userLiaison', $this->userLiaison])
             ->andFilterWhere(['like', 'userNote', $this->userNote])
             ->andFilterWhere(['like', 'authKey', $this->authKey]);
 

@@ -13,11 +13,11 @@ $this->params['breadcrumbs'][] = ['label' => $model->userID, 'url' => ['view', '
 $this->params['breadcrumbs'][] = Yii::t('app', 'Update');
 ?>
 <div class="users-update">
-
-    <h1><?= Html::encode($this->title) ?></h1>
-
-    <?= $this->render('_form', [
-        'model' => $model,
-    ]) ?>
-
+    <div class="box box-primary">
+        <div class="box-body">
+            <?= $this->render('_form', [
+                'model' => $model,
+            ]) ?>
+        </div>
+    </div>
 </div>

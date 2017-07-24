@@ -27,9 +27,9 @@ use yii\widgets\ActiveForm;
 
     <?php // echo $form->field($model, 'patentUsername') ?>
 
-    <?php // echo $form->field($model, 'patentUserLiasionID') ?>
+    <?php // echo $form->field($model, 'patentUserLiaisonID') ?>
 
-    <?php // echo $form->field($model, 'patentUserLiasion') ?>
+    <?php // echo $form->field($model, 'patentUserLiaison') ?>
 
     <?php // echo $form->field($model, 'patentAgent') ?>
 

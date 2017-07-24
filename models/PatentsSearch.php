@@ -18,8 +18,8 @@ class PatentsSearch extends Patents
     public function rules()
     {
         return [
-            [['patentID', 'patentUserID', 'patentUserLiasionID', 'UnixTimestamp'], 'integer'],
-            [['patentAjxxbID', 'patentEacCaseNo', 'patentType', 'patentUsername', 'patentUserLiasion', 'patentAgent', 'patentProcessManager', 'patentTitle', 'patentApplicationNo', 'patentPatentNo', 'patentNote'], 'safe'],
+            [['patentID', 'patentUserID', 'patentUserLiaisonID', 'UnixTimestamp'], 'integer'],
+            [['patentAjxxbID', 'patentEacCaseNo', 'patentType', 'patentUsername', 'patentUserLiaison', 'patentAgent', 'patentProcessManager', 'patentTitle', 'patentApplicationNo', 'patentPatentNo', 'patentNote'], 'safe'],
         ];
     }
 
@@ -61,7 +61,7 @@ class PatentsSearch extends Patents
         $query->andFilterWhere([
             'patentID' => $this->patentID,
             'patentUserID' => $this->patentUserID,
-            'patentUserLiasionID' => $this->patentUserLiasionID,
+            'patentUserLiaisonID' => $this->patentUserLiaisonID,
             'UnixTimestamp' => $this->UnixTimestamp,
         ]);
 
@@ -69,7 +69,7 @@ class PatentsSearch extends Patents
             ->andFilterWhere(['like', 'patentEacCaseNo', $this->patentEacCaseNo])
             ->andFilterWhere(['like', 'patentType', $this->patentType])
             ->andFilterWhere(['like', 'patentUsername', $this->patentUsername])
-            ->andFilterWhere(['like', 'patentUserLiasion', $this->patentUserLiasion])
+            ->andFilterWhere(['like', 'patentUserLiaison', $this->patentUserLiaison])
             ->andFilterWhere(['like', 'patentAgent', $this->patentAgent])
             ->andFilterWhere(['like', 'patentProcessManager', $this->patentProcessManager])
             ->andFilterWhere(['like', 'patentTitle', $this->patentTitle])

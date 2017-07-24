@@ -22,10 +22,6 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'patentUsername')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'patentUserLiasionID')->textInput() ?>
-
-    <?= $form->field($model, 'patentUserLiasion')->textInput(['maxlength' => true]) ?>
-
     <?= $form->field($model, 'patentAgent')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'patentProcessManager')->textInput(['maxlength' => true]) ?>

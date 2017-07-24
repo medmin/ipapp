@@ -26,9 +26,9 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'eventUsername')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'eventUserLiasionID')->textInput() ?>
+    <?= $form->field($model, 'eventUserLiaisonID')->textInput() ?>
 
-    <?= $form->field($model, 'eventUserLiasion')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'eventUserLiaison')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'eventCreatPerson')->textInput(['maxlength' => true]) ?>
 

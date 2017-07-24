@@ -7,7 +7,9 @@ $dbEAC = require (__DIR__ . '/dbEAC.php');
 $config = [
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log'],
+    'bootstrap' => ['log', 'queue'],
+    'language' => 'zh-CN',
+    'name' => '阳光惠远客服中心',
     'components' => [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
@@ -17,7 +19,7 @@ $config = [
             'class' => 'yii\caching\FileCache',
         ],
         'user' => [
-            'identityClass' => 'app\models\User',
+            'identityClass' => 'app\models\Users',
             'enableAutoLogin' => true,
         ],
         'errorHandler' => [
@@ -49,14 +51,22 @@ $config = [
         ],
         'db' => $db,
         'dbEAC' => $dbEAC,
-        /*
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
             ],
         ],
-        */
+        'assetManager' => [
+            'bundles' => [
+                'dmstr\web\AdminLteAsset' => [
+                    'skin' => 'skin-blue',
+                ],
+            ],
+        ],
+        'authManager' => [
+            'class' => 'yii\rbac\PhpManager',
+        ],
         'redis' => [
             'class' => 'yii\redis\Connection',
             'hostname' => '127.0.0.1',

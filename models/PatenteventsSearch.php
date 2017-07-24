@@ -18,8 +18,8 @@ class PatenteventsSearch extends Patentevents
     public function rules()
     {
         return [
-            [['eventID', 'eventUserID', 'eventUserLiasionID', 'eventCreatUnixTS', 'eventFinishUnixTS'], 'integer'],
-            [['eventRwslID', 'eventContentID', 'eventContent', 'eventNote', 'patentAjxxbID', 'eventUsername', 'eventUserLiasion', 'eventCreatPerson', 'eventFinishPerson', 'eventSatus'], 'safe'],
+            [['eventID', 'eventUserID', 'eventUserLiaisonID', 'eventCreatUnixTS', 'eventFinishUnixTS'], 'integer'],
+            [['eventRwslID', 'eventContentID', 'eventContent', 'eventNote', 'patentAjxxbID', 'eventUsername', 'eventUserLiaison', 'eventCreatPerson', 'eventFinishPerson', 'eventSatus'], 'safe'],
         ];
     }
 
@@ -61,7 +61,7 @@ class PatenteventsSearch extends Patentevents
         $query->andFilterWhere([
             'eventID' => $this->eventID,
             'eventUserID' => $this->eventUserID,
-            'eventUserLiasionID' => $this->eventUserLiasionID,
+            'eventUserLiaisonID' => $this->eventUserLiaisonID,
             'eventCreatUnixTS' => $this->eventCreatUnixTS,
             'eventFinishUnixTS' => $this->eventFinishUnixTS,
         ]);
@@ -72,7 +72,7 @@ class PatenteventsSearch extends Patentevents
             ->andFilterWhere(['like', 'eventNote', $this->eventNote])
             ->andFilterWhere(['like', 'patentAjxxbID', $this->patentAjxxbID])
             ->andFilterWhere(['like', 'eventUsername', $this->eventUsername])
-            ->andFilterWhere(['like', 'eventUserLiasion', $this->eventUserLiasion])
+            ->andFilterWhere(['like', 'eventUserLiaison', $this->eventUserLiaison])
             ->andFilterWhere(['like', 'eventCreatPerson', $this->eventCreatPerson])
             ->andFilterWhere(['like', 'eventFinishPerson', $this->eventFinishPerson])
             ->andFilterWhere(['like', 'eventSatus', $this->eventSatus]);

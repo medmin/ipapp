@@ -8,6 +8,8 @@ use app\models\UsersSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
+use yii\web\User;
 
 /**
  * UsersController implements the CRUD actions for Users model.
@@ -24,6 +26,21 @@ class UsersController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
+                ],
+            ],
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['delete'],
+                        'roles' => ['admin']
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'view', 'create', 'update'],
+                        'roles' => ['@']
+                    ]
                 ],
             ],
         ];
@@ -65,13 +82,26 @@ class UsersController extends Controller
     {
         $model = new Users();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->userID]);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
+        if ($model->load(Yii::$app->request->post())) {
+            // 如果是案源人创建了一个客户，那么就默认这个客户的liaison为这个案源人本人
+            if (!Yii::$app->user->can('createEmployee')) {
+                $model->userRole = 1;
+                $model->userLiaison = Yii::$app->user->identity->userFullname;
+                $model->userLiaisonID = Yii::$app->user->id;
+            }else {
+                $model->userLiaison = $model->userLiaisonID == 0 ? 'N/A' : Users::findOne($model->userLiaisonID)->userFullname;
+            }
+            $model->generateAuthKey();
+            $model->setPassword($model->userPassword);
+            $model->UnixTimestamp = time() * 1000;
+            if ($model->save()) {
+                return $this->redirect(['view', 'id' => $model->userID]);
+            }
         }
+        return $this->render('create', [
+            'model' => $model,
+        ]);
+
     }
 
     /**

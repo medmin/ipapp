@@ -15,8 +15,8 @@ use Yii;
  * @property string $patentAjxxbID
  * @property integer $eventUserID
  * @property string $eventUsername
- * @property integer $eventUserLiasionID
- * @property string $eventUserLiasion
+ * @property integer $eventUserLiaisonID
+ * @property string $eventUserLiaison
  * @property string $eventCreatPerson
  * @property integer $eventCreatUnixTS
  * @property string $eventFinishPerson
@@ -41,12 +41,12 @@ class Patentevents extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['eventRwslID', 'eventContentID', 'eventContent', 'eventNote', 'patentAjxxbID', 'eventUserID', 'eventUsername', 'eventUserLiasionID', 'eventUserLiasion', 'eventCreatPerson', 'eventCreatUnixTS', 'eventFinishPerson', 'eventFinishUnixTS'], 'required'],
+            [['eventRwslID', 'eventContentID', 'eventContent', 'eventNote', 'patentAjxxbID', 'eventUserID', 'eventUsername', 'eventUserLiaisonID', 'eventUserLiaison', 'eventCreatPerson', 'eventCreatUnixTS', 'eventFinishPerson', 'eventFinishUnixTS'], 'required'],
             [['eventContent', 'eventNote'], 'string'],
-            [['eventUserID', 'eventUserLiasionID', 'eventCreatUnixTS', 'eventFinishUnixTS'], 'integer'],
+            [['eventUserID', 'eventUserLiaisonID', 'eventCreatUnixTS', 'eventFinishUnixTS'], 'integer'],
             [['eventRwslID', 'eventContentID', 'patentAjxxbID'], 'string', 'max' => 20],
             [['eventUsername'], 'string', 'max' => 16],
-            [['eventUserLiasion', 'eventCreatPerson', 'eventFinishPerson'], 'string', 'max' => 24],
+            [['eventUserLiaison', 'eventCreatPerson', 'eventFinishPerson'], 'string', 'max' => 24],
             [['eventSatus'], 'string', 'max' => 8],
             [['patentAjxxbID'], 'exist', 'skipOnError' => true, 'targetClass' => Patents::className(), 'targetAttribute' => ['patentAjxxbID' => 'patentAjxxbID']],
         ];
@@ -66,8 +66,8 @@ class Patentevents extends \yii\db\ActiveRecord
             'patentAjxxbID' => Yii::t('app', 'Patent Ajxxb ID'),
             'eventUserID' => Yii::t('app', 'Event User ID'),
             'eventUsername' => Yii::t('app', 'Event Username'),
-            'eventUserLiasionID' => Yii::t('app', 'Event User Liasion ID'),
-            'eventUserLiasion' => Yii::t('app', 'Event User Liasion'),
+            'eventUserLiaisonID' => Yii::t('app', 'Event User Liaison ID'),
+            'eventUserLiaison' => Yii::t('app', 'Event User Liaison'),
             'eventCreatPerson' => Yii::t('app', 'Event Creat Person'),
             'eventCreatUnixTS' => Yii::t('app', 'Event Creat Unix Ts'),
             'eventFinishPerson' => Yii::t('app', 'Event Finish Person'),

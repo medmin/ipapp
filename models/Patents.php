@@ -13,8 +13,8 @@ use Yii;
  * @property string $patentType
  * @property integer $patentUserID
  * @property string $patentUsername
- * @property integer $patentUserLiasionID
- * @property string $patentUserLiasion
+ * @property integer $patentUserLiaisonID
+ * @property string $patentUserLiaison
  * @property string $patentAgent
  * @property string $patentProcessManager
  * @property string $patentTitle

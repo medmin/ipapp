@@ -31,9 +31,9 @@ use yii\widgets\ActiveForm;
 
     <?php // echo $form->field($model, 'eventUsername') ?>
 
-    <?php // echo $form->field($model, 'eventUserLiasionID') ?>
+    <?php // echo $form->field($model, 'eventUserLiaisonID') ?>
 
-    <?php // echo $form->field($model, 'eventUserLiasion') ?>
+    <?php // echo $form->field($model, 'eventUserLiaison') ?>
 
     <?php // echo $form->field($model, 'eventCreatPerson') ?>
 
