@@ -61,7 +61,7 @@ class HelloController extends Controller
         $admin->setPassword($password);
         $admin->userOrganization = $organization;
         $admin->userFullname = $fullname;
-        $admin->userCitizenID = $citizenID;
+//        $admin->userCitizenID = $citizenID;
         $admin->userEmail = $email;
         $admin->userCellphone = 'N/A'; //填写 '' 会报错
         $admin->userLandline = 'N/A';

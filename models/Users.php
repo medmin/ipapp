@@ -105,6 +105,7 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function validateCitizenID($attribute)
     {
         $checkIDCode = function($ID) {
+
             $parsed = date_parse(substr($ID, 6, 8));
 
             if (!(isset($parsed['warning_count']) && $parsed['warning_count'] == 0))
@@ -161,6 +162,15 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public static function findByUsername($username)
     {
         return static::findOne(['userUsername' => $username]);
+    }
+
+    /**
+     * @param $id
+     * @return static
+     */
+    public static function findByID($id)
+    {
+        return static::findOne(['userID' => $id]);
     }
 
     /**

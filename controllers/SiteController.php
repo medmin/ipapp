@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Users;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -10,6 +11,7 @@ use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\SignupForm;
+use app\queues\SendEmailJob;
 
 class SiteController extends Controller
 {
@@ -98,8 +100,21 @@ class SiteController extends Controller
     {
         $this->layout = 'main-login';
         $model = new SignupForm();
+        $users = new Users();
         if ($model->load(Yii::$app->request->post())) {
             if ($user = $model->signup()) {
+
+                //经过这个controller，是用户自行注册，发欢迎邮件
+                $userEmail = $users->userEmail;
+
+                Yii::$app->queue->push(new SendEmailJob([
+                    'mailViewFileNameString' => 'signupWelcomeMsg',
+                    'varToViewArray' => ['users' => $users],
+                    'fromAddressArray' => ['kf@shineip.com' => '阳光惠远客服中心'],
+                    'toAddressArray' => [$userEmail,'info@shineip.com'],
+                    'emailSubjectString' => '欢迎您注册新用户'
+                ]));
+
                 if (Yii::$app->getUser()->login($user)) {
                     return $this->goHome();
                 }

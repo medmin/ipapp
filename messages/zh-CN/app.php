@@ -13,10 +13,60 @@ return [
     'Repeat Password' => '确认密码',
 
     // user_form
-    'Client' => '客户',
-    'Employee' => '案源人',
+    'Client' => '普通用户',
+    'Employee' => '商务专员',
     'Select User Type' => '请选择用户类型',
-    'Select An Employee' => '选择所属案源人(没有请选择 N/A)',
+    'Select An Employee' => '选择所属商务专员(没有请选择 N/A)',
 
     'Operation' => '操作',
+
+    //users index
+    'User Username' => '用户登陆账号',
+    'User Fullname' => '用户姓名',
+    'User Email' => '电子邮箱',
+    'User Organization' => '工作单位',
+    'User Cellphone' => '手机',
+    'User Landline' => '固定电话',
+    'User Address' => '地址',
+    'User Liaison' => '商务专员',
+    'User Role' => '用户类型',
+    'User Note' => '备注',
+
+
+    //users create
+    'Create Users' => '创建新用户',
+    'Users' => '用户列表',
+
+    //users view
+    'Update' => '更新',
+    'Delete' => '删除',
+
+    //Patents
+    'Patents' => '专利列表',
+    'Create Patents' => '添加专利信息',
+    'Patent Eac Case No' => 'EAC系统我方案卷号',
+    'Patent Type' => '专利类型',
+    'Patent User ID' => '专利联系人ID',
+    'Patent Username' => '专利联系人',
+    'Patent User Liaison' => '商务专员',
+    'Patent Agent' => '专利代理人',
+    'Patent Process Manager' => '流程管理员',
+    'Patent Title' => '标题',
+    'Patent Application No' => '专利申请号',
+    'Patent Patent No' => '专利授权号',
+    'Patent Note' => '备注',
+
+    //Patentevents
+    'Patentevents' => '专利事务列表',
+    'Create Patentevents' => '创建新事务',
+    'Event ID' => '事务ID',
+    'Event Content' => '事务内容',
+    'Event Note' => '备注',
+    'Event Username' => '专利联系人账号',
+    'Event User Liaison' => '商务专员',
+    'Event Creat Person' => '事务创建人',
+    'Event Creat Unix Ts' => '创建时间',
+    'Event Finish Person' => '事务执行人',
+    'Event Finish Unix Ts' => '执行时间',
+    'Event Satus' => '事务状态',
 ];
