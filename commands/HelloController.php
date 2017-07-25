@@ -44,6 +44,7 @@ class HelloController extends Controller
 
     /**
      * 初始化一个系统管理员
+     * 身份证是随机的（并非真实用户）
      *
      * @param string $username
      * @param string $password
@@ -53,7 +54,7 @@ class HelloController extends Controller
      * @param string $email
      * @return bool|int
      */
-    public function actionAdminInit($username = 'admin', $password = '123456', $organization = 'SHINEIP', $fullname = '系统管理员', $citizenID = '123456789012345678', $email = 'admin@shineip.com')
+    public function actionAdminInit($username = 'admin', $password = '123456', $citizenID = '370211198106135297', $organization = 'SHINEIP', $fullname = '系统管理员', $email = 'admin@shineip.com')
     {
         if (\app\models\Users::findOne(['userUsername' => 'admin'])) return Controller::EXIT_CODE_NORMAL;
         $admin = new \app\models\Users();

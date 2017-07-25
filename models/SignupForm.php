@@ -32,16 +32,16 @@ class SignupForm extends Model
     {
         return [
             [['username', 'email'], 'trim'],
-            [['username', 'email', 'password', 'repeatPassword'], 'required'],
+            [['username', 'email', 'password', 'repeatPassword', 'citizenID'], 'required'],
             ['repeatPassword', 'compare', 'compareAttribute'=>'password', 'message' => '两次密码不一致'],
-            ['username', 'unique', 'targetAttribute' => 'clientUsername', 'targetClass' => '\app\models\Clients', 'message' => '用户名已存在'],
+            ['username', 'unique', 'targetAttribute' => 'userUsername', 'targetClass' => '\app\models\Users', 'message' => Yii::t('app','This username has already been taken')],
             ['username', 'string', 'min' => 2, 'max' => 255],
             ['email', 'email'],
             ['email', 'string', 'max' => 255],
-            ['email', 'unique', 'targetAttribute' => 'ClientEmail', 'targetClass' => '\app\models\Clients', 'message' => '邮箱已被占用'],
+            ['email', 'unique', 'targetAttribute' => 'userEmail', 'targetClass' => '\app\models\Users', 'message' => Yii::t('app','This email has already been taken')],
             ['password', 'string', 'min' => 6],
-
-            [['organization', 'name', 'cellPhone', 'landLine', 'address', 'liaison', 'note'], 'default', 'value' => 'NULL'],
+            ['citizenID', 'unique', 'targetAttribute' => 'userCitizenID', 'targetClass' => '\app\models\Users', 'message' => Yii::t('app','This citizenID number has already been taken')],
+            [['organization', 'name', 'cellPhone', 'landLine', 'address', 'liaison', 'note'], 'default', 'value' => 'N/A'],
 //            [['organization', 'name', 'cellPhone', 'landLine', 'address', 'liaison', 'note'], 'required'],
             [['organization', 'name', 'cellPhone', 'landLine', 'address', 'liaison', 'note'], 'string', 'max' => 255],
         ];
@@ -79,8 +79,16 @@ class SignupForm extends Model
         $user->userLandline = $this->landLine;
         $user->userAddress = $this->address;
         $user->userLiaison = $this->liaison;
-        $user->userRole = 1; // 1为普通客户 2为案源人
+        $user->userRole = Users::ROLE_CLIENT;
         $user->userNote = $this->note;
+        if ($this->liaison !== 'N/A') {
+            $liaison = Users::findByFullName($this->liaison);
+            if ($liaison) {
+                $user->userLiaisonID = $liaison->userID;
+            }
+        }else{
+            $user->userLiaisonID = 0;
+        }
         $user->UnixTimestamp = time() * 1000;
         $user->generateAuthKey();
 

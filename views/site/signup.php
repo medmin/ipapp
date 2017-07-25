@@ -15,17 +15,21 @@ $fieldOptions = function($icon){
     ];
 };
 
-$fieldOptions4 = [
-    'options' => ['class' => 'form-group has-feedback'],
-    'inputTemplate' => "{input}<span class='glyphicon glyphicon-log-in form-control-feedback'></span>"
-];
-
 $this->registerJs("
     $('input').iCheck({
       checkboxClass: 'icheckbox_square-blue',
       radioClass: 'iradio_square-blue',
       increaseArea: '20%' // optional
     });
+    $('.monitor').click(function(){
+        var check_div = $(this).find('.icheckbox_square-blue');
+        if (check_div.hasClass('checked') && check_div.attr('aria-checked') == 'true') {
+            $('button[name=\"register-button\"]').removeClass('disabled');
+        }else{
+            console.log(2)
+            $('button[name=\"register-button\"]').addClass('disabled');
+        }
+    })
     $('#login-form').submit(function(){
         if ($('.icheckbox_square-blue').attr('aria-checked') == 'false') {
             return false;
@@ -62,37 +66,47 @@ $this->registerJs("
             ->label(false)
             ->passwordInput(['placeholder' => $model->getAttributeLabel('repeatPassword')]) ?>
 
-        <!--        <?//= $form
-        //            ->field($model,'organization', $fieldOptions('home'))
-        //            ->label(false)
-        //            ->textInput(['placeholder' => $model->getAttributeLabel('organization')]) ?>
--->
-        <!--        <?//= $form
-        //            ->field($model,'name', $fieldOptions('home'))
-        //            ->label(false)
-        //            ->textInput(['placeholder' => $model->getAttributeLabel('name')]) ?>
--->
-        <!--        <?//= $form
-        //            ->field($model,'landLine', $fieldOptions('home'))
-        //            ->label(false)
-        //            ->textInput(['placeholder' => $model->getAttributeLabel('landLine')]) ?>
--->
-        <!--        <?//= $form
-        //            ->field($model,'cellPhone', $fieldOptions('home'))
-        //            ->label(false)
-        //            ->textInput(['placeholder' => $model->getAttributeLabel('cellPhone')]) ?>
--->
+        <?= $form
+            ->field($model, 'citizenID',$fieldOptions('info-sign'))
+            ->label(false)
+            ->textInput(['placeholder' => $model->getAttributeLabel('citizenID')])?>
+
+        <?= $form
+            ->field($model,'organization', $fieldOptions('info-sign'))
+            ->label(false)
+            ->textInput(['placeholder' => $model->getAttributeLabel('organization')]) ?>
+
+        <?= $form
+            ->field($model,'name', $fieldOptions('info-sign'))
+            ->label(false)
+            ->textInput(['placeholder' => $model->getAttributeLabel('name')]) ?>
+
+        <?= $form
+            ->field($model,'landLine', $fieldOptions('phone-alt'))
+            ->label(false)
+            ->textInput(['placeholder' => $model->getAttributeLabel('landLine')]) ?>
+
+        <?= $form
+            ->field($model,'cellPhone', $fieldOptions('phone'))
+            ->label(false)
+            ->textInput(['placeholder' => $model->getAttributeLabel('cellPhone')]) ?>
+
+        <?= $form
+            ->field($model,'address', $fieldOptions('map-marker'))
+            ->label(false)
+            ->textInput(['placeholder' => $model->getAttributeLabel('address')]) ?>
+
         <div class="row">
             <div class="col-xs-8">
                 <div class="checkbox icheck">
-                    <label>
+                    <label class="monitor">
                         <input type="checkbox" id="agree"> I agree to the <a href="javascript:;">terms</a>
                     </label>
                 </div>
             </div>
             <!-- /.col -->
             <div class="col-xs-4">
-                <?= Html::submitButton('注册', ['class' => 'btn btn-primary btn-block btn-flat', 'name' => 'register-button']) ?>
+                <?= Html::submitButton('注册', ['class' => 'btn btn-primary btn-block btn-flat disabled', 'name' => 'register-button']) ?>
             </div>
             <!-- /.col -->
         </div>

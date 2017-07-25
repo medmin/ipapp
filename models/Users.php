@@ -29,6 +29,9 @@ use Yii;
  */
 class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
+    const ROLE_EMPLOYEE = 2;
+    const ROLE_CLIENT = 1;
+
     /**
      * @inheritdoc
      */
@@ -44,6 +47,7 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         return [
             [['userUsername', 'userPassword', 'userOrganization', 'userFullname', 'userCitizenID', 'userEmail', 'userCellphone', 'userLandline', 'userAddress', 'userLiaison', 'userLiaisonID', 'userRole', 'userNote', 'authKey', 'UnixTimestamp'], 'required'],
+            [['userUsername', 'userCitizenID', 'userEmail'], 'unique'],
             [['userLiaisonID', 'userRole', 'UnixTimestamp'], 'integer'],
             ['userEmail', 'email'],
             ['userCitizenID', 'validateCitizenID'],
@@ -173,6 +177,17 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public static function findByFullName($fullName)
     {
         return static::findOne(['userFullname' => $fullName]);
+    }
+
+    /**
+     * Finds user by citizenID
+     *
+     * @param $citizenID
+     * @return static
+     */
+    public function findByCitizenID($citizenID)
+    {
+        return static::findOne(['userCitizenID' => $citizenID]);
     }
 
     /**

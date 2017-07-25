@@ -18,5 +18,6 @@ return [
     'Select User Type' => '请选择用户类型',
     'Select An Employee' => '选择所属案源人(没有请选择 N/A)',
 
+    // Other
     'Operation' => '操作',
 ];
