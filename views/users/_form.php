@@ -33,11 +33,11 @@ $this->registerJs('
 
     <?= $form->field($model, 'userFullname')->textInput(['maxlength' => true]) ?>
 
-    <?//= $form->field($model, 'userFirstname')->textInput(['maxlength' => true]) ?>
+<!--    <?//= $form->field($model, 'userFirstname')->textInput(['maxlength' => true]) ?>-->
 
-    <?//= $form->field($model, 'userGivenname')->textInput(['maxlength' => true]) ?>
+<!--    <?//= $form->field($model, 'userGivenname')->textInput(['maxlength' => true]) ?>-->
 
-    <?//= $form->field($model, 'userNationality')->textInput(['maxlength' => true, 'value' => 'CHINA']) ?>
+<!--    <?//= $form->field($model, 'userNationality')->textInput(['maxlength' => true, 'value' => 'CHINA']) ?>-->
 
     <?= $form->field($model, 'userCitizenID')->textInput(['maxlength' => true]) ?>
 
@@ -50,11 +50,13 @@ $this->registerJs('
     <?= $form->field($model, 'userAddress')->textInput(['maxlength' => true]) ?>
 
     <?php
-        if (Yii::$app->user->can('createEmployee')) {
+        if (Yii::$app->user->can('createEmployee'))
+        {
             echo $form->field($model, 'userRole')->dropDownList([2 => Yii::t('app', 'Employee'), 1 => Yii::t('app', 'Client')], ['prompt' => Yii::t('app', 'Select User Type')]);
 
             $employees = \app\models\Users::find()->select(['userID', 'userFullname'])->where(['userRole' => 2])->asArray()->all();
             $employees = array_merge([0 => 'N/A'], array_column($employees, 'userFullname', 'userID'));
+
             echo $form->field($model, 'userLiaisonID', ['options' => ['style' => 'display:none']])->dropDownList($employees, ['prompt' => Yii::t('app','Select An Employee')]);
         }
     ?>
