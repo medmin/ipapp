@@ -28,10 +28,10 @@ class Sync extends Model
 
         $isolationLevel = Transaction::SERIALIZABLE;
 
-        $dbEAC = Yii::$app->get('dbEAC');
+        $db = Yii::$app->db;
 
         //所有同步，都必须是transaction，如果同步失败，那么其他所有数据都roll back
-        $transaction = $dbEAC->beginTransaction($isolationLevel);
+        $transaction = $db->beginTransaction($isolationLevel);
 
         try{
             // 首先找到所有Ajxxb表里所有modtime时间戳大于3天前的，也就是最近3天的记录
@@ -62,9 +62,9 @@ class Sync extends Model
                         {
                             $patent->patentAjxxbID = $ajxxbOneSingleRow['aj_ajxxb_id'];
                             $patent->patentType = $ajxxbOneSingleRow['anjuanlx'];
-                            $patent->patentEACNumber = $ajxxbOneSingleRow['wofangwh'];
+                            $patent->patentEacCaseNo = $ajxxbOneSingleRow['wofangwh'];
                             $patent->patentAgent = $ajxxbOneSingleRow['zhubanr'];
-                            $patent->modtime = $ajxxbOneSingleRow['modtime'];
+                            $patent->UnixTimestamp = $ajxxbOneSingleRow['modtime'];
                             $patent->save();
                         }
                         else
@@ -101,7 +101,7 @@ class Sync extends Model
      */
     public function syncPatentevents()
     {
-        $transaction = Yii::$app->dbEAC->beginTransaction();
+        $transaction = Yii::$app->db->beginTransaction();
         try{
             // TODO
             $transaction->commit();
