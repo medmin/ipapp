@@ -17,12 +17,8 @@ use yii\db\ActiveRecord;
  */
 class Ajxxb extends ActiveRecord
 {
-
-    /**
-     * @return \yii\db\Connection the database connection used by this AR class.
-     */
     //这里返回的是object，而不是\yii\db\Connection
-    //怎么解决？这个应该不会报错把？
+    //见app\models\Sync.php文件
     public static function getDb()
     {
         return Yii::$app->get('dbEAC');
