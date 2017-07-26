@@ -9,6 +9,7 @@ use app\models\PatentsSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 use app\queues\SendEmailJob;
 
 /**
@@ -26,6 +27,21 @@ class PatentsController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
+                ],
+            ],
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['delete'],
+                        'roles' => ['admin']
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'view', 'create', 'update'],
+                        'roles' => ['admin', 'manager']
+                    ],
                 ],
             ],
         ];

@@ -15,6 +15,7 @@ class RbacController extends Controller
     /**
      * initialization
      * 默认生成两个角色manager和admin
+     * admin是系统管理员，manager是案源人的角色,普通客户不分配角色和权限
      */
     public function actionInit()
     {
@@ -37,16 +38,29 @@ class RbacController extends Controller
         $deleteEmployee->description = 'delete employee';
         $auth->add($deleteEmployee);
 
+        $createClient = $auth->createPermission('createClient');
+        $createClient->description = 'create a client';
+        $auth->add($createClient);
+
+        // 这个权限其实可有可无，当他拥有createClient的时候 其实他也拥有delete的权益，这个是可以不写的
+        $deleteClient = $auth->createPermission('deleteClient');
+        $deleteClient->description = 'delete client';
+        $auth->add($deleteClient);
+
         $manager = $auth->createRole('manager');
         $auth->add($manager);
-        $auth->addChild($manager, $createEmployee);
+        // manager 这个角色设为员工，可以管理客户
+        $auth->addChild($manager, $createClient);
+        $auth->addChild($manager, $deleteClient);
 
         $admin = $auth->createRole('admin');
         $auth->add($admin);
+        // admin 可以创建员工
+        $auth->addChild($admin, $createEmployee);
         $auth->addChild($admin, $deleteEmployee);
+        // 将manager的权限也赋给admin，admin不仅可以创建员工，可以创建客户
         $auth->addChild($admin, $manager);
 
-        // admin可以执行创建和删除操作 manager只能执行创建操作
 //        $auth->assign($manager, 2);
         $auth->assign($admin, 1);
 

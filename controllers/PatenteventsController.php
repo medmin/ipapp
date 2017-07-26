@@ -8,6 +8,7 @@ use app\models\PatenteventsSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 
 /**
  * PatenteventsController implements the CRUD actions for Patentevents model.
@@ -24,6 +25,21 @@ class PatenteventsController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
+                ],
+            ],
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['delete'],
+                        'roles' => ['admin']
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'view', 'create', 'update'],
+                        'roles' => ['admin', 'manager']
+                    ],
                 ],
             ],
         ];

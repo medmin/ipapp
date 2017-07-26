@@ -26,16 +26,9 @@ $this->registerJs("
         if (check_div.hasClass('checked') && check_div.attr('aria-checked') == 'true') {
             $('button[name=\"register-button\"]').removeClass('disabled');
         }else{
-            console.log(2)
             $('button[name=\"register-button\"]').addClass('disabled');
         }
     })
-    $('#login-form').submit(function(){
-        if ($('.icheckbox_square-blue').attr('aria-checked') == 'false') {
-            return false;
-        }
-        return true;
-    });
 ", \yii\web\View::POS_END);
 ?>
 <div class="register-box">

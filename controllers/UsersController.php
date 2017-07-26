@@ -5,11 +5,11 @@ namespace app\controllers;
 use Yii;
 use app\models\Users;
 use app\models\UsersSearch;
+use yii\helpers\Json;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
-use yii\web\User;
 use app\queues\SendEmailJob;
 
 /**
@@ -40,6 +40,11 @@ class UsersController extends Controller
                     [
                         'allow' => true,
                         'actions' => ['index', 'view', 'create', 'update'],
+                        'roles' => ['admin', 'manager']
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['personal-settings', 'reset-password'],
                         'roles' => ['@']
                     ]
                 ],
@@ -88,7 +93,7 @@ class UsersController extends Controller
             // 如果是案源人创建了一个客户，那么就默认这个客户的liaison为这个案源人本人
             if (!Yii::$app->user->can('createEmployee'))
             {
-                $model->userRole = 1;
+                $model->userRole = Users::ROLE_CLIENT;
                 $model->userLiaison = Yii::$app->user->identity->userFullname;
                 $model->userLiaisonID = Yii::$app->user->id;
             }
@@ -101,6 +106,12 @@ class UsersController extends Controller
             $model->UnixTimestamp = time() * 1000;
             if ($model->save())
             {
+                // 如果创建了一个案源人,给他一个manager的角色权限(可以创建普通用户)
+                if ($model->userRole == Users::ROLE_EMPLOYEE) {
+                    $auth = Yii::$app->authManager;
+                    $authorRole = $auth->getRole('manager');
+                    $auth->assign($authorRole, $model->userID);
+                }
                 //经过这个controller，是案源人或admin手动添加的Users，发的是通知邮件
                 $userEmail = $model->userEmail;
 //                $liaisonEmail = $model::findByID($model->userLiaisonID)->userEmail;
@@ -158,6 +169,49 @@ class UsersController extends Controller
         }
     }
 
+    /**
+     * 个人资料修改页
+     * 
+     * @return string
+     */
+    public function actionPersonalSettings()
+    {
+        $model = $this->findModel(Yii::$app->user->id);
+        if ($model->load(Yii::$app->request->post()) && $model->save()){
+            Yii::$app->session->setFlash('profile', '基本资料更新成功,如需更多修改请联系管理员');
+        }
+        return $this->render('profile', ['model' => $model]);
+    }
+
+    /**
+     * 修改密码
+     *
+     * @return bool|string
+     */
+    public function actionResetPassword()
+    {
+        $id = Yii::$app->request->post('id');
+        if ($id && Yii::$app->user->identity->userRole == Users::ROLE_EMPLOYEE) {
+            // TODO
+            return true;
+        }else{
+            $client = Users::findOne(Yii::$app->user->id);
+            if (!$client->validatePassword(Yii::$app->request->post('oldPassword'))) {
+                return Json::encode(['code' => -1, 'message' => Yii::t('app','Old Password is invalid')]);
+            }
+            $newPassword = Yii::$app->request->post('newPassword');
+            if (Yii::$app->request->post('confirmPassword') !== $newPassword) {
+                return Json::encode(['code' => -2, 'message' => Yii::t('app','Password doesn\'t match the confirmation')]);
+            }
+            $client->setPassword($newPassword);
+            if ($client->save()) {
+                return Json::encode(['code' => 1]);
+            }else {
+                return JSON::encode(['code' => -3, 'message' => Yii::t('app','Length mismatch')]);
+            }
+        }
+    }
+    
     /**
      * Deletes an existing Users model.
      * If deletion is successful, the browser will be redirected to the 'index' page.

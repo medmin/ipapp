@@ -33,7 +33,7 @@ class SignupForm extends Model
         return [
             [['username', 'email'], 'trim'],
             [['username', 'email', 'password', 'repeatPassword', 'citizenID'], 'required'],
-            ['repeatPassword', 'compare', 'compareAttribute'=>'password', 'message' => '两次密码不一致'],
+            ['repeatPassword', 'compare', 'compareAttribute'=>'password', 'message' => Yii::t('app','The two passwords differ')],
             ['username', 'unique', 'targetAttribute' => 'userUsername', 'targetClass' => '\app\models\Users', 'message' => Yii::t('app','This username has already been taken')],
             ['username', 'string', 'min' => 2, 'max' => 255],
             ['email', 'email'],
@@ -50,10 +50,10 @@ class SignupForm extends Model
     public function attributeLabels()
     {
         return [
-            'username' => Yii::t('app', '用户名'),
-            'email' => Yii::t('app', '电子邮件'),
-            'password' => Yii::t('app', '请输入密码'),
-            'repeatPassword' => Yii::t('app', '再次输入密码'),
+            'username' => Yii::t('app', 'Username'),
+            'email' => Yii::t('app', 'Email'),
+            'password' => Yii::t('app', 'Password'),
+            'repeatPassword' => Yii::t('app', 'Repeat Password'),
         ];
     }
 

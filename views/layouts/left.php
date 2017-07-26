@@ -26,43 +26,40 @@
         </form>
         <!-- /.search form -->
 
-        <?= dmstr\widgets\Menu::widget(
-            [
-                'options' => ['class' => 'sidebar-menu'],
-                'items' => [
-                    ['label' => '菜单列表', 'options' => ['class' => 'header']],
-                    ['label' => '客户管理', 'icon' => 'group', 'url' => \yii\helpers\Url::to(['users/index'])],
-                    ['label' => '专利申请', 'icon' => 'file-text-o', 'url' => \yii\helpers\Url::to(['patents/index'])],
-                    ['label' => '专利事件', 'icon' => 'list-ul', 'url' => \yii\helpers\Url::to(['patentevents/index'])],
-                    [
-                        'label' => 'Same tools',
-                        'icon' => 'share',
-                        'url' => '#',
-                        'items' => [
-                            ['label' => 'Gii', 'icon' => 'file-code-o', 'url' => ['/gii'],],
-                            ['label' => 'Debug', 'icon' => 'dashboard', 'url' => ['/debug'],],
-                            [
-                                'label' => 'Level One',
-                                'icon' => 'circle-o',
-                                'url' => '#',
-                                'items' => [
-                                    ['label' => 'Level Two', 'icon' => 'circle-o', 'url' => '#',],
-                                    [
-                                        'label' => 'Level Two',
-                                        'icon' => 'circle-o',
-                                        'url' => '#',
-                                        'items' => [
-                                            ['label' => 'Level Three', 'icon' => 'circle-o', 'url' => '#',],
-                                            ['label' => 'Level Three', 'icon' => 'circle-o', 'url' => '#',],
-                                        ],
-                                    ],
-                                ],
+        <?php
+        if (Yii::$app->user->identity->userRole == \app\models\Users::ROLE_EMPLOYEE) {
+            echo dmstr\widgets\Menu::widget(
+                [
+                    'options' => ['class' => 'sidebar-menu'],
+                    'items' => [
+                        ['label' => '菜单列表', 'options' => ['class' => 'header']],
+                        ['label' => '客户管理', 'icon' => 'group', 'url' => \yii\helpers\Url::to(['users/index'])],
+                        ['label' => '专利申请', 'icon' => 'file-text-o', 'url' => \yii\helpers\Url::to(['patents/index'])],
+                        ['label' => '专利事件', 'icon' => 'list-ul', 'url' => \yii\helpers\Url::to(['patentevents/index'])],
+                        [
+                            'label' => 'Same tools',
+                            'icon' => 'share',
+                            'url' => '#',
+                            'items' => [
+                                ['label' => 'Gii', 'icon' => 'file-code-o', 'url' => ['/gii']],
+                                ['label' => 'Debug', 'icon' => 'dashboard', 'url' => ['/debug']]
                             ],
                         ],
                     ],
-                ],
-            ]
-        ) ?>
+                ]
+            );
+        }else {
+            echo dmstr\widgets\Menu::widget(
+                [
+                    'options' => ['class' => 'sidebar-menu'],
+                    'items' => [
+                        ['label' => '菜单列表', 'options' => ['class' => 'header']],
+                        ['label' => '我的进度', 'icon' => 'info-circle', 'url' => '####'],
+                    ],
+                ]
+            );
+        }
+        ?>
 
     </section>
 

@@ -11,6 +11,10 @@ return [
     'Password' => '密码',
     'Email' => '邮箱',
     'Repeat Password' => '确认密码',
+    'The two passwords differ' => '两次密码不一致',
+    'This username has already been taken' => '用户名已被注册',
+    'This email has already been taken' => '邮箱已被使用',
+    'This citizenID number has already been taken' => '该身份证号已被使用',
 
     // user_form
     'Client' => '普通用户',
@@ -20,6 +24,9 @@ return [
 
     // Other
     'Operation' => '操作',
+    'Logout' => '退出',
+    'Your Profile' => '个人资料',
+    'Submit' => '提交',
 
     //users index
     'User Username' => '用户登陆账号',
@@ -41,6 +48,19 @@ return [
     //users view
     'Update' => '更新',
     'Delete' => '删除',
+    'Update Users' => '更新用户',
+
+    //Users profile-view
+    'Personal Settings' => '个人设置',
+    'Update Password' => '更改密码',
+    'Profile' => '基本资料',
+    'Change Password' => '更改密码',
+    'Old Password' => '原始密码',
+    'New Password' => '新密码',
+    'Confirm New Password' => '确认新密码',
+    'Old Password is invalid' => '原密码错误',
+    'Password doesn\'t match the confirmation' => '两次密码不一致',
+    'Length mismatch' => '密码太短(6-16位)',
 
     //Patents
     'Patents' => '专利列表',
