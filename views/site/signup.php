@@ -62,7 +62,7 @@ $this->registerJs("
         <?= $form
             ->field($model, 'citizenID',$fieldOptions('info-sign'))
             ->label(false)
-            ->textInput(['placeholder' => $model->getAttributeLabel('citizenID')])?>
+            ->textInput(['placeholder' => $model->getAttributeLabel('citizenID')]) ?>
 
         <?= $form
             ->field($model,'organization', $fieldOptions('info-sign'))
@@ -93,7 +93,7 @@ $this->registerJs("
             <div class="col-xs-8">
                 <div class="checkbox icheck">
                     <label class="monitor">
-                        <input type="checkbox" id="agree"> I agree to the <a href="javascript:;">terms</a>
+                        <input type="checkbox" id="agree"> 我同意 <a href="javascript:;">注册条款</a>
                     </label>
                 </div>
             </div>
