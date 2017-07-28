@@ -21,6 +21,7 @@ class Sync extends Model
      * 同步专利
      * (new \app\models\Sync())->syncPatents();
      *
+     * @param $days
      * @return bool
      * @throws \Exception
      */
@@ -52,15 +53,11 @@ class Sync extends Model
             {
                 foreach ($ajxxbQueryArray as $ajxxbOneSingleRow)
                 {
-                    $patent = new Patents();
-
                     //这是判断patents表里，是不是已经存在了待同步的记录，使用AjxxbID来查看
-                    if (in_array($ajxxbOneSingleRow['aj_ajxxb_id'], $patentAjxxbIDArray)) {
-                        return true;
-                    }
-                    else {
+                    if (!in_array($ajxxbOneSingleRow['aj_ajxxb_id'], $patentAjxxbIDArray)) {
                         //youxiaobj为01，是有效，要同步
-                        if ($ajxxbOneSingleRow['youxiaobj'] == '01' ){
+                        if ($ajxxbOneSingleRow['youxiaobj'] == '01') {
+                            $patent = new Patents();
                             $patent->patentAjxxbID = $ajxxbOneSingleRow['aj_ajxxb_id'];
                             switch ($ajxxbOneSingleRow['zhuanlilx'])
                             {
@@ -82,16 +79,14 @@ class Sync extends Model
                             $patent->save();
 
                             //TODO 发email给客户，提醒他，立案了
-
-                        }
-                        else {
+                        } else {
                             //这里其实还有一个隐藏的逻辑：如果一条十天前新建的专利，设置为无效了呢？
                             //这个就肯定查不出来了，因为这里只查了最近3天的所有记录
                             //TODO 解决这个逻辑，要专门写另一个函数，对EAC里ajxxb表进行查询，首先筛出来是02的记录
                             //然后和patents表最对比，配对成功的，就删去
 
                             //此处呢，就单纯的不做任何动作，如果是02，就啥也不做，不同步，也不删，因为会有另一个函数专门删
-                            return true;
+                            continue;
                         }
                     }
                 }
@@ -114,6 +109,7 @@ class Sync extends Model
     /**
      * 同步专利事件
      *
+     * @param $days
      * @return bool
      * @throws \Exception
      */
@@ -137,41 +133,25 @@ class Sync extends Model
                 ->createCommand('SELECT eventRwslID FROM Patentevents')
                 ->queryColumn();
 
-            if (empty($rwslQueryArray)) {
-                return true;//如果是空数组，说明没有什么可更新的
-            }
-            else {
-                foreach ($rwslQueryArray as $rwslOneSingleRow)
-                {
-                    $event = new Patentevents();
-
-                    //如果patentevents表里有这个rwsl_id，说明是老记录
-                    //那就先看一下patentevents表里对应的zhixingsj记录是不是为空
-                    //并且再看看最新从eac里查到的记录的zhixingsj是不是为空
-                    //这俩值要对比一下
+            if (!empty($rwslQueryArray)) {
+                foreach ($rwslQueryArray as $rwslOneSingleRow) {
                     if (in_array($rwslOneSingleRow['rw_rwsl_id'], $eventRwslIDArray)) {
-
+                        $event = Patentevents::find()->where(['eventRwslID' => $rwslOneSingleRow['rw_rwsl_id']])->one();
                         //老记录，但原先patentevents表里的zhixingshij是空值，现在$rwslOneSingleRow['zhixingsj']却有值了
                         //说明这个记录不是新建的，但完成了，发邮件，骚扰一下客户。但要考虑，这个专利暂时无人认领。
                         //那还不如不发邮件。客户想看的时候自己看呗，何苦骚扰客户呢？
-                        if (rwsl_id在原先patentevents表里的zhixingshij，是空值，现在$rwslOneSingleRow['zhixingsj']却有值了){
-                            //TODO 写入这个最新的zhixingsj；
+                        if ($event->eventFinishUnixTS == '' && $rwslOneSingleRow['zhixingsj'] != ''){
+                            $event->eventFinishUnixTS = $rwslOneSingleRow['zhixingsj'];
+                            $event->save();
+                        } elseif ($event->eventFinishUnixTS == '' && $rwslOneSingleRow['zhixingsj'] == '') {
+                            /* 老记录，原先patentevents表里的zhixingshij是空值，现在$rwslOneSingleRow['zhixingsj']还是空值,
+                               说明任务还没完成，发邮件提醒zhixingr，还有一个任务没完成；
+                               TODO 发email提醒zhixingr，还有一个任务没完成 */
+                        } else {
+                            continue;
                         }
-                        //老记录，原先patentevents表里的zhixingshij是空值，现在$rwslOneSingleRow['zhixingsj']还是空值
-                        //说明任务还没完成，发邮件提醒zhixingr，还有一个任务没完成；
-                        else if (rwsl_id在原先patentevents表里的zhixingshij，是空值，现在$rwslOneSingleRow['zhixingsj']还是空值){
-                            //TODO 发email提醒zhixingr，还有一个任务没完成；
-                            return true;
-                        }
-                        else  {
-                            //到了这里，rwsl_id在原先patentevents表里的zhixingshij，就不是空值
-                            //说明是早就完成的任务，那就 不用管了。邮件都不 用发
-                            return true;
-                        }
-
-                    }
-                    //如果patentevents表里没有这个rwsl_id，说明是新记录，就需要同步一下
-                    else{
+                    } else {
+                        $event = new Patentevents();
                         $event->patentAjxxbID = $rwslOneSingleRow['aj_ajxxb_id'];
                         $event->eventRwslID = $rwslOneSingleRow['rw_rwsl_id'];
                         $event->eventCreatPerson = $rwslOneSingleRow['chuangjianr'];
@@ -182,7 +162,7 @@ class Sync extends Model
                         $event->eventFinishUnixTS = $rwslOneSingleRow['zhixingsj'];//这里格式也不不是UNIX TIMESTAMP
 
                         //如果$rwslOneSingleRow['zhixingsj']是空值，那说明是新记录，但这任务还没完成，就要发邮件提醒执行人
-                        if($rwslOneSingleRow['zhixingsj'] = '' || $rwslOneSingleRow['zhixingsj'] = Null){
+                        if($rwslOneSingleRow['zhixingsj'] =='' || $rwslOneSingleRow['zhixingsj'] == null){
 
                             Yii::$app->queue->push(new SendEmailJob(
 
@@ -191,12 +171,11 @@ class Sync extends Model
                         //else 这里的else，说明是虽然是新记录 ，但任务已经完成了，单纯同步而已，不发邮件，不骚扰客户和zhixingr
 
                         $event->eventContentID = $rwslOneSingleRow['rw_rwdy_id'];
-                        $event->eventContent = Rwsl::rwdyIdMappingContent()["'" . $rwslOneSingleRow['rw_rwdy_id'] . "'"];
+                        $event->eventContent = Rwsl::rwdyIdMappingContent()[$rwslOneSingleRow['rw_rwdy_id']];
                         $event->save();
                     }
                 }
             }
-
             $transaction->commit();
         }catch (\Exception $e) {
             $transaction->rollBack();
