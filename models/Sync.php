@@ -102,8 +102,6 @@ class Sync extends Model
 
                         $patent = new Patents();
 
-                        //这里其实有几个逻辑没写----尝试着写一下
-
                         //如果是已经存在的记录，那要看一下youxiaobj是不是变了
                         if ($ajxxbOneSingleRow['youxiaobj'] == '01')
                         {
@@ -117,7 +115,8 @@ class Sync extends Model
                                 //这里是：patents已经存在此记录，youxiaobj是01，zhubanr不是空
                                 if($patent::findOne($ajxxbOneSingleRow['aj_ajxxb_id'])->patentAgent !== '')
                                 {
-                                    //patents表里此记录的agent不是空
+                                    //patents表里此记录的agent不是空，
+                                    //说明主办人（代理人，agent）已经分配过了，那就啥都不做了
                                     continue;
                                 }
                                 else
@@ -127,7 +126,6 @@ class Sync extends Model
                                     $patent::findOne($ajxxbOneSingleRow['aj_ajxxb_id'])->patentAgent = $ajxxbOneSingleRow['zhubanr'];
                                 }
                             }
-
                         }
                         else
                         {
