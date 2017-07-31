@@ -21,14 +21,17 @@ $this->registerJs("
       radioClass: 'iradio_square-blue',
       increaseArea: '20%' // optional
     });
-    $('.monitor').click(function(){
-        var check_div = $(this).find('.icheckbox_square-blue');
-        if (check_div.hasClass('checked') && check_div.attr('aria-checked') == 'true') {
-            $('button[name=\"register-button\"]').removeClass('disabled');
-        }else{
-            $('button[name=\"register-button\"]').addClass('disabled');
-        }
+    $('.monitor,.iCheck-helper').click(function(){
+        check_disabled();
     })
+    function check_disabled() {
+        var check_div = $('.monitor').find('.icheckbox_square-blue');
+        if (check_div.hasClass('checked') && check_div.attr('aria-checked') == 'true') {
+            $('input[name=\"register-button\"]').attr('disabled', false);
+        }else{
+            $('input[name=\"register-button\"]').attr('disabled', true);
+        }
+    }
 ", \yii\web\View::POS_END);
 ?>
 <div class="register-box">
@@ -99,7 +102,7 @@ $this->registerJs("
             </div>
             <!-- /.col -->
             <div class="col-xs-4">
-                <?= Html::submitButton('注册', ['class' => 'btn btn-primary btn-block btn-flat disabled', 'name' => 'register-button']) ?>
+                <?= Html::submitInput('注册', ['class' => 'btn btn-primary btn-block btn-flat', 'name' => 'register-button', 'disabled' => true]) ?>
             </div>
             <!-- /.col -->
         </div>

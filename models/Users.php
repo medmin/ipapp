@@ -275,4 +275,9 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         if ($this->userRole == 1) return null;
         return $this->hasMany(Patents::className(), ['patentUserLiaisonID' => 'userID']);
     }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+    }
 }
