@@ -15,6 +15,7 @@ return [
     'This username has already been taken' => '用户名已被注册',
     'This email has already been taken' => '邮箱已被使用',
     'This citizenID number has already been taken' => '该身份证号已被使用',
+    'Incorrect username or password.' => '用户名或密码错误',
 
     // user_form
     'Client' => '普通用户',
