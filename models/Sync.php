@@ -113,7 +113,7 @@ class Sync extends Model
                             else
                             {
                                 //这里是：patents已经存在此记录，youxiaobj是01，zhubanr不是空
-                                if($patent::findOne($ajxxbOneSingleRow['aj_ajxxb_id'])->patentAgent !== '')
+                                if($patent::findOne(['patentAjxxbID' =>$ajxxbOneSingleRow['aj_ajxxb_id']])->patentAgent !== '')
                                 {
                                     //patents表里此记录的agent不是空，
                                     //说明主办人（代理人，agent）已经分配过了，那就啥都不做了
@@ -123,14 +123,15 @@ class Sync extends Model
                                 {
                                     //patents表里此记录的agent是空 ，现在zhubanr不是空了
                                     //说明专利部分主管张金珠分配了主办人，这个过程，需要大概1-3天
-                                    $patent::findOne($ajxxbOneSingleRow['aj_ajxxb_id'])->patentAgent = $ajxxbOneSingleRow['zhubanr'];
+                                    $patent::findOne(['patentAjxxbID' =>$ajxxbOneSingleRow['aj_ajxxb_id']])->patentAgent = $ajxxbOneSingleRow['zhubanr'];
+                                    $patent->save();
                                 }
                             }
                         }
                         else
                         {
                             //youxiaobj竟然变成02了，就删了这一条
-                            $patent::findOne($ajxxbOneSingleRow['aj_ajxxb_id'])->delete();
+                            $patent::findOne(['patentAjxxbID' =>$ajxxbOneSingleRow['aj_ajxxb_id']])->delete();
                         }
                     }
                 }
