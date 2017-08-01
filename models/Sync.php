@@ -50,8 +50,9 @@ class Sync extends Model
                 foreach ($ajxxbQueryArray as $ajxxbOneSingleRow)
                 {
                     //这是判断patents表里，是不是已经存在了待同步的记录，使用AjxxbID来查看
-                    if (!in_array($ajxxbOneSingleRow['aj_ajxxb_id'], $patentAjxxbIDArray)) {
-                        //youxiaobj为01，是有效，要同步，这是新增，插入操作
+                    if (!in_array($ajxxbOneSingleRow['aj_ajxxb_id'], $patentAjxxbIDArray))
+                    {
+                        //这里是新记录，且youxiaobj为01，是有效，要同步，所以就是插入操作
                         if ($ajxxbOneSingleRow['youxiaobj'] == '01')
                         {
                             $patent = new Patents();
@@ -113,6 +114,7 @@ class Sync extends Model
                                     //说明专利部分主管张金珠分配了主办人，这个过程，需要大概1-3天
                                     $patent::findOne(['patentAjxxbID' =>$ajxxbOneSingleRow['aj_ajxxb_id']])->patentAgent = $ajxxbOneSingleRow['zhubanr'];
                                     $patent->save();
+                                    //这里有一个需要补充的：分配代理人（agent）之后，代理会要给客户打个电话通知的，所以也不用发邮件了
                                 }
                             }
                         }
@@ -146,79 +148,80 @@ class Sync extends Model
      * @return bool
      * @throws \Exception
      */
-    public function syncPatentevents(int $days = 30)
+    public function syncPatentevents(int $days = 1000)
     {
 
-        //设置默认同步最近30天的记录，所以把时间戳设置为30天前，
-        $thresholdTimestamp = strtotime('-' . $days . 'days') * 1000;
+        //设置默认同步最近1000天的记录，所以把时间戳设置为1000天前，
+        $thresholdTimestamp = strtotime('-' . $days . 'days') * 1000; //13位Unix时间戳，因为EAC里是这个格式
 
         //所有同步，都必须是transaction，如果同步失败，那么其他所有数据都roll back
         $isolationLevel = Transaction::SERIALIZABLE;
         $transaction = Yii::$app->db->beginTransaction($isolationLevel);
 
         try{
-
-            // 首先找到所有Rwsl表里所有最近30天的记录
+            // 首先找到所有Rwsl表里所有最近1000天的记录
             $rwslQueryArray = Rwsl::find()->where(['modtime' > $thresholdTimestamp])->asArray()->all();
 
             $eventRwslIDArray = Yii::$app->db->createCommand('SELECT eventRwslID FROM Patentevents')->queryColumn();
 
-            if (!empty($rwslQueryArray)) {
-                foreach ($rwslQueryArray as $rwslOneSingleRow) {
-                    if (in_array($rwslOneSingleRow['rw_rwsl_id'], $eventRwslIDArray)) {
+            if (!empty($rwslQueryArray))
+            {
+                foreach ($rwslQueryArray as $rwslOneSingleRow)
+                {
+                    if (in_array($rwslOneSingleRow['rw_rwsl_id'], $eventRwslIDArray))
+                    {
                         $event = Patentevents::find()->where(['eventRwslID' => $rwslOneSingleRow['rw_rwsl_id']])->one();
                         //老记录，但原先patentevents表里的zhixingshij是空值，现在$rwslOneSingleRow['zhixingsj']却有值了
                         //说明这个记录不是新建的，但完成了，发邮件，骚扰一下客户。但要考虑，这个专利暂时无人认领。
                         //那还不如不发邮件。客户想看的时候自己看呗，何苦骚扰客户呢？
-                        if ($event->eventFinishUnixTS == '' && $rwslOneSingleRow['zhixingsj'] != ''){
+                        if ($event->eventFinishUnixTS == '' && $rwslOneSingleRow['zhixingsj'] != '')
+                        {
                             $event->eventFinishUnixTS = $rwslOneSingleRow['zhixingsj'];
                             $event->save();
-                        } elseif ($event->eventFinishUnixTS == '' && $rwslOneSingleRow['zhixingsj'] == '') {
-                            /* 老记录，原先patentevents表里的zhixingshij是空值，现在$rwslOneSingleRow['zhixingsj']还是空值,
-                               说明任务还没完成，发邮件提醒zhixingr，还有一个任务没完成；*/
-                            // TODO 发email提醒zhixingr，还有一个任务没完成
-                            Yii::$app->queue->push(new SendEmailJob(
-                                [
-                                    'mailViewFileNameString' => 'msgToClientForBuildingACase',
-                                    'varToViewArray' => [
-                                        'model' => $model,
-                                        'patentAgentStringValue' => $patentAgentStringValue
-                                    ],
-                                    'fromAddressArray' => ['kf@shineip.com' => '阳光惠远客服中心'],
-                                    'toAddressArray' => [$patentAgentEmail],
-                                    'emailSubjectString' => '阳光惠远客服中心通知邮件'
-                                ]
-                            ));
-
-
-
-
-                        } else {
+                        }
+                        else
+                        {
+                            /* 这个else概括了2个情况
+                             * $event->eventFinishUnixTS 为空，$rwslOneSingleRow['zhixingsj']也空
+                             * 说明这任务已经建立 ，同步过了，但仍然没执行完，本来还说提醒一下zhixingr，
+                             * 但后来考虑觉得没必要，EAC系统里有未完成任务
+                             * $event->eventFinishUnixTS 不空，而且patentevents表里都有了这一条信息，
+                             * 说明这个没必要同步了，这任务执行完了
+                             */
                             continue;
                         }
-                    } else {
+                    }
+                    else
+                    {
+                        //这里意思是，patentevents表里没有 这个rwslID，新纪录，就是新增，插入操作
                         $event = new Patentevents();
                         $event->patentAjxxbID = $rwslOneSingleRow['aj_ajxxb_id'];
                         $event->eventRwslID = $rwslOneSingleRow['rw_rwsl_id'];
                         $event->eventCreatPerson = $rwslOneSingleRow['chuangjianr'];
-                        $event->eventCreatUnixTS = $rwslOneSingleRow['chuangjiansj']; //这里格式不对，不是UNIX TIMESTAMP
+                        $event->eventCreatUnixTS = strtotime($rwslOneSingleRow['chuangjiansj']) * 1000; //13位Unix时间戳
                         $event->eventFinishPerson = $rwslOneSingleRow['zhixingr'];
 
                         //不管这个zhixingsj有没有值，都同步一下
-                        $event->eventFinishUnixTS = $rwslOneSingleRow['zhixingsj'];//这里格式也不不是UNIX TIMESTAMP
+                        //如果有值，说明这是一个尚未同步就已经完成了的任务（暂定24小时同步一次），这种情况还挺多
+                        //如果空值，说明这是一个新建任务，尚未完成
+                        $event->eventFinishUnixTS = strtotime($rwslOneSingleRow['zhixingsj']) * 1000; //13位Unix时间戳
 
-                        //如果$rwslOneSingleRow['zhixingsj']是空值，那说明是新记录，但这任务还没完成，就要发邮件提醒执行人
-                        if($rwslOneSingleRow['zhixingsj'] =='' || $rwslOneSingleRow['zhixingsj'] == null){
-
-                            Yii::$app->queue->push(new SendEmailJob(
-
-                            ));
-                        }
-                        //else 这里的else，说明是虽然是新记录 ，但任务已经完成了，单纯同步而已，不发邮件，不骚扰客户和zhixingr
+                        //如果$rwslOneSingleRow['zhixingsj']是空值，那说明是新记录，但这任务还没完成，
+                        //本来要发邮件提醒执行人，但后来考虑到这样每次都重复发送，而且EAC里都有相关未完成任务，所以不必提醒
 
                         $event->eventContentID = $rwslOneSingleRow['rw_rwdy_id'];
                         $event->eventContent = Rwsl::rwdyIdMappingContent()[$rwslOneSingleRow['rw_rwdy_id']];
                         $event->save();
+
+
+                        /* 值得注意的是，上面两个UnixTimestamp其实同步的值都不是Unix时间戳，
+                         * 而是14位时间格式，应该是UTC时间戳，yyyyMMhhssHHmmss，比如20151201163114
+                         * 这是2015年12月1日16点31分14秒
+                         * 无奈找了半天PHP的函数，不知道怎么转化位Unix时间戳
+                         * http://strtotime.co.uk/  这个网站，可以测试转化效果
+                         * 似乎 可以用strtotime()函数，把UTC转为Unix
+                         */
+
                     }
                 }
             }
