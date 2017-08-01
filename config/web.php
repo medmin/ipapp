@@ -80,7 +80,7 @@ $config = [
             'channel' => 'queue', // queue channel
         ],
     ],
-//    'params' => $params,
+    'params' => $rootParams,
 ];
 
 if (YII_ENV_DEV) {

@@ -3,6 +3,7 @@
     <section class="sidebar">
 
         <!-- Sidebar user panel -->
+        <? if(!Yii::$app->user->isGuest): ?>
         <div class="user-panel">
             <div class="pull-left image">
                 <img src="<?= $directoryAsset ?>/img/user2-160x160.jpg" class="img-circle" alt="User Image"/>
@@ -13,6 +14,7 @@
                 <a href="javascript:;"><i class="fa fa-circle text-success"></i> Online</a>
             </div>
         </div>
+        <? endif; ?>
 
         <!-- search form -->
         <form action="#" method="get" class="sidebar-form">
@@ -27,7 +29,7 @@
         <!-- /.search form -->
 
         <?php
-        if (Yii::$app->user->identity->userRole == \app\models\Users::ROLE_EMPLOYEE) {
+        if (!Yii::$app->user->isGuest && Yii::$app->user->identity->userRole == \app\models\Users::ROLE_EMPLOYEE) {
             echo dmstr\widgets\Menu::widget(
                 [
                     'options' => ['class' => 'sidebar-menu'],

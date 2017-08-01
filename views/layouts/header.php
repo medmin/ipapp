@@ -32,7 +32,8 @@ $(\'ul.treeview-menu a\').filter(function() {
 
             <ul class="nav navbar-nav">
 
-                <li class="dropdown user user-menu">
+                <?php if (!Yii::$app->user->isGuest): ?>
+                    <li class="dropdown user user-menu">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <img src="<?= $directoryAsset ?>/img/user2-160x160.jpg" class="user-image" alt="User Image"/>
                         <span class="hidden-xs"><?=Yii::$app->user->identity->userFullname?></span>
@@ -75,7 +76,11 @@ $(\'ul.treeview-menu a\').filter(function() {
                         </li>
                     </ul>
                 </li>
-
+                <?php else: ?>
+                    <li>
+                        <a style="margin-right: 10px" href="<?= \yii\helpers\Url::to(['login']) ?>"><i class="fa fa-paper-plane-o"> 登录</i></a>
+                    </li>
+                <?php endif; ?>
             </ul>
         </div>
     </nav>

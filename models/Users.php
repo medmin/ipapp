@@ -217,6 +217,14 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getRole()
+    {
+        return $this->userRole;
+    }
+
+    /**
      * Generates password hash from password and sets it to the model
      *
      * @param string $password
