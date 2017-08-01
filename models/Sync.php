@@ -25,9 +25,9 @@ class Sync extends Model
      * @return bool
      * @throws \Exception
      */
-    public function syncPatents(int $days = 30)
+    public function syncPatents(int $days = 1000)
     {
-        //设置默认同步最近30天的记录，所以把时间戳设置为30天前
+        //设置默认同步最近1000天的记录，所以把时间戳设置为1000天前
         $thresholdTimestamp = strtotime('-' . $days . 'days') * 1000;
 
         $isolationLevel = Transaction::SERIALIZABLE;
@@ -36,7 +36,7 @@ class Sync extends Model
         $transaction = Yii::$app->db->beginTransaction($isolationLevel);
 
         try{
-            // 首先找到所有Ajxxb表里所有最近30天的记录
+            // 首先找到所有Ajxxb表里所有最近1000天的记录
             $ajxxbQueryArray = Ajxxb::find()->where(['modtime' > $thresholdTimestamp])->asArray()->all();
             //这是查patent表里，所有的AjxxbID
             $patentAjxxbIDArray = Yii::$app->db->createCommand('SELECT patentAjxxbID FROM Patents')->queryColumn();
@@ -75,20 +75,8 @@ class Sync extends Model
                             $patent->UnixTimestamp = $ajxxbOneSingleRow['modtime'];
                             $patent->save();
 
-                            //发email给客户，提醒他，立案了
-                            //这里还没 写好，所以有错误，但你别管这个，我先把逻辑捋清楚
-                            Yii::$app->queue->push(new SendEmailJob(
-                                [
-                                    'mailViewFileNameString' => 'msgToClientForBuildingACase',
-                                    'varToViewArray' => [
-                                        'model' => $model,
-                                        'patentAgentStringValue' => $patentAgentStringValue
-                                    ],
-                                    'fromAddressArray' => ['kf@shineip.com' => '阳光惠远客服中心'],
-                                    'toAddressArray' => [$patentAgentEmail],
-                                    'emailSubjectString' => '阳光惠远客服中心通知邮件'
-                                ]
-                            ));
+                            //这里本应该是发邮件给客户提醒立案了，
+                            //但是，这是从EAC同步过来的，如果客户没有认领这个案子，就不知道发邮件给谁
 
                         }
                         else
@@ -250,6 +238,8 @@ class Sync extends Model
     //所有rwid是06的，属于新案质检，是提交到CPC前最后一步，通常当天就搞定了
     //也就是说，还没来得及同步，这个任务从创建到完成，一个工作日之内就完事了
     public function rwdyidIs06(){
+
+
 
     }
 
