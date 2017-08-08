@@ -44,10 +44,22 @@ class UsersSearch extends Users
         $query = Users::find();
 
         // add conditions that should always apply here
+        $query->with('userPatents');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => false,
         ]);
+
+        if (Yii::$app->user->identity->userRole == Users::ROLE_EMPLOYEE) {
+            $query->andWhere(['userLiaisonID' => Yii::$app->user->id]);
+        }
+        if (Yii::$app->user->identity->userRole == Users::ROLE_CONTROLLER) {
+            $query->andWhere(['userRole' => Users::ROLE_CLIENT]);
+        }
+        if (Yii::$app->user->identity->userRole == Users::ROLE_ADMIN) {
+            $query->andWhere(['<>', 'userID', Yii::$app->user->id]);
+        }
 
         $this->load($params);
 

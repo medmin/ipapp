@@ -108,6 +108,7 @@ class Rwsl extends \yii\db\ActiveRecord
             '18' => '客户咨询',
             '19' => '确认缴费',
             '21' => '提交复审请求',
+            'custom' => '自定义类型',
         ];
     }
 

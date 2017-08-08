@@ -7,7 +7,12 @@
 
 namespace app\commands;
 
+use app\models\eac\Rwsl;
+use app\models\Patentevents;
+use app\models\Patents;
+use app\models\Users;
 use yii\console\Controller;
+use Faker\Factory;
 
 /**
  * This command echoes the first argument that you have entered.
@@ -56,20 +61,20 @@ class HelloController extends Controller
      */
     public function actionAdminInit($username = 'admin', $password = '123456', $citizenID = '370211198106135297', $organization = 'SHINEIP', $fullname = '系统管理员', $email = 'admin@shineip.com')
     {
-        if (\app\models\Users::findOne(['userUsername' => 'admin'])) return Controller::EXIT_CODE_NORMAL;
-        $admin = new \app\models\Users();
+        if (Users::findOne(['userUsername' => 'admin'])) return Controller::EXIT_CODE_NORMAL;
+        $admin = new Users();
         $admin->userUsername = $username;
         $admin->setPassword($password);
         $admin->userOrganization = $organization;
         $admin->userFullname = $fullname;
-//        $admin->userCitizenID = $citizenID;
+        $admin->userCitizenID = $citizenID;
         $admin->userEmail = $email;
         $admin->userCellphone = 'N/A'; //填写 '' 会报错
         $admin->userLandline = 'N/A';
         $admin->userAddress = 'N/A';
         $admin->userLiaison = 'N/A';
         $admin->userLiaisonID = 0;
-        $admin->userRole = 2;
+        $admin->userRole = Users::ROLE_ADMIN;
         $admin->userNote = 'N/A';
         $admin->generateAuthKey();
         $admin->UnixTimestamp = time() * 1000;
@@ -79,5 +84,70 @@ class HelloController extends Controller
         }else{
             return Controller::EXIT_CODE_NORMAL;
         }
+    }
+
+    public function actionPatentsFaker()
+    {
+        $start = time();
+        $faker = Factory::create('zh_CN');
+        for ($i = 1; $i <= 3000; $i++) {
+            $userID = array_rand([5 => 5, 3 => 3, 4 => 4, 9 => 9, 10 => 10]);
+            $liaisonID = array_rand([8 => 8, 7 => 7]);
+            $patent = new Patents();
+            $patent->patentAjxxbID = substr($faker->uuid,0,20);
+            $patent->patentEacCaseNo = 'FK_' . $faker->date($format = 'Ymd', $max = 'now');
+            $patent->patentType = 'invent';
+            $patent->patentUserID = $userID;
+            $patent->patentUsername = Users::findOne($userID)->userFullname;
+            $patent->patentUserLiaisonID = $liaisonID;
+            $patent->patentUserLiaison = Users::findOne($liaisonID)->userFullname;
+            $patent->patentAgent = $faker->name;
+            $patent->patentProcessManager = $faker->name;
+            $patent->patentTitle = $faker->text(40);
+            $patent->patentNote = $faker->text(100);
+            $patent->UnixTimestamp = $faker->unixTime($max = 'now') * 1000;
+            if (!$patent->save()) {
+                echo '<pre>';
+                print_r($patent->errors);
+                echo '</pre>';
+                exit;
+            }
+        }
+        $this->stdout('OK,Time Consuming:' . time() - $start);
+    }
+
+    public function actionEventsFaker($ajxbid)
+    {
+        $patent = Patents::findOne(['patentAjxxbID' => $ajxbid]);
+        if ($patent == null) {
+            $this->stdout('检查id是否正确');
+            return Controller::EXIT_CODE_ERROR;
+        }
+        $faker = Factory::create();
+        for ($i = 0; $i <= 4; $i++) {
+            $con_key = array_rand(Rwsl::rwdyIdMappingContent());
+            $event = new Patentevents();
+            $event->eventRwslID = '0FC' . strtoupper($faker->word);
+            $event->eventContent = Rwsl::rwdyIdMappingContent()[$con_key];
+            $event->eventContentID = $con_key;
+            $event->eventNote = $faker->text(100);
+            $event->patentAjxxbID = $ajxbid;
+            $event->eventUserID = $patent->patentUserID;
+            $event->eventUsername = $patent->patentUsername;
+            $event->eventUserLiaison = $patent->patentUserLiaison;
+            $event->eventUserLiaisonID = $patent->patentUserLiaisonID;
+            $event->eventCreatPerson = Factory::create('zh_CN')->name;
+            $event->eventCreatUnixTS = $faker->unixTime($max = 'now') * 1000;
+            $event->eventFinishPerson = ($i % 2 == 0 ? 'N/A' : Factory::create('zh_CN')->name);
+            $event->eventFinishUnixTS = ($i % 2 == 0 ? 0 : time());
+            if ($i == 4) {
+                $event->eventSatus = 'PENDING';
+            }
+            if ($i % 2 != 0 && $i != 4) {
+                $event->eventSatus = 'INACTIVE';
+            }
+            $event->save();
+        }
+        return Controller::EXIT_CODE_NORMAL;
     }
 }

@@ -23,10 +23,8 @@ class ContactForm extends Model
     public function rules()
     {
         return [
-            // name, email, subject and body are required
-            [['name', 'email', 'subject', 'body'], 'required'],
-            // email has to be a valid email address
-            ['email', 'email'],
+            // body is required
+            [['body'], 'required'],
             // verifyCode needs to be entered correctly
             ['verifyCode', 'captcha'],
         ];
@@ -38,25 +36,21 @@ class ContactForm extends Model
     public function attributeLabels()
     {
         return [
-            'verifyCode' => 'Verification Code',
+            'verifyCode' => Yii::t('app', 'Verification Code'),
+            'body' => Yii::t('app', 'Content'),
         ];
     }
 
-    /**
-     * Sends an email to the specified email address using the information collected by this model.
-     * @param string $email the target email address
-     * @return bool whether the model passes validation
-     */
-    public function contact($email)
+
+    public function contact()
     {
         if ($this->validate()) {
-            Yii::$app->mailer->compose()
-                ->setTo($email)
-                ->setFrom([$this->email => $this->name])
-                ->setSubject($this->subject)
-                ->setTextBody($this->body)
-                ->send();
-
+            $notice = new Notification();
+            $notice->sender = Yii::$app->user->id;
+            $notice->receiver = Yii::$app->user->identity->userLiaisonID ?? 1; // TODO
+            $notice->content = $this->body;
+            $notice->type = Notification::TYPE_NOTICE;
+            $notice->save();
             return true;
         }
         return false;

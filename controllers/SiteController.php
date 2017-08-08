@@ -107,7 +107,8 @@ class SiteController extends Controller
         $model = new SignupForm();
         $users = new Users();
         if ($model->load(Yii::$app->request->post())) {
-            if ($user = $model->signup()) {
+            // 暂时取消发邮件
+            if (false && $user = $model->signup()) {
 
                 //经过这个controller，是用户自行注册，发欢迎邮件
                 $userEmail = $users->userEmail;
@@ -151,7 +152,7 @@ class SiteController extends Controller
     public function actionContact()
     {
         $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
+        if ($model->load(Yii::$app->request->post()) && $model->contact()) {
             Yii::$app->session->setFlash('contactFormSubmitted');
 
             return $this->refresh();

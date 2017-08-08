@@ -12,11 +12,10 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="users-index">
     <div class="box box-default">
-        <div class="box-header with-border">
-            <p>
-                <?= Html::a(Yii::t('app', 'Create Users'), ['create'], ['class' => 'btn btn-success']) ?>
-            </p>
-        </div>
+
+        <?php if (Yii::$app->user->identity->userRole == \app\models\Users::ROLE_ADMIN) {
+            echo '<div class="box-header with-border"><p>' . Html::a(Yii::t('app', 'Create Users'), ['create'], ['class' => 'btn btn-success']) . '</p></div>';
+        }?>
         <div class="box-body">
             <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
@@ -49,7 +48,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
                     [
                         'class' => 'yii\grid\ActionColumn',
-                        'header' => Yii::t('app', 'Operation')
+                        'header' => Yii::t('app', 'Operation'),
+                        'template' => '{view}' . (Yii::$app->user->identity->userRole == \app\models\Users::ROLE_ADMIN ? '{update} {delete}' : '')
                     ],
                 ],
             ]); ?>

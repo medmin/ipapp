@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use app\models\Users;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Users */
@@ -27,7 +28,11 @@ $this->registerJs('
 
     <?= $form->field($model, 'userUsername')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'userPassword')->textInput(['maxlength' => true]) ?>
+    <?php
+        if (Yii::$app->controller->action->id == 'create') {
+            echo $form->field($model, 'userPassword')->textInput(['maxlength' => true]);
+        }
+   ?>
 
     <?= $form->field($model, 'userOrganization')->textInput(['maxlength' => true]) ?>
 
@@ -50,12 +55,12 @@ $this->registerJs('
     <?= $form->field($model, 'userAddress')->textInput(['maxlength' => true]) ?>
 
     <?php
-        if (Yii::$app->user->can('createEmployee'))
-        {
-            echo $form->field($model, 'userRole')->dropDownList([2 => Yii::t('app', 'Employee'), 1 => Yii::t('app', 'Client')], ['prompt' => Yii::t('app', 'Select User Type')]);
+        // 可以取消掉这个if
+        if (Yii::$app->user->can('createEmployee')) {
+            echo $form->field($model, 'userRole')->dropDownList([Users::ROLE_CONTROLLER => Yii::t('app', 'Controller'), Users::ROLE_EMPLOYEE => Yii::t('app', 'Employee'), Users::ROLE_CLIENT => Yii::t('app', 'Client')], ['prompt' => Yii::t('app', 'Select User Type')]);
 
-            $employees = \app\models\Users::find()->select(['userID', 'userFullname'])->where(['userRole' => 2])->asArray()->all();
-            $employees = array_merge([0 => 'N/A'], array_column($employees, 'userFullname', 'userID'));
+            $employees = Users::find()->select(['userID', 'userFullname'])->where(['userRole' => Users::ROLE_EMPLOYEE])->asArray()->all();
+            $employees = [0 => 'N/A'] + array_column($employees, 'userFullname', 'userID');
 
             echo $form->field($model, 'userLiaisonID', ['options' => ['style' => 'display:none']])->dropDownList($employees, ['prompt' => Yii::t('app','Select An Employee')]);
         }

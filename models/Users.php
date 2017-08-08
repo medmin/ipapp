@@ -29,8 +29,17 @@ use Yii;
  */
 class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
-    const ROLE_EMPLOYEE = 2;
+    /* 普通用户 */
     const ROLE_CLIENT = 1;
+
+    /* 员工/Liaison/商务 */
+    const ROLE_EMPLOYEE = 2;
+
+    /* 二级管理员 */
+    const ROLE_CONTROLLER = 3;
+
+    /* 超级管理员 */
+    const ROLE_ADMIN = 4;
 
     /**
      * @inheritdoc
@@ -217,14 +226,6 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
-     * @inheritdoc
-     */
-    public function getRole()
-    {
-        return $this->userRole;
-    }
-
-    /**
      * Generates password hash from password and sets it to the model
      *
      * @param string $password
@@ -280,7 +281,7 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function getLiaisonPatents()
     {
-        if ($this->userRole == 1) return null;
+        if ($this->userRole == self::ROLE_CLIENT) return null;
         return $this->hasMany(Patents::className(), ['patentUserLiaisonID' => 'userID']);
     }
 

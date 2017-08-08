@@ -29,7 +29,28 @@
         <!-- /.search form -->
 
         <?php
-        if (!Yii::$app->user->isGuest && Yii::$app->user->identity->userRole == \app\models\Users::ROLE_EMPLOYEE) {
+        if (Yii::$app->user->isGuest || Yii::$app->user->identity->userRole == \app\models\Users::ROLE_CLIENT) {
+            echo dmstr\widgets\Menu::widget(
+                [
+                    'options' => ['class' => 'sidebar-menu'],
+                    'items' => [
+                        ['label' => '菜单列表', 'options' => ['class' => 'header']],
+                        ['label' => '我的进度', 'icon' => 'info-circle', 'url' => '####'],
+                        ['label' => '我要反馈', 'icon' => 'edit', 'url' => \yii\helpers\Url::to(['site/contact'])],
+                    ],
+                ]
+            );
+        } elseif (Yii::$app->user->identity->userRole == \app\models\Users::ROLE_EMPLOYEE) {
+            echo dmstr\widgets\Menu::widget(
+                [
+                    'options' => ['class' => 'sidebar-menu'],
+                    'items' => [
+                        ['label' => '菜单列表', 'options' => ['class' => 'header']],
+                        ['label' => '我的客户', 'icon' => 'group', 'url' => \yii\helpers\Url::to(['users/index'])],
+                    ],
+                ]
+            );
+        } else {
             echo dmstr\widgets\Menu::widget(
                 [
                     'options' => ['class' => 'sidebar-menu'],
@@ -39,7 +60,7 @@
                         ['label' => '专利申请', 'icon' => 'file-text-o', 'url' => \yii\helpers\Url::to(['patents/index'])],
                         ['label' => '专利事件', 'icon' => 'list-ul', 'url' => \yii\helpers\Url::to(['patentevents/index'])],
                         [
-                            'label' => 'Same tools',
+                            'label' => '系统工具',
                             'icon' => 'share',
                             'url' => '#',
                             'items' => [
@@ -47,16 +68,6 @@
                                 ['label' => 'Debug', 'icon' => 'dashboard', 'url' => ['/debug']]
                             ],
                         ],
-                    ],
-                ]
-            );
-        }else {
-            echo dmstr\widgets\Menu::widget(
-                [
-                    'options' => ['class' => 'sidebar-menu'],
-                    'items' => [
-                        ['label' => '菜单列表', 'options' => ['class' => 'header']],
-                        ['label' => '我的进度', 'icon' => 'info-circle', 'url' => '####'],
                     ],
                 ]
             );

@@ -20,6 +20,7 @@ return [
     // user_form
     'Client' => '普通用户',
     'Employee' => '商务专员',
+    'Controller' => '二级管理员',
     'Select User Type' => '请选择用户类型',
     'Select An Employee' => '选择所属商务专员(没有请选择 N/A)',
 
@@ -28,6 +29,13 @@ return [
     'Logout' => '退出',
     'Your Profile' => '个人资料',
     'Submit' => '提交',
+    'Create' => '创建',
+    'Search' => '搜索',
+    'Reset' => '重置',
+    'Verification Code' => '验证码',
+    'Content' => '内容',
+    'Created At' => '创建时间',
+    'Status' => '状态',
 
     //users index
     'User Username' => '用户登陆账号',

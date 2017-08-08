@@ -34,13 +34,13 @@ class PatentsController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['delete'],
+                        'actions' => ['create', 'update', 'delete'],
                         'roles' => ['admin']
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['index', 'view', 'create', 'update'],
-                        'roles' => ['admin', 'manager']
+                        'actions' => ['index', 'view'],
+                        'roles' => ['admin', 'controller']
                     ],
                 ],
             ],
@@ -137,6 +137,7 @@ class PatentsController extends Controller
      */
     public function actionDelete($id)
     {
+        return false;
         $model = $this->findModel($id);
         $users = new Users();
 

@@ -33,49 +33,60 @@ $(\'ul.treeview-menu a\').filter(function() {
             <ul class="nav navbar-nav">
 
                 <?php if (!Yii::$app->user->isGuest): ?>
+                    <?php if (Yii::$app->user->identity->userRole !== \app\models\Users::ROLE_CLIENT): ?>
+                        <li>
+                            <a href=<?= \yii\helpers\Url::to(['users/notify']) ?>>
+                                <i class="fa fa-bell-o"></i>
+                                <?php
+                                $count = \app\models\Notification::find()->where(['receiver' => Yii::$app->user->id, 'status' => 0])->count();
+                                echo $count == 0 ? '' : ('<span class="label label-warning">' . $count . '</span>');
+                                ?>
+                            </a>
+                        </li>
+                    <?php endif; ?>
                     <li class="dropdown user user-menu">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        <img src="<?= $directoryAsset ?>/img/user2-160x160.jpg" class="user-image" alt="User Image"/>
-                        <span class="hidden-xs"><?=Yii::$app->user->identity->userFullname?></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <!-- User image -->
-                        <li class="user-header">
-                            <img src="<?= $directoryAsset ?>/img/user2-160x160.jpg" class="img-circle"
-                                 alt="User Image"/>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <img src="<?= $directoryAsset ?>/img/user2-160x160.jpg" class="user-image" alt="User Image"/>
+                            <span class="hidden-xs"><?=Yii::$app->user->identity->userFullname?></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <!-- User image -->
+                            <li class="user-header">
+                                <img src="<?= $directoryAsset ?>/img/user2-160x160.jpg" class="img-circle"
+                                     alt="User Image"/>
 
-                            <p>
-                                <?=Yii::$app->user->identity->userFullname?>
-                                <!--                                <small>Member since Nov. 2012</small>-->
-                            </p>
-                        </li>
-                        <!-- Menu Body -->
-                        <!--                        <li class="user-body">-->
-                        <!--                            <div class="col-xs-4 text-center">-->
-                        <!--                                <a href="#">Followers</a>-->
-                        <!--                            </div>-->
-                        <!--                            <div class="col-xs-4 text-center">-->
-                        <!--                                <a href="#">Sales</a>-->
-                        <!--                            </div>-->
-                        <!--                            <div class="col-xs-4 text-center">-->
-                        <!--                                <a href="#">Friends</a>-->
-                        <!--                            </div>-->
-                        <!--                        </li>-->
-                        <!-- Menu Footer-->
-                        <li class="user-footer">
-                            <div class="pull-left">
-                                <a href="<?= \yii\helpers\Url::to(['users/personal-settings'])?>" class="btn btn-default btn-flat"><?= Yii::t('app','Your Profile')?></a>
-                            </div>
-                            <div class="pull-right">
-                                <?= Html::a(
-                                    Yii::t('app','Logout'),
-                                    ['/site/logout'],
-                                    ['data-method' => 'post', 'class' => 'btn btn-default btn-flat']
-                                ) ?>
-                            </div>
-                        </li>
-                    </ul>
-                </li>
+                                <p>
+                                    <?=Yii::$app->user->identity->userFullname?>
+                                    <!--                                <small>Member since Nov. 2012</small>-->
+                                </p>
+                            </li>
+                            <!-- Menu Body -->
+                            <!--                        <li class="user-body">-->
+                            <!--                            <div class="col-xs-4 text-center">-->
+                            <!--                                <a href="#">Followers</a>-->
+                            <!--                            </div>-->
+                            <!--                            <div class="col-xs-4 text-center">-->
+                            <!--                                <a href="#">Sales</a>-->
+                            <!--                            </div>-->
+                            <!--                            <div class="col-xs-4 text-center">-->
+                            <!--                                <a href="#">Friends</a>-->
+                            <!--                            </div>-->
+                            <!--                        </li>-->
+                            <!-- Menu Footer-->
+                            <li class="user-footer">
+                                <div class="pull-left">
+                                    <a href="<?= \yii\helpers\Url::to(['users/personal-settings'])?>" class="btn btn-default btn-flat"><?= Yii::t('app','Your Profile')?></a>
+                                </div>
+                                <div class="pull-right">
+                                    <?= Html::a(
+                                        Yii::t('app','Logout'),
+                                        ['/site/logout'],
+                                        ['data-method' => 'post', 'class' => 'btn btn-default btn-flat']
+                                    ) ?>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
                 <?php else: ?>
                     <li>
                         <a style="margin-right: 10px" href="<?= \yii\helpers\Url::to(['login']) ?>"><i class="fa fa-paper-plane-o"> 登录</i></a>

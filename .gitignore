@@ -32,3 +32,6 @@ tests/_support/_generated
 # All Parameters
 params.php
 dump.rdb
+
+# rabc dir
+/rbac

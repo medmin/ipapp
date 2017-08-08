@@ -47,6 +47,10 @@ class PatentsSearch extends Patents
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => [
+                'defaultOrder' => ['UnixTimestamp' => SORT_DESC],
+//                'attributes' => ['UnixTimestamp'],
+            ]
         ]);
 
         $this->load($params);

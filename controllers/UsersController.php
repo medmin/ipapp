@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Notification;
 use Yii;
 use app\models\Users;
 use app\models\UsersSearch;
@@ -39,8 +40,13 @@ class UsersController extends Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['index', 'view', 'create', 'update'],
-                        'roles' => ['admin', 'manager']
+                        'actions' => ['update', 'create'],
+                        'roles' => ['admin']
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'view', 'notify'],
+                        'roles' => ['admin', 'manager', 'controller']
                     ],
                     [
                         'allow' => true,
@@ -91,38 +97,38 @@ class UsersController extends Controller
         if ($model->load(Yii::$app->request->post()))
         {
             // 如果是案源人创建了一个客户，那么就默认这个客户的liaison为这个案源人本人
-            if (!Yii::$app->user->can('createEmployee'))
-            {
+            // 这个if可以取消，暂时先留着(rbac中存在createEmployee)
+            if (!Yii::$app->user->can('createEmployee')) {
                 $model->userRole = Users::ROLE_CLIENT;
                 $model->userLiaison = Yii::$app->user->identity->userFullname;
                 $model->userLiaisonID = Yii::$app->user->id;
-            }
-            else
-            {
+            } else {
                 $model->userLiaison = $model->userLiaisonID == 0 ? 'N/A' : Users::findOne($model->userLiaisonID)->userFullname;
             }
             $model->generateAuthKey();
             $model->setPassword($model->userPassword);
             $model->UnixTimestamp = time() * 1000;
-            if ($model->save())
-            {
-                // 如果创建了一个案源人,给他一个manager的角色权限(可以创建普通用户)
+            if ($model->save()) {
+                // 根据所创建的角色来分配相应的ROLE
                 if ($model->userRole == Users::ROLE_EMPLOYEE) {
                     $auth = Yii::$app->authManager;
                     $authorRole = $auth->getRole('manager');
                     $auth->assign($authorRole, $model->userID);
+                } elseif ($model->userRole == Users::ROLE_CONTROLLER) {
+                    $auth = Yii::$app->authManager;
+                    $authorRole = $auth->getRole('controller');
+                    $auth->assign($authorRole, $model->userID);
                 }
                 //经过这个controller，是案源人或admin手动添加的Users，发的是通知邮件
-                $userEmail = $model->userEmail;
 //                $liaisonEmail = $model::findByID($model->userLiaisonID)->userEmail;
 
-                Yii::$app->queue->push(new SendEmailJob([
-                    'mailViewFileNameString' => 'userAddedByAdminMsg',
-                    'varToViewArray' => ['model' => $model],
-                    'fromAddressArray' => ['kf@shineip.com' => '阳光惠远客服中心'],
-                    'toAddressArray' => [$userEmail,'info@shineip.com'],
-                    'emailSubjectString' => '欢迎您注册新用户'
-                ]));
+//                Yii::$app->queue->push(new SendEmailJob([
+//                    'mailViewFileNameString' => 'userAddedByAdminMsg',
+//                    'varToViewArray' => ['model' => $model],
+//                    'fromAddressArray' => ['kf@shineip.com' => '阳光惠远客服中心'],
+//                    'toAddressArray' => [$model->userEmail, 'info@shineip.com'],
+//                    'emailSubjectString' => '欢迎您注册新用户'
+//                ]));
 
 
                 return $this->redirect(['view', 'id' => $model->userID]);
@@ -223,21 +229,30 @@ class UsersController extends Controller
         //先获取要删除的Users对象，发警告邮件
         $model = $this->findModel($id);
 
-        $userEmail = $model->userEmail;
-        $liaisonEmail = (new Users())::findByID($model->userLiaisonID)->userEmail;
+        if ($model->userRole == Users::ROLE_CLIENT) {
+            $userEmail = $model->userEmail;
+            $liaisonEmail = (new Users())::findByID($model->userLiaisonID)->userEmail;
 
-        Yii::$app->queue->push(new SendEmailJob([
-            'mailViewFileNameString' => 'userDelWarning',
-            'varToViewArray' => ['model' => $model],
-            'fromAddressArray' => ['kf@shineip.com' => '阳光惠远客服中心'],
-            'toAddressArray' => [$userEmail, $liaisonEmail, 'info@shineip.com'],
-            'emailSubjectString' => '警告: 客户信息被删除'
-        ]));
+            Yii::$app->queue->push(new SendEmailJob([
+                'mailViewFileNameString' => 'userDelWarning',
+                'varToViewArray' => ['model' => $model],
+                'fromAddressArray' => ['kf@shineip.com' => '阳光惠远客服中心'],
+                'toAddressArray' => [$userEmail, $liaisonEmail, 'info@shineip.com'],
+                'emailSubjectString' => '警告: 客户信息被删除'
+            ]));
+        }
 
         //先发邮件，再删除
         $model->delete();
 
         return $this->redirect(['index']);
+    }
+
+    public function actionNotify()
+    {
+        $model = Notification::find()->where(['receiver' => Yii::$app->user->id, 'status' => 0])->all();
+        Notification::ignore();
+        return $this->render('notify', ['models' => $model]);
     }
 
     /**
