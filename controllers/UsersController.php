@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Notification;
+use app\models\Patents;
 use Yii;
 use app\models\Users;
 use app\models\UsersSearch;
@@ -12,6 +13,7 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use app\queues\SendEmailJob;
+use yii\data\ActiveDataProvider;
 
 /**
  * UsersController implements the CRUD actions for Users model.
@@ -50,7 +52,7 @@ class UsersController extends Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['personal-settings', 'reset-password'],
+                        'actions' => ['personal-settings', 'reset-password', 'my-patents'],
                         'roles' => ['@']
                     ]
                 ],
@@ -177,7 +179,7 @@ class UsersController extends Controller
 
     /**
      * 个人资料修改页
-     * 
+     *
      * @return string
      */
     public function actionPersonalSettings()
@@ -217,7 +219,7 @@ class UsersController extends Controller
             }
         }
     }
-    
+
     /**
      * Deletes an existing Users model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
@@ -248,11 +250,36 @@ class UsersController extends Controller
         return $this->redirect(['index']);
     }
 
+    /**
+     * 获取未读消息
+     * @return string
+     */
     public function actionNotify()
     {
         $model = Notification::find()->where(['receiver' => Yii::$app->user->id, 'status' => 0])->all();
-        Notification::ignore();
+//        Notification::ignore();
         return $this->render('notify', ['models' => $model]);
+    }
+
+    /**
+     * 获取个人所有专利
+     * @return string
+     */
+    public function actionMyPatents()
+    {
+        $dataProvider = new ActiveDataProvider([
+            'query' => Patents::find()->where(['patentUserID' => Yii::$app->user->id]),
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+            'sort' => [
+                'defaultOrder' => [
+                    'UnixTimestamp' => SORT_DESC,
+                ]
+            ]
+        ]);
+
+        return $this->render('my-patents', ['dataProvider' => $dataProvider]);
     }
 
     /**

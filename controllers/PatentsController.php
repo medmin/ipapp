@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Patentevents;
 use app\models\Users;
 use Yii;
 use app\models\Patents;
@@ -42,6 +43,11 @@ class PatentsController extends Controller
                         'actions' => ['index', 'view'],
                         'roles' => ['admin', 'controller']
                     ],
+                    [
+                        'allow' => true,
+                        'actions' => ['main'],
+                        'roles' => ['@']
+                    ]
                 ],
             ],
         ];
@@ -156,6 +162,18 @@ class PatentsController extends Controller
         $model->delete();
 
         return $this->redirect(['index']);
+    }
+
+    /**
+     * 查看专利进度
+     * @param $id
+     * @return string
+     */
+    public function actionMain($id)
+    {
+        $events = Patentevents::find()->where(['patentAjxxbID' => $id, 'eventUserID' => Yii::$app->user->id])->orderBy(['eventCreatUnixTS' => SORT_DESC])->all();
+
+        return $this->render('main', ['models' => $events]);
     }
 
     /**

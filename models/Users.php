@@ -36,7 +36,7 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     const ROLE_EMPLOYEE = 2;
 
     /* 二级管理员 */
-    const ROLE_CONTROLLER = 3;
+    const ROLE_SECONDARY_ADMIN = 3;
 
     /* 超级管理员 */
     const ROLE_ADMIN = 4;

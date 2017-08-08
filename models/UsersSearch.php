@@ -54,7 +54,7 @@ class UsersSearch extends Users
         if (Yii::$app->user->identity->userRole == Users::ROLE_EMPLOYEE) {
             $query->andWhere(['userLiaisonID' => Yii::$app->user->id]);
         }
-        if (Yii::$app->user->identity->userRole == Users::ROLE_CONTROLLER) {
+        if (Yii::$app->user->identity->userRole == Users::ROLE_SECONDARY_ADMIN) {
             $query->andWhere(['userRole' => Users::ROLE_CLIENT]);
         }
         if (Yii::$app->user->identity->userRole == Users::ROLE_ADMIN) {

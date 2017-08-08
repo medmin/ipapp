@@ -43,7 +43,7 @@ use yii\widgets\ActiveForm;
 
     <?php // echo $form->field($model, 'eventFinishUnixTS') ?>
 
-    <?php // echo $form->field($model, 'eventSatus') ?>
+    <?php // echo $form->field($model, 'eventStatus') ?>
 
     <div class="form-group">
         <?= Html::submitButton(Yii::t('app', 'Search'), ['class' => 'btn btn-primary']) ?>

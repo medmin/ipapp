@@ -66,8 +66,8 @@ class RbacController extends Controller
         $auth->addChild($admin, $manager);
 
         // 二级管理员 ：只读所有user 只读所有 Patent  读写Paten Event，权限控制放在ACF中
-        $controller = $auth->createRole('controller');
-        $auth->add($controller);
+        $secAdmin = $auth->createRole('secadmin');
+        $auth->add($secAdmin);
 
 //        $auth->assign($manager, 2);
         $auth->assign($admin, 1);

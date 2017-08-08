@@ -99,4 +99,7 @@ return [
     'Event Finish Person' => '事务执行人',
     'Event Finish Unix Ts' => '执行时间',
     'Event Satus' => '事务状态',
+
+    // Patents View
+    'Patents Progress' => '专利进度',
 ];

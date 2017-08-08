@@ -54,7 +54,7 @@ var searchToggle = function(){
                     'eventCreatUnixTS',
                     'eventFinishPerson',
                     'eventFinishUnixTS',
-                    'eventSatus',
+                    'eventStatus',
 
                     ['class' => 'yii\grid\ActionColumn'],
                 ],

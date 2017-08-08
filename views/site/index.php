@@ -2,76 +2,18 @@
 
 /* @var $this yii\web\View */
 
-$this->title = 'My Yii Application';
+$this->title = '';
 ?>
 <?php if (Yii::$app->user->identity->userRole == \app\models\Users::ROLE_CLIENT): ?>
-    <ul class="timeline">
-
-        <!-- timeline time label -->
-        <li class="time-label">
-        <span class="bg-red">
-            <?= date('j M.Y')?>
-        </span>
-        </li>
-        <!-- /.timeline-label -->
-
-        <!-- timeline item -->
-        <li>
-            <!-- timeline icon -->
-            <i class="fa fa-envelope bg-blue"></i>
-            <div class="timeline-item">
-                <span class="time"><i class="fa fa-clock-o"></i> 12:05</span>
-
-                <h3 class="timeline-header"><a href="#">Support Team</a> ...</h3>
-
-                <div class="timeline-body">
-                    ...
-                    Content goes here
-                </div>
-
-                <div class="timeline-footer">
-                    <a class="btn btn-primary btn-xs">Read more</a>
-                </div>
-            </div>
-        </li>
-
-        <li class="time-label">
-            <span class="bg-green">
-                3 Jan.2017
-            </span>
-        </li>
-        <li>
-            <i class="fa fa-user bg-aqua"></i>
-            <div class="timeline-item">
-                <span class="time">
-                    <i class="fa fa-clock-o">2 days ago</i>
-                </span>
-                <h3 class="timeline-header">
-                    Mao doze  accepted your friend request
-                </h3>
-            </div>
-        </li>
-
-        <li>
-            <i class="fa fa-camera bg-purple"></i>
-
-            <div class="timeline-item">
-                <span class="time"><i class="fa fa-clock-o"></i> 100 days ago</span>
-
-                <h3 class="timeline-header"><a href="#">Mina Lee</a> uploaded new photos</h3>
-
-                <div class="timeline-body">
-                    <img src="http://placehold.it/150x100" alt="..." class="margin">
-                    <img src="http://placehold.it/150x100" alt="..." class="margin">
-                    <img src="http://placehold.it/150x100" alt="..." class="margin">
-                    <img src="http://placehold.it/150x100" alt="..." class="margin">
-                </div>
-            </div>
-        </li>
-
-        <li><i class="fa fa-clock-o bg-gray"></i></li>
-        <!-- END timeline item -->
-    </ul>
+    <?php
+    $events = app\models\Patentevents::find()->where(['eventUserID' => Yii::$app->user->id])->orderBy(['eventCreatUnixTS' => SORT_DESC])->all();
+    if (!$events) {
+        echo '该专利暂无动态';
+        // 没有进度的时候可以显示一些新闻之类的 TODO
+    } else {
+        echo $this->render('/patents/timeline', ['models' => $events, 'link' => true]);
+    }
+    ?>
 <?php else: ?>
 <div class="site-index">
 

@@ -42,7 +42,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     'eventCreatUnixTS',
                     'eventFinishPerson',
                     'eventFinishUnixTS',
-                    'eventSatus',
+                    'eventStatus',
                 ],
             ]) ?>
         </div>

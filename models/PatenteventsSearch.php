@@ -19,7 +19,7 @@ class PatenteventsSearch extends Patentevents
     {
         return [
             [['eventID', 'eventUserID', 'eventUserLiaisonID', 'eventCreatUnixTS', 'eventFinishUnixTS'], 'integer'],
-            [['eventRwslID', 'eventContentID', 'eventContent', 'eventNote', 'patentAjxxbID', 'eventUsername', 'eventUserLiaison', 'eventCreatPerson', 'eventFinishPerson', 'eventSatus'], 'safe'],
+            [['eventRwslID', 'eventContentID', 'eventContent', 'eventNote', 'patentAjxxbID', 'eventUsername', 'eventUserLiaison', 'eventCreatPerson', 'eventFinishPerson', 'eventStatus'], 'safe'],
         ];
     }
 
@@ -75,7 +75,7 @@ class PatenteventsSearch extends Patentevents
             ->andFilterWhere(['like', 'eventUserLiaison', $this->eventUserLiaison])
             ->andFilterWhere(['like', 'eventCreatPerson', $this->eventCreatPerson])
             ->andFilterWhere(['like', 'eventFinishPerson', $this->eventFinishPerson])
-            ->andFilterWhere(['like', 'eventSatus', $this->eventSatus]);
+            ->andFilterWhere(['like', 'eventStatus', $this->eventStatus]);
 
         return $dataProvider;
     }

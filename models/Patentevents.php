@@ -21,7 +21,7 @@ use Yii;
  * @property integer $eventCreatUnixTS
  * @property string $eventFinishPerson
  * @property integer $eventFinishUnixTS
- * @property string $eventSatus
+ * @property string $eventStatus
  *
  * @property Patents $patentAjxxb
  */
@@ -47,7 +47,7 @@ class Patentevents extends \yii\db\ActiveRecord
             [['eventRwslID', 'eventContentID', 'patentAjxxbID'], 'string', 'max' => 20],
             [['eventUsername'], 'string', 'max' => 16],
             [['eventUserLiaison', 'eventCreatPerson', 'eventFinishPerson'], 'string', 'max' => 24],
-            [['eventSatus'], 'string', 'max' => 8],
+            [['eventStatus'], 'string', 'max' => 8],
             [['patentAjxxbID'], 'exist', 'skipOnError' => true, 'targetClass' => Patents::className(), 'targetAttribute' => ['patentAjxxbID' => 'patentAjxxbID']],
         ];
     }
@@ -72,7 +72,7 @@ class Patentevents extends \yii\db\ActiveRecord
             'eventCreatUnixTS' => Yii::t('app', 'Event Creat Unix Ts'),
             'eventFinishPerson' => Yii::t('app', 'Event Finish Person'),
             'eventFinishUnixTS' => Yii::t('app', 'Event Finish Unix Ts'),
-            'eventSatus' => Yii::t('app', 'Event Satus'),
+            'eventStatus' => Yii::t('app', 'Event Status'),
         ];
     }
 

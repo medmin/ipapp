@@ -57,7 +57,7 @@ $this->registerJs('
     <?php
         // 可以取消掉这个if
         if (Yii::$app->user->can('createEmployee')) {
-            echo $form->field($model, 'userRole')->dropDownList([Users::ROLE_CONTROLLER => Yii::t('app', 'Controller'), Users::ROLE_EMPLOYEE => Yii::t('app', 'Employee'), Users::ROLE_CLIENT => Yii::t('app', 'Client')], ['prompt' => Yii::t('app', 'Select User Type')]);
+            echo $form->field($model, 'userRole')->dropDownList([Users::ROLE_SECONDARY_ADMIN => Yii::t('app', 'Controller'), Users::ROLE_EMPLOYEE => Yii::t('app', 'Employee'), Users::ROLE_CLIENT => Yii::t('app', 'Client')], ['prompt' => Yii::t('app', 'Select User Type')]);
 
             $employees = Users::find()->select(['userID', 'userFullname'])->where(['userRole' => Users::ROLE_EMPLOYEE])->asArray()->all();
             $employees = [0 => 'N/A'] + array_column($employees, 'userFullname', 'userID');
