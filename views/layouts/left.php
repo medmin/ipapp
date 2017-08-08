@@ -35,7 +35,7 @@
                     'options' => ['class' => 'sidebar-menu'],
                     'items' => [
                         ['label' => '菜单列表', 'options' => ['class' => 'header']],
-                        ['label' => '我的进度', 'icon' => 'info-circle', 'url' => '####'],
+                        ['label' => '我的进度', 'icon' => 'info-circle', 'url' => '/ipapp/web/index.php'],
                         ['label' => '我要反馈', 'icon' => 'edit', 'url' => \yii\helpers\Url::to(['site/contact'])],
                     ],
                 ]
