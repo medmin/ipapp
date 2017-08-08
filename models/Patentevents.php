@@ -41,10 +41,11 @@ class Patentevents extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['eventRwslID', 'eventContentID', 'eventContent', 'eventNote', 'patentAjxxbID', 'eventUserID', 'eventUsername', 'eventUserLiaisonID', 'eventUserLiaison', 'eventCreatPerson', 'eventCreatUnixTS', 'eventFinishPerson', 'eventFinishUnixTS'], 'required'],
-            [['eventContent', 'eventNote'], 'string'],
+            [['eventRwslID', 'eventContentID', 'patentAjxxbID', 'eventCreatUnixTS'], 'required'],
             [['eventUserID', 'eventUserLiaisonID', 'eventCreatUnixTS', 'eventFinishUnixTS'], 'integer'],
-            [['eventRwslID', 'eventContentID', 'patentAjxxbID'], 'string', 'max' => 20],
+            [['eventRwslID', 'eventContentID'], 'string', 'max' => 32],
+            [['eventContent', 'eventNote'], 'string', 'max' => 1000],
+            [['patentAjxxbID'], 'string', 'max' => 20],
             [['eventUsername'], 'string', 'max' => 16],
             [['eventUserLiaison', 'eventCreatPerson', 'eventFinishPerson'], 'string', 'max' => 24],
             [['eventSatus'], 'string', 'max' => 8],

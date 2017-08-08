@@ -43,7 +43,8 @@ class Sync extends Model
             $patentAjxxbIDArray = Yii::$app->db->createCommand('SELECT patentAjxxbID FROM Patents')->queryColumn();
 
             for ($i = 0; $i <= $nums; $i++) {
-                $ajxxbQueryArray = Ajxxb::find()->where(['modtime' > $thresholdTimestamp])->limit($offset)->offset($i * $offset)->asArray()->all();
+                $ajxxbQueryArray = Ajxxb::find()->where(['>', 'modtime', $thresholdTimestamp ])->limit($offset)->offset($i * $offset)->asArray()->all();
+
 
                 if (empty($ajxxbQueryArray)) {
                     return true;//如果是空数组，说明没有什么可更新的
@@ -70,8 +71,11 @@ class Sync extends Model
                                 }
                                 $patent->patentEacCaseNo = $ajxxbOneSingleRow['wofangwh'];//这里是我方卷号，AAA或BAA开头
                                 $patent->patentAgent = $ajxxbOneSingleRow['zhubanr'];
-                                $patent->UnixTimestamp = $ajxxbOneSingleRow['modtime'];
-                                $patent->save();
+                                $patent->UnixTimestamp = $ajxxbOneSingleRow['modtime'] ?? 0 ;
+
+                                if (!$patent->save()) {
+                                    print_r($patent->errors);exit;
+                                }
 
                                 //这里本应该是发邮件给客户提醒立案了，
                                 //但是，这是从EAC同步过来的，如果客户没有认领这个案子，就不知道发邮件给谁
@@ -150,7 +154,7 @@ class Sync extends Model
             $eventRwslIDArray = Yii::$app->db->createCommand('SELECT eventRwslID FROM Patentevents')->queryColumn();
 
             for ($i = 0; $i<=$nums; $i++) {
-                $rwslQueryArray = Rwsl::find()->where(['modtime' > $thresholdTimestamp])->limit($offset)->offset($i * $offset)->asArray()->all();
+                $rwslQueryArray = Rwsl::find()->where(['>','modtime' , $thresholdTimestamp])->limit($offset)->offset($i * $offset)->asArray()->all();
 
                 if (!empty($rwslQueryArray))
                 {
@@ -192,13 +196,13 @@ class Sync extends Model
                             //不管这个zhixingsj有没有值，都同步一下
                             //如果有值，说明这是一个尚未同步就已经完成了的任务（暂定24小时同步一次），这种情况还挺多
                             //如果空值，说明这是一个新建任务，尚未完成
-                            $event->eventFinishUnixTS = strtotime($rwslOneSingleRow['zhixingsj']) * 1000; //13位Unix时间戳
+                            $event->eventFinishUnixTS = strtotime($rwslOneSingleRow['zhixingsj']) * 1000 ; //13位Unix时间戳
 
                             //如果$rwslOneSingleRow['zhixingsj']是空值，那说明是新记录，但这任务还没完成，
                             //本来要发邮件提醒执行人，但后来考虑到这样每次都重复发送，而且EAC里都有相关未完成任务，所以不必提醒
 
-                            $event->eventContentID = $rwslOneSingleRow['rw_rwdy_id'];
-                            $event->eventContent = Rwsl::rwdyIdMappingContent()[$rwslOneSingleRow['rw_rwdy_id']];
+                            $event->eventContentID = $rwslOneSingleRow['rw_rwdy_id'] ? $rwslOneSingleRow['rw_rwdy_id']  : 'notdefined';
+                            $event->eventContent = Rwsl::rwdyIdMappingContent()[$event->eventContentID] ;
                             $event->save();
 
 

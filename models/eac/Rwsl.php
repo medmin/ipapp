@@ -37,6 +37,7 @@ class Rwsl extends \yii\db\ActiveRecord
     public static function rwdyIdMappingContent()
     {
         return [
+            'notdefined' => '未定义',
             '01' => '客户信息复核',
             '02'=>'立案采集',
             '020'=>'文件抄送',
