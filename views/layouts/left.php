@@ -37,6 +37,7 @@
                         ['label' => '菜单列表', 'options' => ['class' => 'header']],
                         ['label' => '我的进度', 'icon' => 'info-circle', 'url' => \yii\helpers\Url::to(['/'])],
                         ['label' => '我的案件', 'icon' => 'files-o', 'url' => \yii\helpers\Url::to(['users/my-patents'])],
+
                         ['label' => '我要反馈', 'icon' => 'edit', 'url' => \yii\helpers\Url::to(['site/contact'])],
                     ],
                 ]

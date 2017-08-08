@@ -41,14 +41,14 @@ class Patents extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['patentAjxxbID', 'patentEacCaseNo', 'patentType', 'patentUserID', 'patentUsername', 'patentUserLiaisonID', 'patentUserLiaison', 'patentAgent', 'patentProcessManager', 'patentTitle', 'patentNote', 'UnixTimestamp'], 'required'],
+            [['patentAjxxbID', 'patentEacCaseNo', 'patentType', 'UnixTimestamp'], 'required'],
             [['patentUserID', 'patentUserLiaisonID', 'UnixTimestamp'], 'integer'],
-            [['patentNote'], 'string'],
             [['patentAjxxbID', 'patentEacCaseNo'], 'string', 'max' => 20],
             [['patentType'], 'string', 'max' => 8],
             [['patentUsername'], 'string', 'max' => 16],
             [['patentUserLiaison', 'patentAgent', 'patentProcessManager'], 'string', 'max' => 24],
             [['patentTitle', 'patentApplicationNo', 'patentPatentNo'], 'string', 'max' => 40],
+            [['patentNote'], 'string', 'max' => 1000],
             [['patentAjxxbID'], 'unique'],
         ];
     }
