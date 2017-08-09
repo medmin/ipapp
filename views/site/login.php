@@ -21,7 +21,7 @@ $fieldOptions2 = [
 
 <div class="login-box">
     <div class="login-logo">
-        <a href="#"><b>IP</b>intel</a>
+        <a href="#">阳光惠远客服中心</a>
     </div>
     <!-- /.login-logo -->
     <div class="login-box-body">

@@ -71,11 +71,9 @@ class Sync extends Model
                                 }
                                 $patent->patentEacCaseNo = $ajxxbOneSingleRow['wofangwh'];//这里是我方卷号，AAA或BAA开头
                                 $patent->patentAgent = $ajxxbOneSingleRow['zhubanr'];
+                                $patent->patentTitle = $ajxxbOneSingleRow['zhuanlizwmc'] ?? '尚未定义专利名称或标题';
                                 $patent->UnixTimestamp = $ajxxbOneSingleRow['modtime'] ?? 0 ;
-
-                                if (!$patent->save()) {
-                                    print_r($patent->errors);exit;
-                                }
+                                $patent->save();
 
                                 //这里本应该是发邮件给客户提醒立案了，
                                 //但是，这是从EAC同步过来的，如果客户没有认领这个案子，就不知道发邮件给谁
