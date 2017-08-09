@@ -47,7 +47,7 @@ class ContactForm extends Model
         if ($this->validate()) {
             $notice = new Notification();
             $notice->sender = Yii::$app->user->id;
-            $notice->receiver = Yii::$app->user->identity->userLiaisonID ?? 1; // TODO
+            $notice->receiver = Yii::$app->user->identity->userLiaisonID ?: 1;
             $notice->content = $this->body;
             $notice->type = Notification::TYPE_NOTICE;
             $notice->save();

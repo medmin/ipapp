@@ -85,6 +85,7 @@ return [
     'Patent Application No' => '专利申请号',
     'Patent Patent No' => '专利授权号',
     'Patent Note' => '备注',
+    'Update Patents' => '更新专利',
 
     //Patentevents
     'Patentevents' => '专利事务列表',
@@ -102,4 +103,7 @@ return [
 
     // Patents View
     'Patents Progress' => '专利进度',
+
+    // Notification
+    'Notify' => '消息',
 ];

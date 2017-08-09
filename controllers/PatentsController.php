@@ -113,19 +113,17 @@ class PatentsController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
 
-            $users = new Users();
-            $userEmail = $users::findByID($model->patentUserID)->userEmail;
-
-            Yii::$app->queue->push(new SendEmailJob([
-                'mailViewFileNameString' => 'patentUpdateMsg',
-                'varToViewArray' => ['model' => $model, 'users' => $users],
-                'fromAddressArray' => ['kf@shineip.com' => '阳光惠远客服中心'],
-                'toAddressArray' => [$userEmail,'info@shineip.com'],
-                'emailSubjectString' => '提醒：专利信息被修改'
-            ]));
-
-
-
+            // 暂时取消发邮件
+//            $users = new Users();
+//            $userEmail = $users::findByID($model->patentUserID)->userEmail;
+//
+//            Yii::$app->queue->push(new SendEmailJob([
+//                'mailViewFileNameString' => 'patentUpdateMsg',
+//                'varToViewArray' => ['model' => $model, 'users' => $users],
+//                'fromAddressArray' => ['kf@shineip.com' => '阳光惠远客服中心'],
+//                'toAddressArray' => [$userEmail,'info@shineip.com'],
+//                'emailSubjectString' => '提醒：专利信息被修改'
+//            ]));
 
             return $this->redirect(['view', 'id' => $model->patentID]);
         } else {

@@ -141,13 +141,14 @@ class HelloController extends Controller
             $event->eventFinishPerson = ($i % 2 == 0 ? 'N/A' : Factory::create('zh_CN')->name);
             $event->eventFinishUnixTS = ($i % 2 == 0 ? 0 : time());
             if ($i == 4) {
-                $event->eventSatus = 'PENDING';
+                $event->eventStatus = 'PENDING';
             }
             if ($i % 2 != 0 && $i != 4) {
-                $event->eventSatus = 'INACTIVE';
+                $event->eventStatus = 'INACTIVE';
             }
             $event->save();
         }
+        $this->stdout('OK');
         return Controller::EXIT_CODE_NORMAL;
     }
 }

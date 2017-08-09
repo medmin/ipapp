@@ -8,7 +8,12 @@ $this->title = '';
     <?php
     $events = app\models\Patentevents::find()->where(['eventUserID' => Yii::$app->user->id])->orderBy(['eventCreatUnixTS' => SORT_DESC])->all();
     if (!$events) {
-        echo '该专利暂无动态';
+        $html = '<div class="alert alert-warning alert-dismissible">';
+//        $html .= '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>';
+        $html .= '<h4><i class="icon fa fa-warning"></i> 提示!</h4>';
+        $html .= '您未绑定专利，可以' . \yii\helpers\Html::a('点此', ['site/contact'], ['title' => '反馈']) . '进行反馈或者致电客服进行绑定';
+        $html .= '</div>';
+        echo $html;
         // 没有进度的时候可以显示一些新闻之类的 TODO
     } else {
         echo $this->render('/patents/timeline', ['models' => $events, 'link' => true]);

@@ -15,21 +15,21 @@ use yii\widgets\ActiveForm;
         'method' => 'get',
     ]); ?>
 
-    <?= $form->field($model, 'patentID') ?>
+    <?//= $form->field($model, 'patentID') ?>
 
-    <?= $form->field($model, 'patentAjxxbID') ?>
+    <?= $form->field($model, 'patentAjxxbID', ['options' => ['class' => 'col-md-6']]) ?>
 
-    <?= $form->field($model, 'patentEacCaseNo') ?>
+    <?= $form->field($model, 'patentEacCaseNo', ['options' => ['class' => 'col-md-6']]) ?>
 
-    <?= $form->field($model, 'patentType') ?>
+    <?//= $form->field($model, 'patentType') ?>
 
-    <?= $form->field($model, 'patentUserID') ?>
+    <?= $form->field($model, 'patentUserID', ['options' => ['class' => 'col-md-3']]) ?>
 
-    <?php // echo $form->field($model, 'patentUsername') ?>
+    <?= $form->field($model, 'patentUsername', ['options' => ['class' => 'col-md-3']]) ?>
 
-    <?php // echo $form->field($model, 'patentUserLiaisonID') ?>
+    <?= $form->field($model, 'patentUserLiaisonID', ['options' => ['class' => 'col-md-3']]) ?>
 
-    <?php // echo $form->field($model, 'patentUserLiaison') ?>
+    <?= $form->field($model, 'patentUserLiaison', ['options' => ['class' => 'col-md-3']]) ?>
 
     <?php // echo $form->field($model, 'patentAgent') ?>
 
@@ -45,7 +45,7 @@ use yii\widgets\ActiveForm;
 
     <?php // echo $form->field($model, 'UnixTimestamp') ?>
 
-    <div class="form-group">
+    <div class="form-group col-md-12">
         <?= Html::submitButton(Yii::t('app', 'Search'), ['class' => 'btn btn-primary']) ?>
         <?= Html::resetButton(Yii::t('app', 'Reset'), ['class' => 'btn btn-default']) ?>
     </div>

@@ -8,7 +8,7 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="my-patents">
     <?php
-    if (!$dataProvider) {
+    if (!$dataProvider->models) {
         echo '<div class="callout callout-warning"><p><i class="icon fa fa-warning"></i> 抱歉您暂时没有专利记录</p></div>';
     } else {
         foreach ($dataProvider->models as $model) {

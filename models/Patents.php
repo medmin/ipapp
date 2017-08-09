@@ -84,4 +84,27 @@ class Patents extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Patentevents::className(), ['patentAjxxbID' => 'patentAjxxbID']);
     }
+
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            if (!$insert) {
+                if (isset($this->dirtyAttributes['patentUserID'])) {
+                    $user = Users::findOne($this->patentUserID);
+                    if (!$user) return false;
+                    $this->patentUsername = $user->userFullname;
+                    Patentevents::updateAll(['eventUserID' => $user->userID, 'eventUsername' => $user->userFullname], ['patentAjxxbID' => $this->patentAjxxbID, 'eventUserID' => 0]);
+                }
+                if (isset($this->dirtyAttributes['patentUserLiaisonID']) && $this->dirtyAttributes['patentUserLiaisonID'] != 0) {
+                    $liaison = Users::findOne($this->patentUserLiaisonID);
+                    if (!$liaison) return false;
+                    $this->patentUserLiaison = $liaison->userFullname;
+                    Patentevents::updateAll(['eventUserLiaisonID' => $liaison->userID, 'eventUserLiaison' => $liaison->userFullname], ['patentAjxxbID' => $this->patentAjxxbID, 'eventUserLiaisonID' => 0]);
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

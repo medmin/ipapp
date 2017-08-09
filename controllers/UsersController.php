@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\Notification;
 use app\models\Patents;
+use Symfony\Component\Yaml\Tests\A;
 use Yii;
 use app\models\Users;
 use app\models\UsersSearch;
@@ -116,7 +117,7 @@ class UsersController extends Controller
                     $auth = Yii::$app->authManager;
                     $authorRole = $auth->getRole('manager');
                     $auth->assign($authorRole, $model->userID);
-                } elseif ($model->userRole == Users::ROLE_CONTROLLER) {
+                } elseif ($model->userRole == Users::ROLE_SECONDARY_ADMIN) {
                     $auth = Yii::$app->authManager;
                     $authorRole = $auth->getRole('controller');
                     $auth->assign($authorRole, $model->userID);
@@ -251,14 +252,25 @@ class UsersController extends Controller
     }
 
     /**
-     * 获取未读消息
+     * 获取未读消息 所有消息
      * @return string
      */
     public function actionNotify()
     {
         $model = Notification::find()->where(['receiver' => Yii::$app->user->id, 'status' => 0])->all();
-//        Notification::ignore();
-        return $this->render('notify', ['models' => $model]);
+        Notification::ignore();
+        $allNotifies = new ActiveDataProvider([
+            'query' => Notification::find()->where(['receiver' => Yii::$app->user->id]),
+            'pagination' => [
+                'pageSize' => 1000, // 稍后处理分页问题 TODO
+            ],
+            'sort' => [
+                'defaultOrder' => [
+                    'createdAt' => SORT_DESC,
+                ]
+            ]
+        ]);
+        return $this->render('notify', ['models' => $model, 'allModels' => $allNotifies]);
     }
 
     /**

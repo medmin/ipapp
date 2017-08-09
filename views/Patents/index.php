@@ -35,7 +35,7 @@ var searchToggle = function(){
                 'dataProvider' => $dataProvider,
 //        'filterModel' => $searchModel,
                 'columns' => [
-                    ['class' => 'yii\grid\SerialColumn'],
+//                    ['class' => 'yii\grid\SerialColumn'],
 
 //            'patentID',
 //            'patentAjxxbID',
@@ -50,10 +50,19 @@ var searchToggle = function(){
                     'patentTitle',
                     'patentApplicationNo',
                     'patentPatentNo',
-                    'patentNote:ntext',
+//                    'patentNote:ntext',
                     // 'UnixTimestamp:datetime',
 
-                    ['class' => 'yii\grid\ActionColumn'],
+                    [
+                        'class' => 'yii\grid\ActionColumn',
+                        'header' => Yii::t('app', 'Operation'),
+                        'template' => '{view} {update} '/* . 'associate' */,
+                        'buttons' => [
+                            'associate' => function($url, $model, $key) {
+                                return Html::a('<span class="fa fa-user-plus"></span>', 'javascript:;', ['title' => '关联用户', 'data-toggle' => 'tooltip']);
+                            }
+                        ],
+                    ],
                 ],
             ]); ?>
         </div>
