@@ -41,7 +41,7 @@ class Patentevents extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['eventRwslID', 'eventContentID', 'patentAjxxbID', 'eventCreatUnixTS'], 'required'],
+            [['eventRwslID', 'eventContentID', 'patentAjxxbID', 'eventContent'], 'required'],
             [['eventUserID', 'eventUserLiaisonID', 'eventCreatUnixTS', 'eventFinishUnixTS'], 'integer'],
             [['eventRwslID', 'eventContentID'], 'string', 'max' => 32],
             [['eventContent', 'eventNote'], 'string', 'max' => 1000],
