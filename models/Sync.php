@@ -255,7 +255,7 @@ class Sync extends Model
         {
             //这是查patents表里，所有的已经存在的AjxxbID
             $patentAjxxbIDArray = Yii::$app->db
-                ->createCommand('SELECT patentAjxxbID FROM Patents')->queryColumn();
+                ->createCommand('SELECT patentAjxxbID FROM patents')->queryColumn();
 
             $offset = 1000; //每次查1000条
             $nums = floor(Ajxxb::find()->count() / $offset);
@@ -410,7 +410,7 @@ class Sync extends Model
             $offset = 1000;
             $nums = floor(Rwsl::find()->count() / $offset);
             $eventRwslIDArray = Yii::$app->db
-                ->createCommand('SELECT eventRwslID FROM Patentevents')->queryColumn();
+                ->createCommand('SELECT eventRwslID FROM patentevents')->queryColumn();
 
             for ($i = 0; $i<=$nums; $i++)
             {
