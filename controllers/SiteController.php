@@ -105,26 +105,10 @@ class SiteController extends Controller
     {
         $this->layout = 'main-login';
         $model = new SignupForm();
-        $users = new Users();
-        if ($model->load(Yii::$app->request->post())) {
-            // 暂时取消发邮件
-            if (false && $user = $model->signup()) {
-
-                //经过这个controller，是用户自行注册，发欢迎邮件
-                $userEmail = $users->userEmail;
-
-                Yii::$app->queue->push(new SendEmailJob([
-                    'mailViewFileNameString' => 'signupWelcomeMsg',
-                    'varToViewArray' => ['users' => $users],
-                    'fromAddressArray' => ['kf@shineip.com' => '阳光惠远客服中心'],
-                    'toAddressArray' => [$userEmail,'info@shineip.com'],
-                    'emailSubjectString' => '欢迎您注册新用户'
-                ]));
-
-                if (Yii::$app->getUser()->login($user)) {
+        if ($model->load(Yii::$app->request->post()) && $user = $model->signup()) {
+            if (Yii::$app->getUser()->login($user)) {
                     return $this->goHome();
                 }
-            }
         }
 
         return $this->render('signup', [
