@@ -32,16 +32,16 @@ $this->params['breadcrumbs'][] = $this->title;
             <div class="tab-pane" id="allNotifies">
                 <div class="box-footer box-comments">
                     <?php
-                    if (!$allModels) {
+                    if (!($allModels->models)) {
                         echo '暂时没有任何消息';
                     } else {
-                        foreach ($allModels->models as $model) {
-                            echo $this->render('/notification/show', ['model' => $model]);
+                        foreach ($allModels->models as $one_model) {
+                            echo $this->render('/notification/show', ['model' => $one_model]);
                         }
                         // 分页显示问题稍后处理 TODO
-//                        echo \yii\widgets\LinkPager::widget([
-//                            'pagination' => $allModels->pagination
-//                        ]);
+                        echo \yii\widgets\LinkPager::widget([
+                            'pagination' => $allModels->pagination
+                        ]);
                     }
                     ?>
                 </div>

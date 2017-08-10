@@ -62,6 +62,10 @@ class Notification extends \yii\db\ActiveRecord
         Notification::updateAll(['status' => 1], ['receiver' => Yii::$app->user->id, 'status' => 0]);
     }
 
+    /**
+     * 获取发送方用户信息
+     * @return \yii\db\ActiveQuery
+     */
     public function getUser()
     {
         return $this->hasOne(Users::className(), ['userID' => 'sender']);

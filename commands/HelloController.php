@@ -82,6 +82,7 @@ class HelloController extends Controller
             print_r($admin->errors);
             return Controller::EXIT_CODE_ERROR;
         }else{
+            $this->stdout('Init OK' . PHP_EOL);
             return Controller::EXIT_CODE_NORMAL;
         }
     }

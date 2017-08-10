@@ -49,7 +49,7 @@ class UsersController extends Controller
                     [
                         'allow' => true,
                         'actions' => ['index', 'view', 'notify'],
-                        'roles' => ['admin', 'manager', 'controller']
+                        'roles' => ['admin', 'manager', 'secadmin']
                     ],
                     [
                         'allow' => true,
@@ -119,7 +119,7 @@ class UsersController extends Controller
                     $auth->assign($authorRole, $model->userID);
                 } elseif ($model->userRole == Users::ROLE_SECONDARY_ADMIN) {
                     $auth = Yii::$app->authManager;
-                    $authorRole = $auth->getRole('controller');
+                    $authorRole = $auth->getRole('secadmin');
                     $auth->assign($authorRole, $model->userID);
                 }
                 //经过这个controller，是案源人或admin手动添加的Users，发的是通知邮件

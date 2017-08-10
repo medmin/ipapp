@@ -49,7 +49,7 @@ class ContactForm extends Model
             $notice->sender = Yii::$app->user->id;
             $notice->receiver = Yii::$app->user->identity->userLiaisonID ?: 1;
             $notice->content = $this->body;
-            $notice->type = Notification::TYPE_NOTICE;
+            $notice->type = Notification::TYPE_FEEDBACK;
             $notice->save();
             return true;
         }

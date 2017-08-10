@@ -72,7 +72,7 @@ class RbacController extends Controller
 //        $auth->assign($manager, 2);
         $auth->assign($admin, 1);
 
-        $this->stdout('Complete');
+        $this->stdout('Complete' . PHP_EOL);
         return Controller::EXIT_CODE_NORMAL;
 
     }
