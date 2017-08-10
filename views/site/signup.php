@@ -36,7 +36,7 @@ $this->registerJs("
 ?>
 <div class="register-box">
     <div class="register-logo">
-        <a href="javascript:;"><b>Admin</b>LTE</a>
+        <a href="javascript:;">阳光惠远客服中心</a>
     </div>
     <div class="register-box-body">
         <!--        <p class="login-box-msg">Register a new membership</p>-->

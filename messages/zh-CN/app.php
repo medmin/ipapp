@@ -16,6 +16,12 @@ return [
     'This email has already been taken' => '邮箱已被使用',
     'This citizenID number has already been taken' => '该身份证号已被使用',
     'Incorrect username or password.' => '用户名或密码错误',
+    'Citizen Id' => '身份证号码',
+    'Organization' => '工作单位',
+    'Name' => '姓名',
+    'Land Line' => '固定电话',
+    'Cell Phone' =>  '手机',
+    'Address' => '收货地址',
 
     // user_form
     'Client' => '普通用户',

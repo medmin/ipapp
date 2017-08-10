@@ -54,6 +54,12 @@ class SignupForm extends Model
             'email' => Yii::t('app', 'Email'),
             'password' => Yii::t('app', 'Password'),
             'repeatPassword' => Yii::t('app', 'Repeat Password'),
+            'citizenID' => Yii::t('app', 'Citizen Id'),
+            'organization' => Yii::t('app', 'Organization'),
+            'name' => Yii::t('app', 'Name'),
+            'landLine' => Yii::t('app', 'Land Line'),
+            'cellPhone' => Yii::t('app', 'Cell Phone'),
+            'address' => Yii::t('app', 'Address')
         ];
     }
 

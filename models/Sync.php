@@ -224,17 +224,277 @@ class Sync extends Model
         return true;
     }
 
-    //patents表里 ，youxiaobj不是01的，就删了
-    public function deleteYouxiaobjNot01(){
 
+    /**
+     * @param $ajxxbShenqingh
+     * @param $patentApplicationNo
+     *
+     * 只在老记录更新的时候用
+     */
+    public function hasNewApplicationNo($ajxxbShenqingh, $patentApplicationNo)
+    {
+        if ( !empty($ajxxbShenqingh) && $patentApplicationNo == 'Not Available Yet')
+        {
+            //TODO send emails
+        }
     }
 
-    //所有rwid是06的，属于新案质检，是提交到CPC前最后一步，通常当天就搞定了
-    //也就是说，还没来得及同步，这个任务从创建到完成，一个工作日之内就完事了
-    public function rwdyidIs06(){
 
 
+    public function newSyncPatents(int $days = 1000)
+    {
+        //设置默认同步最近1000天的记录，所以把时间戳设置为1000天前
+        $thresholdTimestamp = strtotime('-' . $days . 'days') * 1000;
 
+        $isolationLevel = Transaction::SERIALIZABLE;
+
+        //所有同步，都必须是transaction，如果同步失败，那么其他所有数据都roll back
+        $transaction = Yii::$app->db->beginTransaction($isolationLevel);
+
+        try
+        {
+            //这是查patents表里，所有的已经存在的AjxxbID
+            $patentAjxxbIDArray = Yii::$app->db
+                ->createCommand('SELECT patentAjxxbID FROM Patents')->queryColumn();
+
+            $offset = 1000; //每次查1000条
+            $nums = floor(Ajxxb::find()->count() / $offset);
+
+            for ($i = 0; $i <= $nums; $i++)
+            {
+                //查询每一个1000条里，最近1000天有过修改的案卷信息
+                $ajxxbQueryArray = Ajxxb::find()->where(['>', 'modtime', $thresholdTimestamp])
+                    ->limit($offset)->offset($i * $offset)->asArray()->all();
+
+                if(!empty($ajxxbQueryArray))
+                {
+                    foreach ($ajxxbQueryArray as  $ajxxbOneSingleRow)
+                    {
+                        if(in_array($ajxxbOneSingleRow['aj_ajxxb_id'], $patentAjxxbIDArray))
+                        {
+                            $thisOnePatent = Patents::findOne(['patentAjxxbID' => $ajxxbOneSingleRow['aj_ajxxb_id']]);
+
+                            //ajxxbID已经存在，老记录，同时youxiaobj仍然是01，这是更新
+                            //为什么要全部更新呢，因为考虑一个问题，就是某几个字段可能会有变化，我也不能预知具体哪个字段变化
+                            //干脆全部字段都重新更新一下
+                            if ($ajxxbOneSingleRow['youxiaobj'] == '01')
+                            {
+                                switch ($ajxxbOneSingleRow['zhuanlilx']) {
+                                    case '01':
+                                        $thisOnePatent->patentType = '发明专利';
+                                        break;
+                                    case '02':
+                                        $thisOnePatent->patentType = '实用新型';
+                                        break;
+                                    case '03':
+                                        $thisOnePatent->patentType = '外观设计';
+                                        break;
+                                    default:
+                                        $thisOnePatent->patentType = '请管理员添加案件类型';
+                                }
+
+                                $thisOnePatent->patentEacCaseNo = $ajxxbOneSingleRow['wofangwh'];//这里是我方卷号，AAA或BAA开头
+                                $thisOnePatent->patentAgent = $ajxxbOneSingleRow['zhubanr'];
+                                $thisOnePatent->patentTitle = $ajxxbOneSingleRow['zhuanlizwmc'] ?? '尚未定义专利名称或标题';
+
+                                //其实如果patents表里，申请号是Not Available Yet
+                                //但最新的更新的时候，eac里有了一个值，
+                                //那就要提醒客户了，说哎呀，你的专利收到受理通知书了
+                                //要不要调用一个单独的函数，如果申请号变了，就发邮件
+                                $this->hasNewApplicationNo
+                                (
+                                    $ajxxbOneSingleRow['shenqingh'],
+                                    $thisOnePatent->patentApplicationNo
+                                );
+
+                                $thisOnePatent->patentApplicationNo = $ajxxbOneSingleRow['shenqingh'] ?? 'Not Available Yet';
+
+                                $thisOnePatent->UnixTimestamp = $ajxxbOneSingleRow['modtime'] ?? 0 ;
+                                $thisOnePatent->save();
+                            }
+                            else
+                            {
+                                //老记录，但youxiaobj不是01了，要删除，但其实不能删，数据库不准删，报错
+                                //如果要删，要先把patentevent表里所有的这个专利相关的专利 事务先删干净，再删这个专利。
+
+                                $allEventsOfThisOnePatent = Patentevents::find()
+                                    ->where(['patentAjxxbID' => $ajxxbOneSingleRow['aj_ajxxb_id']])->all();
+
+                                foreach ($allEventsOfThisOnePatent as $event)
+                                {
+                                    $event->delete();
+                                }
+
+                                $thisOnePatent->delete();
+                            }
+                        }
+                        else
+                        {
+                            //新记录，插入操作
+                            $patent = new Patents();
+
+                            if ($ajxxbOneSingleRow['youxiaobj'] == '01')
+                            {
+                                $patent->patentAjxxbID = $ajxxbOneSingleRow['aj_ajxxb_id'];
+
+                                switch ($ajxxbOneSingleRow['zhuanlilx']) {
+                                    case '01':
+                                        $patent->patentType = '发明专利';
+                                        break;
+                                    case '02':
+                                        $patent->patentType = '实用新型';
+                                        break;
+                                    case '03':
+                                        $patent->patentType = '外观设计';
+                                        break;
+                                    default:
+                                        $patent->patentType = '请管理员添加案件类型';
+                                }
+
+                                $patent->patentEacCaseNo = $ajxxbOneSingleRow['wofangwh'];//这里是我方卷号，AAA或BAA开头
+                                //可以新增一个函数，如果zhubanr是空，就发邮件 给张金珠，提醒要分配主办人了
+                                $patent->patentAgent = $ajxxbOneSingleRow['zhubanr'];
+                                $patent->patentTitle = $ajxxbOneSingleRow['zhuanlizwmc'] ?? '尚未定义专利名称或标题';
+                                $patent->patentApplicationNo = $ajxxbOneSingleRow['shenqingh'] ?? 'Not Available Yet';
+                                $patent->UnixTimestamp = $ajxxbOneSingleRow['modtime'] ?? 0 ;
+                                $patent->save();
+                            }
+
+                        }
+                    }
+                }
+
+            }
+
+
+            $transaction->commit();
+
+        }
+        catch (\Exception $e)
+        {
+            $transaction->rollBack();
+            throw $e;
+        }
+        return true;
+    }
+
+
+    /*
+        所有rwid是06的，属于新案质检，是提交到CPC前最后一步，通常当天就搞定了
+        也就是说，还没来得及同步，这个任务从创建到完成，一个工作日之内就完事了
+
+        这个函数只在新插入记录的时候调用
+    */
+    public function rwdyidIs06($rwdyID, $zhixingsj, $emailAddress)
+    {
+
+        if ( $rwdyID == '06' && !($zhixingsj == '') )
+        {
+            //TODO send emails
+        }
+    }
+
+
+    public function newSyncPatentevents(int $days = 1000)
+    {
+
+        //设置默认同步最近1000天的记录，所以把时间戳设置为1000天前，
+        $thresholdTimestamp = strtotime('-' . $days . 'days') * 1000; //13位Unix时间戳，因为EAC里是这个格式
+
+        //所有同步，都必须是transaction，如果同步失败，那么其他所有数据都roll back
+        $isolationLevel = Transaction::SERIALIZABLE;
+        $transaction = Yii::$app->db->beginTransaction($isolationLevel);
+
+        try
+        {
+            $offset = 1000;
+            $nums = floor(Rwsl::find()->count() / $offset);
+            $eventRwslIDArray = Yii::$app->db
+                ->createCommand('SELECT eventRwslID FROM Patentevents')->queryColumn();
+
+            for ($i = 0; $i<=$nums; $i++)
+            {
+                $rwslQueryArray = Rwsl::find()->where(['>', 'modtime', $thresholdTimestamp])
+                    ->limit($offset)->offset($i * $offset)->asArray()->all();
+
+                if (!empty($rwslQueryArray))
+                {
+                    foreach ($rwslQueryArray as $rwslOneSingleRow)
+                    {
+                        if (in_array($rwslOneSingleRow['rw_rwsl_id'], $eventRwslIDArray))
+                        {
+                            $thisOneEvent = Patentevents::findOne(['eventRwslID' => $rwslOneSingleRow['rw_rwsl_id']]);
+
+                            if( $rwslOneSingleRow['youxiaobj']  == '01' )
+                            {
+                                $thisOneEvent->patentAjxxbID = $rwslOneSingleRow['aj_ajxxb_id'];
+                                $thisOneEvent->eventRwslID = $rwslOneSingleRow['rw_rwsl_id'];
+                                $thisOneEvent->eventCreatPerson = $rwslOneSingleRow['chuangjianr'];
+                                $thisOneEvent->eventCreatUnixTS = strtotime($rwslOneSingleRow['chuangjiansj']) * 1000; //13位Unix时间戳
+                                $thisOneEvent->eventFinishPerson = $rwslOneSingleRow['zhixingr'];
+
+                                //不管这个zhixingsj有没有值，都同步一下
+                                //如果有值，说明这是一个尚未同步就已经完成了的任务（暂定24小时同步一次），这种情况还挺多
+                                //如果空值，说明这是一个新建任务，尚未完成
+                                $thisOneEvent->eventFinishUnixTS = strtotime($rwslOneSingleRow['zhixingsj']) * 1000 ; //13位Unix时间戳
+
+                                //如果$rwslOneSingleRow['zhixingsj']是空值，那说明是新记录，但这任务还没完成，
+                                //本来要发邮件提醒执行人，但后来考虑到这样每次都重复发送，而且EAC里都有相关未完成任务，所以不必提醒
+
+                                $thisOneEvent->eventContentID = $rwslOneSingleRow['rw_rwdy_id'] ? $rwslOneSingleRow['rw_rwdy_id']  : 'notdefined';
+                                $thisOneEvent->eventContent = Rwsl::rwdyIdMappingContent()[$thisOneEvent->eventContentID] ;
+                                $thisOneEvent->save();
+                            }
+                            else
+                            {
+                                $thisOneEvent->delete();
+                            }
+                        }
+                        else
+                        {
+                            //新插入
+
+                            $newEvent = new Patentevents();
+
+                            $newEvent->patentAjxxbID = $rwslOneSingleRow['aj_ajxxb_id'];
+                            $newEvent->eventRwslID = $rwslOneSingleRow['rw_rwsl_id'];
+                            $newEvent->eventCreatPerson = $rwslOneSingleRow['chuangjianr'];
+                            $newEvent->eventCreatUnixTS = strtotime($rwslOneSingleRow['chuangjiansj']) * 1000; //13位Unix时间戳
+                            $newEvent->eventFinishPerson = $rwslOneSingleRow['zhixingr'];
+
+                            //这里会发生一个小问题，如果同步频率过高，
+                            //比如每1小时同步一次，只有这1小时里新建并完成的任务才会被这个函数捕捉到，才能发邮件
+                            //本质上，这是只有新增一个已经完成了的新案质检任务才会发邮件通知客户
+                            //会漏发，但不怕，因为还有其他的方式通知到客户的，但不会重复发送邮件
+                            $this->rwdyidIs06
+                            (
+                                $rwslOneSingleRow['rw_rwdy_id'],
+                                $rwslOneSingleRow['zhixingsj'],
+                                'dy@shineip.com'
+                            );
+
+                            $newEvent->eventFinishUnixTS = strtotime($rwslOneSingleRow['zhixingsj']) * 1000 ; //13位Unix时间戳
+                            $newEvent->eventContentID = $rwslOneSingleRow['rw_rwdy_id'] ? $rwslOneSingleRow['rw_rwdy_id']  : 'notdefined';
+                            $newEvent->eventContent = Rwsl::rwdyIdMappingContent()[$newEvent->eventContentID] ;
+
+                            $newEvent->save();
+
+                        }
+                    }
+
+                }
+
+
+            }
+
+            $transaction->commit();
+        }
+        catch (\Exception $e)
+        {
+            $transaction->rollBack();
+            throw $e;
+        }
+        return true;
     }
 
 }
