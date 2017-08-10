@@ -11,9 +11,11 @@ $this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Patentevents'), 'url
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="patentevents-create">
-
-    <?= $this->render('_form', [
-        'model' => $model,
-    ]) ?>
-
+    <div class="box box-primary">
+        <div class="box-body">
+            <?= $this->render('_form', [
+                'model' => $model,
+            ]) ?>
+        </div>
+    </div>
 </div>
