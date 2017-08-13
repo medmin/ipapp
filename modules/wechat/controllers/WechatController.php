@@ -9,13 +9,10 @@
 namespace app\modules\wechat\controllers;
 
 use Yii;
-use yii\web\Response;
-use yii\rest\ActiveController;
 use EasyWeChat\Foundation\Application;
 
-class WechatController extends ActiveController
+class WechatController extends \yii\base\Controller
 {
-    public $modelClass = '';
     public $options = [];
 
     public function init()
@@ -37,11 +34,14 @@ class WechatController extends ActiveController
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-        $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
+//        $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
 
         return $behaviors;
     }
 
+    /**
+     * 验证
+     */
     public function actionValid()
     {
         $app =  new Application($this->options);

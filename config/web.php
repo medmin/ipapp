@@ -10,6 +10,11 @@ $config = [
     'bootstrap' => ['log', 'queue'],
     'language' => 'zh-CN',
     'name' => '阳光惠远客服中心',
+    'modules' => [
+        'wechat' => [
+            'class' => 'app\modules\wechat\Module',
+        ]
+    ],
     'components' => [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
@@ -56,6 +61,7 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'POST wechat/valid' => 'wechat/wechat/valid'
             ],
         ],
         'assetManager' => [
