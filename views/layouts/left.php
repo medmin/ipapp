@@ -61,15 +61,15 @@
                         ['label' => '客户管理', 'icon' => 'group', 'url' => \yii\helpers\Url::to(['users/index'])],
                         ['label' => '专利申请', 'icon' => 'file-text-o', 'url' => \yii\helpers\Url::to(['patents/index'])],
                         ['label' => '专利事件', 'icon' => 'list-ul', 'url' => \yii\helpers\Url::to(['patentevents/index'])],
-                        [
-                            'label' => '系统工具',
-                            'icon' => 'share',
-                            'url' => '#',
-                            'items' => [
-                                ['label' => 'Gii', 'icon' => 'file-code-o', 'url' => ['/gii']],
-                                ['label' => 'Debug', 'icon' => 'dashboard', 'url' => ['/debug']]
-                            ],
-                        ],
+//                        [
+//                            'label' => '系统工具',
+//                            'icon' => 'share',
+//                            'url' => '#',
+//                            'items' => [
+//                                ['label' => 'Gii', 'icon' => 'file-code-o', 'url' => ['/gii']],
+//                                ['label' => 'Debug', 'icon' => 'dashboard', 'url' => ['/debug']]
+//                            ],
+//                        ],
                     ],
                 ]
             );

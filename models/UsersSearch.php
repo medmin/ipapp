@@ -74,7 +74,6 @@ class UsersSearch extends Users
             'userID' => $this->userID,
             'userLiaisonID' => $this->userLiaisonID,
             'userRole' => $this->userRole,
-            'UnixTimestamp' => $this->UnixTimestamp,
         ]);
 
         $query->andFilterWhere(['like', 'userUsername', $this->userUsername])
@@ -91,7 +90,8 @@ class UsersSearch extends Users
             ->andFilterWhere(['like', 'userAddress', $this->userAddress])
             ->andFilterWhere(['like', 'userLiaison', $this->userLiaison])
             ->andFilterWhere(['like', 'userNote', $this->userNote])
-            ->andFilterWhere(['like', 'authKey', $this->authKey]);
+            ->andFilterWhere(['like', 'authKey', $this->authKey])
+            ->andFilterWhere(['>', 'UnixTimestamp', $this->UnixTimestamp]);
 
         return $dataProvider;
     }

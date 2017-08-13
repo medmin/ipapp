@@ -33,7 +33,8 @@ $this->title = '';
                     <span class="info-box-text">今日新增</span>
                     <span class="info-box-number">
                         <?php
-                        echo \app\models\Users::find()->where(['>', 'UnixTimestamp', strtotime(date('Y-m-d ')) * 1000])->count();
+                        $count = \app\models\Users::find()->where(['>', 'UnixTimestamp', strtotime(date('Y-m-d ')) * 1000])->count();
+                        echo $count == 0 ? $count : Html::a($count, ['/users/index', 'UsersSearch[UnixTimestamp]' => strtotime(date('Ymd')) * 1000]);
                         ?>
                     </span>
                 </div>
@@ -49,7 +50,8 @@ $this->title = '';
                     <span class="info-box-text">新增专利</span>
                     <span class="info-box-number">
                         <?php
-                        echo \app\models\Patents::find()->where(['>', 'UnixTimestamp', strtotime(date('Y-m-d ')) * 1000])->count();
+                        $count = \app\models\Patents::find()->where(['>', 'UnixTimestamp', strtotime(date('Y-m-d ')) * 1000])->count();
+                        echo $count == 0 ? $count : Html::a($count, ['/patents/index', 'PatentsSearch[UnixTimestamp]' => strtotime(date('Ymd')) * 1000])
                         ?>
                     </span>
                 </div>

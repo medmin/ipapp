@@ -66,7 +66,6 @@ class PatentsSearch extends Patents
             'patentID' => $this->patentID,
             'patentUserID' => $this->patentUserID,
             'patentUserLiaisonID' => $this->patentUserLiaisonID,
-            'UnixTimestamp' => $this->UnixTimestamp,
         ]);
 
         $query->andFilterWhere(['like', 'patentAjxxbID', $this->patentAjxxbID])
@@ -79,7 +78,8 @@ class PatentsSearch extends Patents
             ->andFilterWhere(['like', 'patentTitle', $this->patentTitle])
             ->andFilterWhere(['like', 'patentApplicationNo', $this->patentApplicationNo])
             ->andFilterWhere(['like', 'patentPatentNo', $this->patentPatentNo])
-            ->andFilterWhere(['like', 'patentNote', $this->patentNote]);
+            ->andFilterWhere(['like', 'patentNote', $this->patentNote])
+            ->andFilterWhere(['>', 'UnixTimestamp', $this->UnixTimestamp]);
 
         return $dataProvider;
     }
