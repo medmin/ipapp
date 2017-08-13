@@ -22,7 +22,8 @@
         "yiisoft/yii2-redis": "~2.0.0",
         "dmstr/yii2-adminlte-asset": "2.*",
         "kartik-v/yii2-widget-datetimepicker": "*",
-        "overtrue/wechat": "~3.1"
+        "overtrue/wechat": "~3.1",
+	"doctrine/cache": "1.6.2"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",

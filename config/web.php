@@ -61,7 +61,7 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-                'POST wechat/valid' => 'wechat/wechat/valid'
+                'GET wechat/valid' => 'wechat/wechat/valid'
             ],
         ],
         'assetManager' => [
