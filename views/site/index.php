@@ -30,7 +30,7 @@ $this->title = '';
                 <span class="info-box-icon bg-yellow"><i class="fa fa-users"></i></span>
 
                 <div class="info-box-content">
-                    <span class="info-box-text">今日新增</span>
+                    <span class="info-box-text">新增用户</span>
                     <span class="info-box-number">
                         <?php
                         $count = \app\models\Users::find()->where(['>', 'UnixTimestamp', strtotime(date('Y-m-d ')) * 1000])->count();

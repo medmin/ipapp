@@ -36,6 +36,6 @@ dump.rdb
 # rabc dir
 /rbac
 
-# ignore index adn index-test
+# ignore index and index-test
 web/index-test.php
 web/index.php

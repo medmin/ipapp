@@ -16,13 +16,13 @@ class SyncController extends Controller
     public function actionSyncAjxxb()
     {
         (new \app\models\Sync())->newSyncPatents();
-        $this->stdout('Complete');
+        $this->stdout('Complete' . PHP_EOL);
 
     }
 
     public function actionSyncRwsl()
     {
         (new \app\models\Sync())->newSyncPatentevents();
-        $this->stdout('Complete');
+        $this->stdout('Complete' . PHP_EOL);
     }
 }

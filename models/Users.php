@@ -151,6 +151,20 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
+     * userRole 和 RBAC 中的对应关系
+     *
+     * @return array
+     */
+    public static function RoleCorrespond()
+    {
+        return [
+            self::ROLE_EMPLOYEE => 'manager',
+            self::ROLE_SECONDARY_ADMIN => 'secadmin',
+            self::ROLE_ADMIN => 'admin',
+        ];
+    }
+
+    /**
      * @inheritdoc
      */
     public static function findIdentity($id)
@@ -288,5 +302,17 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
+        if (!$insert) {
+            // 更新
+            $auth = Yii::$app->authManager;
+            if ($changedAttributes['userRole'] != Users::ROLE_CLIENT) {
+                // 先移除,踩坑：revoke() 和 assign() 第一参数要求是yii\rbac\Role对象，不是role的字符串
+                $auth->revoke($auth->getRole(self::RoleCorrespond()[$changedAttributes['userRole']]), $this->userID);
+            }
+            if ($this->userRole != Users::ROLE_CLIENT) {
+                // 再添加
+                $auth->assign($auth->getRole(self::RoleCorrespond()[$this->userRole]), $this->userID);
+            }
+        }
     }
 }

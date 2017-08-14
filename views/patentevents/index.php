@@ -7,7 +7,11 @@ use yii\grid\GridView;
 /* @var $searchModel app\models\PatenteventsSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = Yii::t('app', 'Patentevents');
+if (Yii::$app->controller->action->id == 'todo') {
+    $this->title = Yii::t('app', 'Patentevents TODO');
+} else {
+    $this->title = Yii::t('app', 'Patentevents');
+}
 $this->params['breadcrumbs'][] = $this->title;
 $this->registerJs('
 var searchToggle = function(){
@@ -40,7 +44,7 @@ var searchToggle = function(){
                 'columns' => [
                     ['class' => 'yii\grid\SerialColumn'],
 
-                    'eventID',
+//                    'eventID',
 //            'eventRwslID',
 //            'eventContentID',
                     'eventContent:ntext',

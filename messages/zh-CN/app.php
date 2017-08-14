@@ -54,7 +54,11 @@ return [
     'User Liaison' => '商务专员',
     'User Role' => '用户类型',
     'User Note' => '备注',
-
+    'User Liaison ID' => '商务专员ID',
+    'User Citizen ID' => '身份证号码',
+    'User Nationality' => '国籍',
+//    'User Givenname' => '',
+//    'User Firstname' => '',
 
     //users create
     'Create Users' => '创建新用户',
@@ -85,13 +89,15 @@ return [
     'Patent User ID' => '专利客户ID',
     'Patent Username' => '专利客户',
     'Patent User Liaison' => '商务专员',
-    'Patent Agent' => '专利代理人',
+    'Patent Agent' => '专利主办人',
     'Patent Process Manager' => '流程管理员',
     'Patent Title' => '标题',
     'Patent Application No' => '专利申请号',
     'Patent Patent No' => '专利授权号',
     'Patent Note' => '备注',
     'Update Patents' => '更新专利',
+    'My Patents' => '我的专利',
+    'Patent User Liaison ID' => '商务专员ID',
 
     //Patentevents
     'Patentevents' => '专利事务列表',
@@ -99,13 +105,19 @@ return [
     'Event ID' => '事务ID',
     'Event Content' => '事务内容',
     'Event Note' => '备注',
-    'Event Username' => '专利联系人账号',
+    'Event Username' => '专利客户账号',
     'Event User Liaison' => '商务专员',
     'Event Creat Person' => '事务创建人',
     'Event Creat Unix Ts' => '创建时间',
     'Event Finish Person' => '事务执行人',
     'Event Finish Unix Ts' => '执行时间',
-    'Event Satus' => '事务状态',
+    'Event Status' => '事务状态',
+    'Event User ID' => '专利客户ID',
+    'Event User Liaison ID' => '商务专员ID',
+    'ACTIVE' => '等待处理',
+    'INACTIVE' => '已完成',
+    'PENDING' => '正在进行中',
+    'Patentevents TODO' => '待办事项',
 
     // Patents View
     'Patents Progress' => '专利进度',

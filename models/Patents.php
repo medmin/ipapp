@@ -85,6 +85,15 @@ class Patents extends \yii\db\ActiveRecord
         return $this->hasMany(Patentevents::className(), ['patentAjxxbID' => 'patentAjxxbID']);
     }
 
+    /**
+     * 获取主办人联系方式
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAgentContact()
+    {
+        return $this->hasOne(Users::className(), ['userFullname' => 'patentAgent'])->select(['userCellphone', 'userLandline']);
+    }
+
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {

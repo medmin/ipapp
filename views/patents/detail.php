@@ -12,7 +12,7 @@
             </i>
         </span>
         <h3 class="timeline-header">
-            <?= ($link ? \yii\helpers\Html::a($model->patentAjxxbID, ['/patents/main', 'id' => $model->patentAjxxbID]) : '') . $model->eventContent ?>
+            <?= ($link ? \yii\helpers\Html::a($model->patent->patentTitle, ['/patents/main', 'id' => $model->patentAjxxbID]) : '') . $model->eventContent ?>
         </h3>
     </div>
 </li>

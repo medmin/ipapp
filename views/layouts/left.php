@@ -53,14 +53,18 @@
                 ]
             );
         } else {
+            $not_todo_count = \app\models\Patentevents::find()->where(['<', 'eventFinishUnixTS', time() * 1000])->andWhere(['eventStatus' => 'INACTIVE'])->count();
+            $all_count = \app\models\Patentevents::find()->count();
+            $todo_count = $all_count - $not_todo_count;
             echo dmstr\widgets\Menu::widget(
                 [
                     'options' => ['class' => 'sidebar-menu'],
                     'items' => [
                         ['label' => '菜单列表', 'options' => ['class' => 'header']],
                         ['label' => '客户管理', 'icon' => 'group', 'url' => \yii\helpers\Url::to(['users/index'])],
-                        ['label' => '专利申请', 'icon' => 'file-text-o', 'url' => \yii\helpers\Url::to(['patents/index'])],
+                        ['label' => '专利列表', 'icon' => 'file-text-o', 'url' => \yii\helpers\Url::to(['patents/index'])],
                         ['label' => '专利事件', 'icon' => 'list-ul', 'url' => \yii\helpers\Url::to(['patentevents/index'])],
+                        ['label' => '待办事务' . ($todo_count > 0 ? ('(' . $todo_count . ')') : ''), 'icon' => 'pencil', 'url' => \yii\helpers\Url::to(['/patentevents/todo'])],
 //                        [
 //                            'label' => '系统工具',
 //                            'icon' => 'share',

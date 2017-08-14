@@ -44,9 +44,9 @@ $("#finishDateTime").change(function(){
 
         <?= $form->field($model, 'eventFinishPerson')->textInput(['maxlength' => true]) ?>
 
-        <label for="" class="control-label">执行时间</label>
+        <label for="" class="control-label">到期时间</label>
         <?= \kartik\datetime\DateTimePicker::widget([
-            'options' => ['placeholder' => '选择一个执行日期'],
+            'options' => ['placeholder' => '设置一个到期时间'],
             'name' => 'datetime',
             'id' => 'finishDateTime',
             'value' => $model->eventFinishUnixTS == 0 ? '' : date('Y-m-d H:i', $model->eventFinishUnixTS / 1000),

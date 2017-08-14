@@ -6,12 +6,15 @@ use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use app\models\Patents;
+use yii\db\Query;
 
 /**
  * PatentsSearch represents the model behind the search form about `app\models\Patents`.
  */
 class PatentsSearch extends Patents
 {
+    public $organization;
+
     /**
      * @inheritdoc
      */
@@ -19,7 +22,7 @@ class PatentsSearch extends Patents
     {
         return [
             [['patentID', 'patentUserID', 'patentUserLiaisonID', 'UnixTimestamp'], 'integer'],
-            [['patentAjxxbID', 'patentEacCaseNo', 'patentType', 'patentUsername', 'patentUserLiaison', 'patentAgent', 'patentProcessManager', 'patentTitle', 'patentApplicationNo', 'patentPatentNo', 'patentNote'], 'safe'],
+            [['patentAjxxbID', 'patentEacCaseNo', 'patentType', 'patentUsername', 'patentUserLiaison', 'patentAgent', 'patentProcessManager', 'patentTitle', 'patentApplicationNo', 'patentPatentNo', 'patentNote', 'organization'], 'safe'],
         ];
     }
 
@@ -42,6 +45,10 @@ class PatentsSearch extends Patents
     public function search($params)
     {
         $query = Patents::find();
+
+        if (isset($params['PatentsSearch']['organization'])) {
+            $query->where(['in', 'patentUserID', (new Query())->select('userID')->from('users')->where(['like', 'userOrganization', $params['PatentsSearch']['organization']])]);
+        }
 
         // add conditions that should always apply here
 

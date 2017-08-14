@@ -10,6 +10,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
+use yii\data\ActiveDataProvider;
 
 /**
  * PatenteventsController implements the CRUD actions for Patentevents model.
@@ -38,7 +39,7 @@ class PatenteventsController extends Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['index', 'view', 'create', 'update'],
+                        'actions' => ['index', 'view', 'create', 'update', 'todo'],
                         'roles' => ['admin', 'secadmin']
                     ],
                 ],
@@ -135,6 +136,28 @@ class PatenteventsController extends Controller
 
         return $this->redirect(['index']);
     }
+
+    /**
+     * 待办事项
+     *
+     * @return string
+     */
+    public function actionTodo()
+    {
+        $query = Patentevents::find()->where(['>', 'eventFinishUnixTS', time() * 1000])->orWhere(['<>', 'eventStatus', 'INACTIVE']);
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => 20,
+            ],
+        ]);
+        $searchModel = new PatenteventsSearch();
+        return $this->render('index', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
 
     /**
      * Finds the Patentevents model based on its primary key value.

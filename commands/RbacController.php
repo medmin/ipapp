@@ -16,7 +16,7 @@ class RbacController extends Controller
      * initialization
      * 生成三个角色
      * admin --> 超级管理员
-     * controller --> 二级管理员
+     * secadmin --> 二级管理员
      * manager --> 商务人员
      */
     public function actionInit()

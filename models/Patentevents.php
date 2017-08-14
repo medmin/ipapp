@@ -80,7 +80,7 @@ class Patentevents extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getPatentAjxxb()
+    public function getPatent()
     {
         return $this->hasOne(Patents::className(), ['patentAjxxbID' => 'patentAjxxbID']);
     }

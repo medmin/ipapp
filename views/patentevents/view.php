@@ -18,7 +18,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <?= Html::a(Yii::t('app', 'Delete'), ['delete', 'id' => $model->eventID], [
                     'class' => 'btn btn-danger',
                     'data' => [
-                        'confirm' => Yii::t('app', 'Are you sure you want to delete this item?'),
+                        'confirm' => Yii::t('yii', 'Are you sure you want to delete this item?'),
                         'method' => 'post',
                     ],
                 ]) ?>
@@ -39,9 +39,19 @@ $this->params['breadcrumbs'][] = $this->title;
                     'eventUserLiaisonID',
                     'eventUserLiaison',
                     'eventCreatPerson',
-                    'eventCreatUnixTS',
+                    [
+                        'attribute' => 'eventCreatUnixTS',
+                        'value' => function ($model) {
+                            return Yii::$app->formatter->asDatetime($model->eventCreatUnixTS);
+                        }
+                    ],
                     'eventFinishPerson',
-                    'eventFinishUnixTS',
+                    [
+                        'attribute' => 'eventFinishUnixTS',
+                        'value' => function ($model) {
+                            return Yii::$app->formatter->asDatetime($model->eventFinishUnixTS);
+                        }
+                    ],
                     'eventStatus',
                 ],
             ]) ?>

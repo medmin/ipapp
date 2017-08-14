@@ -15,13 +15,13 @@ $this->params['breadcrumbs'][] = $this->title;
         <? if (Yii::$app->user->identity->userRole == \app\models\Users::ROLE_ADMIN) {
             $html = '<div class="box-header with-border"><p>';
             $html .= Html::a(Yii::t('app', 'Update'), ['update', 'id' => $model->patentID], ['class' => 'btn btn-primary']);
-            $html .= Html::a(Yii::t('app', 'Delete'), ['delete', 'id' => $model->patentID], [
-                    'class' => 'btn btn-danger',
-                    'data' => [
-                        'confirm' => Yii::t('app', 'Are you sure you want to delete this item?'),
-                        'method' => 'post',
-                    ],
-                ]);
+//            $html .= Html::a(Yii::t('app', 'Delete'), ['delete', 'id' => $model->patentID], [
+//                    'class' => 'btn btn-danger',
+//                    'data' => [
+//                        'confirm' => Yii::t('app', 'Are you sure you want to delete this item?'),
+//                        'method' => 'post',
+//                    ],
+//                ]);
             $html .= '</p></div>';
             echo $html;
         }?>
@@ -43,7 +43,13 @@ $this->params['breadcrumbs'][] = $this->title;
                     'patentApplicationNo',
                     'patentPatentNo',
                     'patentNote:ntext',
-                    'UnixTimestamp:datetime',
+                    [
+                        'attribute' => 'Unix Timestamp',
+                        'label' => '创建时间',
+                        'value' => function ($model) {
+                            return Yii::$app->formatter->asDatetime($model->UnixTimestamp / 1000);
+                        }
+                    ],
                 ],
             ]) ?>
         </div>
