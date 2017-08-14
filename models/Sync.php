@@ -7,13 +7,13 @@
 
 namespace app\models;
 
-use phpDocumentor\Reflection\Types\Null_;
+//use phpDocumentor\Reflection\Types\Null_;
 use yii\base\Model;
 use Yii;
 use app\models\eac\Ajxxb;
 use app\models\eac\Rwsl;
 use yii\db\Transaction;
-use app\queues\SendEmailJob;
+//use app\queues\SendEmailJob;
 
 class Sync extends Model
 {
@@ -425,30 +425,30 @@ class Sync extends Model
                         {
                             $thisOneEvent = Patentevents::findOne(['eventRwslID' => $rwslOneSingleRow['rw_rwsl_id']]);
 
-                            if( $rwslOneSingleRow['youxiaobj']  == '01' )
-                            {
-                                $thisOneEvent->patentAjxxbID = $rwslOneSingleRow['aj_ajxxb_id'];
-                                $thisOneEvent->eventRwslID = $rwslOneSingleRow['rw_rwsl_id'];
-                                $thisOneEvent->eventCreatPerson = $rwslOneSingleRow['chuangjianr'];
-                                $thisOneEvent->eventCreatUnixTS = strtotime($rwslOneSingleRow['chuangjiansj']) * 1000; //13位Unix时间戳
-                                $thisOneEvent->eventFinishPerson = $rwslOneSingleRow['zhixingr'];
+//                            if( $rwslOneSingleRow['youxiaobj']  == '01' )
+//                            {
+                            $thisOneEvent->patentAjxxbID = $rwslOneSingleRow['aj_ajxxb_id'];
+                            $thisOneEvent->eventRwslID = $rwslOneSingleRow['rw_rwsl_id'];
+                            $thisOneEvent->eventCreatPerson = $rwslOneSingleRow['chuangjianr'];
+                            $thisOneEvent->eventCreatUnixTS = strtotime($rwslOneSingleRow['chuangjiansj']) * 1000; //13位Unix时间戳
+                            $thisOneEvent->eventFinishPerson = $rwslOneSingleRow['zhixingr'];
 
-                                //不管这个zhixingsj有没有值，都同步一下
-                                //如果有值，说明这是一个尚未同步就已经完成了的任务（暂定24小时同步一次），这种情况还挺多
-                                //如果空值，说明这是一个新建任务，尚未完成
-                                $thisOneEvent->eventFinishUnixTS = strtotime($rwslOneSingleRow['zhixingsj']) * 1000 ; //13位Unix时间戳
+                            //不管这个zhixingsj有没有值，都同步一下
+                            //如果有值，说明这是一个尚未同步就已经完成了的任务（暂定24小时同步一次），这种情况还挺多
+                            //如果空值，说明这是一个新建任务，尚未完成
+                            $thisOneEvent->eventFinishUnixTS = strtotime($rwslOneSingleRow['zhixingsj']) * 1000 ; //13位Unix时间戳
 
-                                //如果$rwslOneSingleRow['zhixingsj']是空值，那说明是新记录，但这任务还没完成，
-                                //本来要发邮件提醒执行人，但后来考虑到这样每次都重复发送，而且EAC里都有相关未完成任务，所以不必提醒
+                            //如果$rwslOneSingleRow['zhixingsj']是空值，那说明是新记录，但这任务还没完成，
+                            //本来要发邮件提醒执行人，但后来考虑到这样每次都重复发送，而且EAC里都有相关未完成任务，所以不必提醒
 
-                                $thisOneEvent->eventContentID = $rwslOneSingleRow['rw_rwdy_id'] ? $rwslOneSingleRow['rw_rwdy_id']  : 'notdefined';
-                                $thisOneEvent->eventContent = Rwsl::rwdyIdMappingContent()[$thisOneEvent->eventContentID] ;
-                                $thisOneEvent->save();
-                            }
-                            else
-                            {
-                                $thisOneEvent->delete();
-                            }
+                            $thisOneEvent->eventContentID = $rwslOneSingleRow['rw_rwdy_id'] ? $rwslOneSingleRow['rw_rwdy_id']  : 'notdefined';
+                            $thisOneEvent->eventContent = Rwsl::rwdyIdMappingContent()[$thisOneEvent->eventContentID] ;
+                            $thisOneEvent->save();
+//                            }
+//                            else
+//                            {
+//                                $thisOneEvent->delete();
+//                            }
                         }
                         else
                         {
