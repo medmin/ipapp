@@ -38,10 +38,10 @@ var searchToggle = function(){
 //                    ['class' => 'yii\grid\SerialColumn'],
 
 //            'patentID',
-//            'patentAjxxbID',
+                    'patentAjxxbID',
                     'patentEacCaseNo',
                     'patentType',
-//            'patentUserID',
+                    'patentUserID',
                     'patentUsername',
                     // 'patentUserLiaisonID',
                     'patentUserLiaison',
@@ -49,7 +49,7 @@ var searchToggle = function(){
                     'patentProcessManager',
                     'patentTitle',
                     'patentApplicationNo',
-                    'patentPatentNo',
+//                    'patentPatentNo',
 //                    'patentNote:ntext',
                     // 'UnixTimestamp:datetime',
 

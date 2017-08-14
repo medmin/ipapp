@@ -84,7 +84,7 @@ return [
     //Patents
     'Patents' => '专利列表',
     'Create Patents' => '添加专利信息',
-    'Patent Eac Case No' => 'EAC系统我方案卷号',
+    'Patent Eac Case No' => '我方案卷号',
     'Patent Type' => '专利类型',
     'Patent User ID' => '专利客户ID',
     'Patent Username' => '专利客户',
