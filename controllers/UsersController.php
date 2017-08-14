@@ -156,16 +156,16 @@ class UsersController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->save())
         {
             //经过这个controller，是案源人或admin手动添加的Users，发的是通知邮件
-            $userEmail = $model->userEmail;
+//            $userEmail = $model->userEmail;
 //                $liaisonEmail = $model::findByID($model->userLiaisonID)->userEmail;
 
-            Yii::$app->queue->push(new SendEmailJob([
-                'mailViewFileNameString' => 'userAddedByAdminMsg',
-                'varToViewArray' => ['model' => $model],
-                'fromAddressArray' => ['kf@shineip.com' => '阳光惠远客服中心'],
-                'toAddressArray' => [$userEmail,'info@shineip.com'],
-                'emailSubjectString' => '提醒：用户信息被修改'
-            ]));
+//            Yii::$app->queue->push(new SendEmailJob([
+//                'mailViewFileNameString' => 'userAddedByAdminMsg',
+//                'varToViewArray' => ['model' => $model],
+//                'fromAddressArray' => ['kf@shineip.com' => '阳光惠远客服中心'],
+//                'toAddressArray' => [$userEmail,'info@shineip.com'],
+//                'emailSubjectString' => '提醒：用户信息被修改'
+//            ]));
 
 
             return $this->redirect(['view', 'id' => $model->userID]);
@@ -233,20 +233,18 @@ class UsersController extends Controller
         $model = $this->findModel($id);
 
         if ($model->userRole == Users::ROLE_CLIENT) {
-            $userEmail = $model->userEmail;
-            $liaisonEmail = (new Users())::findByID($model->userLiaisonID)->userEmail;
-
-            Yii::$app->queue->push(new SendEmailJob([
-                'mailViewFileNameString' => 'userDelWarning',
-                'varToViewArray' => ['model' => $model],
-                'fromAddressArray' => ['kf@shineip.com' => '阳光惠远客服中心'],
-                'toAddressArray' => [$userEmail, $liaisonEmail, 'info@shineip.com'],
-                'emailSubjectString' => '警告: 客户信息被删除'
-            ]));
+//            $userEmail = $model->userEmail;
+//            $liaisonEmail = (new Users())::findByID($model->userLiaisonID)->userEmail;
+//
+//            Yii::$app->queue->push(new SendEmailJob([
+//                'mailViewFileNameString' => 'userDelWarning',
+//                'varToViewArray' => ['model' => $model],
+//                'fromAddressArray' => ['kf@shineip.com' => '阳光惠远客服中心'],
+//                'toAddressArray' => [$userEmail, $liaisonEmail, 'info@shineip.com'],
+//                'emailSubjectString' => '警告: 客户信息被删除'
+//            ]));
+            $model->delete();
         }
-
-        //先发邮件，再删除
-        $model->delete();
 
         return $this->redirect(['index']);
     }

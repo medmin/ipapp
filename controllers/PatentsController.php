@@ -141,23 +141,23 @@ class PatentsController extends Controller
      */
     public function actionDelete($id)
     {
-        return false;
-        $model = $this->findModel($id);
-        $users = new Users();
-
-        $userEmail = $users::findByID($model->patentUserID)->userEmail;
-
-        //删除一条信息，需要警告
-        Yii::$app->queue->push(new SendEmailJob([
-            'mailViewFileNameString' => 'patentDelWarning',
-            'varToViewArray' => ['model' => $model, 'users' => $users],
-            'fromAddressArray' => ['kf@shineip.com' => '阳光惠远客服中心'],
-            'toAddressArray' => [$userEmail,'info@shineip.com'],
-            'emailSubjectString' => '提醒：用户信息被修改'
-        ]));
-
-
-        $model->delete();
+//        return false;
+//        $model = $this->findModel($id);
+//        $users = new Users();
+//
+//        $userEmail = $users::findByID($model->patentUserID)->userEmail;
+//
+//        //删除一条信息，需要警告
+//        Yii::$app->queue->push(new SendEmailJob([
+//            'mailViewFileNameString' => 'patentDelWarning',
+//            'varToViewArray' => ['model' => $model, 'users' => $users],
+//            'fromAddressArray' => ['kf@shineip.com' => '阳光惠远客服中心'],
+//            'toAddressArray' => [$userEmail,'info@shineip.com'],
+//            'emailSubjectString' => '提醒：用户信息被修改'
+//        ]));
+//
+//
+//        $model->delete();
 
         return $this->redirect(['index']);
     }
