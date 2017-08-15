@@ -15,37 +15,38 @@ use yii\widgets\ActiveForm;
         'method' => 'get',
     ]); ?>
 
-    <?= $form->field($model, 'eventID') ?>
+<!--    --><?//= $form->field($model, 'eventID') ?>
+<!---->
+<!--    --><?//= $form->field($model, 'eventRwslID') ?>
+<!---->
+<!--    --><?//= $form->field($model, 'eventContentID') ?>
 
-    <?= $form->field($model, 'eventRwslID') ?>
+    <?= $form->field($model, 'eventContent', ['options' => ['class' => 'col-md-3']]) ?>
 
-    <?= $form->field($model, 'eventContentID') ?>
+<!--    --><?//= $form->field($model, 'eventNote') ?>
 
-    <?= $form->field($model, 'eventContent') ?>
+    <?php  echo $form->field($model, 'patentAjxxbID', ['options' => ['class' => 'col-md-3']]) ?>
 
-    <?= $form->field($model, 'eventNote') ?>
+    <?php  echo $form->field($model, 'eventUserID', ['options' => ['class' => 'col-md-3']]) ?>
 
-    <?php // echo $form->field($model, 'patentAjxxbID') ?>
+<!--    --><?php // echo $form->field($model, 'eventUsername', ['options' => ['class' => 'col-md-3']]) ?>
 
-    <?php // echo $form->field($model, 'eventUserID') ?>
+    <?php  echo $form->field($model, 'eventUserLiaisonID', ['options' => ['class' => 'col-md-3']]) ?>
 
-    <?php // echo $form->field($model, 'eventUsername') ?>
+<!--    --><?php // echo $form->field($model, 'eventUserLiaison', ['options' => ['class' => 'col-md-3']]) ?>
 
-    <?php // echo $form->field($model, 'eventUserLiaisonID') ?>
-
-    <?php // echo $form->field($model, 'eventUserLiaison') ?>
-
-    <?php // echo $form->field($model, 'eventCreatPerson') ?>
+    <?php  echo $form->field($model, 'eventCreatPerson', ['options' => ['class' => 'col-md-3']]) ?>
 
     <?php // echo $form->field($model, 'eventCreatUnixTS') ?>
 
-    <?php // echo $form->field($model, 'eventFinishPerson') ?>
+    <?php  echo $form->field($model, 'eventFinishPerson', ['options' => ['class' => 'col-md-3']]) ?>
 
     <?php // echo $form->field($model, 'eventFinishUnixTS') ?>
 
-    <?php // echo $form->field($model, 'eventStatus') ?>
+    <?php  echo $form->field($model, 'eventStatus', ['options' => ['class' => 'col-md-3']])
+    ->dropDownList(['ACTIVE' => Yii::t('app','ACTIVE'), 'INACTIVE' => Yii::t('app','INACTIVE'), 'PENDING' => Yii::t('app','PENDING')]) ?>
 
-    <div class="form-group">
+    <div class="form-group col-md-12">
         <?= Html::submitButton(Yii::t('app', 'Search'), ['class' => 'btn btn-primary']) ?>
         <?= Html::resetButton(Yii::t('app', 'Reset'), ['class' => 'btn btn-default']) ?>
     </div>

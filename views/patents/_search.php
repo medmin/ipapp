@@ -17,9 +17,9 @@ use yii\widgets\ActiveForm;
 
     <?//= $form->field($model, 'patentID') ?>
 
-    <?= $form->field($model, 'patentAjxxbID', ['options' => ['class' => 'col-md-6']]) ?>
+    <?= $form->field($model, 'patentAjxxbID', ['options' => ['class' => 'col-md-3']]) ?>
 
-    <?= $form->field($model, 'patentEacCaseNo', ['options' => ['class' => 'col-md-6']]) ?>
+    <?= $form->field($model, 'patentEacCaseNo', ['options' => ['class' => 'col-md-3']]) ?>
 
     <?//= $form->field($model, 'patentType') ?>
 
@@ -31,7 +31,7 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'patentUserLiaison', ['options' => ['class' => 'col-md-3']]) ?>
 
-    <?= $form->field($model, 'organization', ['options' => ['class' => 'col-md-5']])->label('公司名称') ?>
+    <?= $form->field($model, 'organization', ['options' => ['class' => 'col-md-6']])->label('公司名称') ?>
 
     <?php // echo $form->field($model, 'patentAgent') ?>
 
