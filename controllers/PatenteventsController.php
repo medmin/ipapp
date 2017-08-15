@@ -150,6 +150,10 @@ class PatenteventsController extends Controller
             'pagination' => [
                 'pageSize' => 20,
             ],
+            'sort' => [
+                'defaultOrder' => ['eventCreatUnixTS' => SORT_DESC],
+                'attributes' => ['eventStatus', 'eventCreatUnixTS', 'eventFinishUnixTS'],
+            ],
         ]);
         $searchModel = new PatenteventsSearch();
         return $this->render('index', [

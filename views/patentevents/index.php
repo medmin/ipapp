@@ -66,10 +66,16 @@ var searchToggle = function(){
                     [
                         'attribute' => 'eventFinishUnixTS',
                         'value' => function ($model) {
-                            return Yii::$app->formatter->asDatetime($model->eventFinishUnixTS / 1000);
+                            return $model->eventFinishUnixTS == 0 ? '<span class="text-red">暂未设置</span>' : Yii::$app->formatter->asDatetime($model->eventFinishUnixTS / 1000);
+                        },
+                        'format' => 'raw'
+                    ],
+                    [
+                        'attribute' => 'eventStatus',
+                        'value' => function ($model) {
+                            return Yii::t('app', $model->eventStatus);
                         }
                     ],
-                    'eventStatus',
 
                     ['class' => 'yii\grid\ActionColumn'],
                 ],

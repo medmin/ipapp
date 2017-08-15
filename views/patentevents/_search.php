@@ -15,25 +15,25 @@ use yii\widgets\ActiveForm;
         'method' => 'get',
     ]); ?>
 
-<!--    --><?//= $form->field($model, 'eventID') ?>
-<!---->
-<!--    --><?//= $form->field($model, 'eventRwslID') ?>
-<!---->
-<!--    --><?//= $form->field($model, 'eventContentID') ?>
+    <?//= $form->field($model, 'eventID') ?>
+
+    <?//= $form->field($model, 'eventRwslID') ?>
+
+    <?//= $form->field($model, 'eventContentID') ?>
 
     <?= $form->field($model, 'eventContent', ['options' => ['class' => 'col-md-3']]) ?>
 
-<!--    --><?//= $form->field($model, 'eventNote') ?>
+    <?//= $form->field($model, 'eventNote') ?>
 
     <?php  echo $form->field($model, 'patentAjxxbID', ['options' => ['class' => 'col-md-3']]) ?>
 
     <?php  echo $form->field($model, 'eventUserID', ['options' => ['class' => 'col-md-3']]) ?>
 
-<!--    --><?php // echo $form->field($model, 'eventUsername', ['options' => ['class' => 'col-md-3']]) ?>
+    <?php  echo $form->field($model, 'eventUsername', ['options' => ['class' => 'col-md-3']]) ?>
 
     <?php  echo $form->field($model, 'eventUserLiaisonID', ['options' => ['class' => 'col-md-3']]) ?>
 
-<!--    --><?php // echo $form->field($model, 'eventUserLiaison', ['options' => ['class' => 'col-md-3']]) ?>
+    <?php // echo $form->field($model, 'eventUserLiaison', ['options' => ['class' => 'col-md-3']]) ?>
 
     <?php  echo $form->field($model, 'eventCreatPerson', ['options' => ['class' => 'col-md-3']]) ?>
 
