@@ -55,9 +55,20 @@ var searchToggle = function(){
                     // 'eventUserLiaisonID',
                     'eventUserLiaison',
                     'eventCreatPerson',
-                    'eventCreatUnixTS',
+                    [
+                        'attribute' => 'eventCreatUnixTS',
+                        'value' => function ($model) {
+                            return Yii::$app->formatter->asDatetime($model->eventCreatUnixTS / 1000);
+                        }
+                    ],
+
                     'eventFinishPerson',
-                    'eventFinishUnixTS',
+                    [
+                        'attribute' => 'eventFinishUnixTS',
+                        'value' => function ($model) {
+                            return Yii::$app->formatter->asDatetime($model->eventFinishUnixTS / 1000);
+                        }
+                    ],
                     'eventStatus',
 
                     ['class' => 'yii\grid\ActionColumn'],

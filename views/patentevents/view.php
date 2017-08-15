@@ -42,14 +42,14 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                         'attribute' => 'eventCreatUnixTS',
                         'value' => function ($model) {
-                            return Yii::$app->formatter->asDatetime($model->eventCreatUnixTS);
+                            return Yii::$app->formatter->asDatetime($model->eventCreatUnixTS / 1000);
                         }
                     ],
                     'eventFinishPerson',
                     [
                         'attribute' => 'eventFinishUnixTS',
                         'value' => function ($model) {
-                            return Yii::$app->formatter->asDatetime($model->eventFinishUnixTS);
+                            return Yii::$app->formatter->asDatetime($model->eventFinishUnixTS / 1000);
                         }
                     ],
                     'eventStatus',

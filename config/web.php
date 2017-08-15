@@ -86,6 +86,9 @@ $config = [
             'redis' => 'redis', // connection ID
             'channel' => 'queue', // queue channel
         ],
+        'formatter' => [
+            'datetimeFormat' => 'yyyy-MM-dd HH:mm:ss',
+        ],
     ],
     'params' => $rootParams,
 ];

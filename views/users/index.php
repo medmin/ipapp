@@ -41,7 +41,22 @@ $this->params['breadcrumbs'][] = $this->title;
                      'userAddress',
                      'userLiaison',
                     // 'userLiaisonID',
-                     'userRole',
+                     [
+                         'attribute' => 'userRole',
+                         'value' => function ($model) {
+                              if ($model->userRole == \app\models\Users::ROLE_ADMIN) {
+                                  $html = '<span class="text-red" style="text-decoration: underline">超级管理员</span>';
+                              } elseif ($model->userRole == \app\models\Users::ROLE_SECONDARY_ADMIN) {
+                                  $html = '<span class="text-green" style="text-decoration: underline">二级管理员</span>';
+                              } elseif ($model->userRole == \app\models\Users::ROLE_EMPLOYEE) {
+                                  $html = '<span class="text-blue" style="text-decoration: underline">商务专员</span>';
+                              } else {
+                                  $html = '<span>客户</span>';
+                              }
+                              return $html;
+                         },
+                         'format' => 'raw',
+                     ],
                      'userNote:ntext',
                     // 'authKey',
                     // 'UnixTimestamp:datetime',

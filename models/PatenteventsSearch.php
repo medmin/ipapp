@@ -47,6 +47,10 @@ class PatenteventsSearch extends Patentevents
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => [
+                'defaultOrder' => ['eventCreatUnixTS' => SORT_DESC],
+                'attributes' => ['eventStatus', 'eventCreatUnixTS', 'eventFinishUnixTS'],
+            ],
         ]);
 
         $this->load($params);
