@@ -105,7 +105,7 @@ return [
     'Event ID' => '事务ID',
     'Event Content' => '事务内容',
     'Event Note' => '备注',
-    'Event Username' => '专利客户账号',
+    'Event Username' => '专利客户登录名',
     'Event User Liaison' => '商务专员',
     'Event Creat Person' => '事务创建人',
     'Event Creat Unix Ts' => '创建时间',

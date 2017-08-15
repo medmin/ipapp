@@ -466,12 +466,12 @@ class Sync extends Model
                             //比如每1小时同步一次，只有这1小时里新建并完成的任务才会被这个函数捕捉到，才能发邮件
                             //本质上，这是只有新增一个已经完成了的新案质检任务才会发邮件通知客户
                             //会漏发，但不怕，因为还有其他的方式通知到客户的，但不会重复发送邮件
-                            $this->rwdyidIs06
-                            (
-                                $rwslOneSingleRow['rw_rwdy_id'],
-                                $rwslOneSingleRow['zhixingsj'],
-                                'dy@shineip.com'
-                            );
+//                            $this->rwdyidIs06
+//                            (
+//                                $rwslOneSingleRow['rw_rwdy_id'],
+//                                $rwslOneSingleRow['zhixingsj'],
+//                                'dy@shineip.com'
+//                            );
 
                             $newEvent->eventFinishUnixTS = strtotime($rwslOneSingleRow['zhixingsj']) * 1000 ; //13位Unix时间戳
                             $newEvent->eventContentID = $rwslOneSingleRow['rw_rwdy_id'] ? $rwslOneSingleRow['rw_rwdy_id']  : 'notdefined';
