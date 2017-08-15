@@ -38,7 +38,7 @@ $("#finishDateTime").change(function(){
 
     <?//= $form->field($model, 'eventUserLiaison')->textInput(['maxlength' => true]) ?>
     <div class="col-md-6">
-        <?= $form->field($model, 'eventCreatPerson')->textInput(['maxlength' => true]) ?>
+        <?= $form->field($model, 'eventCreatPerson')->textInput(['maxlength' => true, 'value' => Yii::$app->user->identity->userFullname]) ?>
 
         <?//= $form->field($model, 'eventCreatUnixTS')->hiddenInput()->label(false) ?>
 
