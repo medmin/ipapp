@@ -104,9 +104,9 @@ class WechatController extends \yii\base\Controller
     {
         if ($message->Event == 'subscribe')
         {
-            $msg = "您好，欢迎关注阳光惠远客服中心；
-            请前往kf.shineip.com注册一个新用户，或者绑定一个已经存在的用户；
-            如有其他疑问，请联系0451-88084686";
+            $msg = "您好，欢迎关注阳光惠远客服中心；" . PHP_EOL .
+                "请前往kf.shineip.com注册一个新用户，或者绑定一个已经存在的用户；" . PHP_EOL .
+                "如有其他疑问，请联系0451-88084686。";
             return $msg;
         }
 
