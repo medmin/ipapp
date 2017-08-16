@@ -13,6 +13,18 @@ $this->registerJs('
 var searchToggle = function(){
         $("#toggleSearchBtn").trigger("click");
     }
+$(".export-excel").click(function(){
+    var array = new Array();
+    $(".grid-view tbody tr").each(function(){
+        array.push($(this).children("td").eq(0).html());
+    })
+    if (array.length == 0) {
+        alert("暂无数据可以导出");
+        return false;
+    } else {
+        window.location.href = "'. \yii\helpers\Url::to('export') .'" + "?rows=" + JSON.stringify(array)
+    }
+});
 ',\yii\web\View::POS_END);
 ?>
 <div class="patents-index">
@@ -65,6 +77,9 @@ var searchToggle = function(){
                     ],
                 ],
             ]); ?>
+            <button type="button" class="export-excel btn btn-primary pull-right" style="margin-right: 5px;">
+                <i class="fa fa-download"></i> 导出本页数据
+            </button>
         </div>
     </div>
 </div>

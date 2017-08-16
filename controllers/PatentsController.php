@@ -40,7 +40,7 @@ class PatentsController extends Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['index', 'view'],
+                        'actions' => ['index', 'view', 'export'],
                         'roles' => ['admin', 'secadmin']
                     ],
                     [
@@ -174,6 +174,48 @@ class PatentsController extends Controller
         return $this->render('main', ['models' => $events]);
     }
 
+    public function actionExport($rows)
+    {
+        if (empty($rows)) return false;
+        $rows = json_decode($rows);
+        $objPHPExcel = new \PHPExcel();
+        $objPHPExcel->getProperties()
+            ->setCreator(Yii::$app->user->identity->userFullname)
+            ->setLastModifiedBy(Yii::$app->user->identity->userFullname)
+            ->setTitle(Yii::t('app', 'Patents'))
+            ->setSubject(Yii::t('app', 'Patents'));
+        $headerArr = ['Patent Ajxxb ID', '我方案卷号', '专利类型', '专利客户', '商务专员', '	专利主办人', '流程管理员', '标题', '专利申请号'];
+        $key = ord('A');
+        foreach($headerArr as $v){
+            $column = chr($key);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue($column.'1',$v);
+            $key += 1;
+        }
+        $models = Patents::find()->where(['in', 'patentAjxxbID', $rows])->all();
+        foreach ($models as $idx => $model) {
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('A' . (string)($idx + 2), $model->patentAjxxbID);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('B' . (string)($idx + 2), $model->patentEacCaseNo);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('C' . (string)($idx + 2), $model->patentType);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('D' . (string)($idx + 2), $model->patentUsername);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('E' . (string)($idx + 2), $model->patentUserLiaison);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('F' . (string)($idx + 2), $model->patentAgent);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('G' . (string)($idx + 2), $model->patentProcessManager);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('H' . (string)($idx + 2), $model->patentTitle);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('I' . (string)($idx + 2), $model->patentApplicationNo == 'Not Available Yet' ? '' : $model->patentApplicationNo)->getStyle('I' . (string)($idx + 2))->getNumberFormat()->setFormatCode('0');
+
+        }
+        $objPHPExcel->getActiveSheet()->setTitle('Simple');
+
+// Set active sheet index to the first sheet, so Excel opens this as the first sheet
+        $objPHPExcel->setActiveSheetIndex(0);
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="export.xls"');
+        header('Cache-Control: max-age=0');
+        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        $objWriter->save('php://output');
+//        return true;
+    }
+    
     /**
      * Finds the Patents model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

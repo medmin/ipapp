@@ -26,7 +26,7 @@ class SiteController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['login', 'signup'],
+                        'actions' => ['login', 'signup', 'wx-login', 'wx-signup'],
                         'allow' => true,
                         'roles' => ['?'],
                     ],
@@ -119,14 +119,19 @@ class SiteController extends Controller
 
     public function actionWxLogin()
     {
+        $appid = Yii::$app->params['wechat_open']['app_id'];
         if (isset(Yii::$app->request->params['code'])) {
-            return 'ok';
+            $weiAPI = new \app\lib\WechatAPI($appid,Yii::$app->params['wechat_open']['app_secret']);
+            $userinfo = $weiAPI->authUserInfo(Yii::$app->request->getQueryParam('code'));
+            echo '<pre>';
+            print_r($userinfo);
+            echo '</pre>';
+            exit;
         } else {
-            $appid = Yii::$app->params['wechat']['id'];
-//            $redirect_url = urlencode(Url::to(['site/wx-login'], true));
-            $redirect_url = urlencode('http://kf.shineip.com');
+            $redirect_url = urlencode(Url::to(['site/wx-login'], true));
+//            $redirect_url = urlencode('http://kf.shineip.com/site/wx-login');
             $state = md5(time());
-            $wxUrl = "https://open.weixin.qq.com/connect/qrconnect?appid=$appid&redirect_uri=$redirect_url&response_type=code&scope=snsapi_login &state=$state#wechat_redirect";
+            $wxUrl = "https://open.weixin.qq.com/connect/qrconnect?appid=$appid&redirect_uri=$redirect_url&response_type=code&scope=snsapi_login&state=$state#wechat_redirect";
             return $this->redirect($wxUrl);
         }
     }

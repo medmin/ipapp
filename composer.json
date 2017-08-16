@@ -23,7 +23,8 @@
         "dmstr/yii2-adminlte-asset": "2.*",
         "kartik-v/yii2-widget-datetimepicker": "*",
         "overtrue/wechat": "3.3.12",
-	"doctrine/cache": "1.6.2"
+	"doctrine/cache": "1.6.2",
+        "phpoffice/phpexcel": "^1.8"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",
