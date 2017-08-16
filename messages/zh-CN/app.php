@@ -124,4 +124,14 @@ return [
 
     // Notification
     'Notify' => '消息',
+
+    // wechat
+    'Unionid' => '微信UnionID',
+    'Openid' => '微信OpenID',
+    'Nickname' => '微信昵称',
+    'Sex' => '性别',
+    'City' => '城市',
+    'Province' => '省份',
+    'Country' => '国家',
+    'Headimgurl' => '头像',
 ];

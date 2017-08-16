@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\models\Users;
 use Yii;
 use yii\filters\AccessControl;
+use yii\helpers\Url;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
@@ -114,6 +115,20 @@ class SiteController extends Controller
         return $this->render('signup', [
             'model' => $model,
         ]);
+    }
+
+    public function actionWxLogin()
+    {
+        if (isset(Yii::$app->request->params['code'])) {
+            return 'ok';
+        } else {
+            $appid = Yii::$app->params['wechat']['id'];
+//            $redirect_url = urlencode(Url::to(['site/wx-login'], true));
+            $redirect_url = urlencode('http://kf.shineip.com');
+            $state = md5(time());
+            $wxUrl = "https://open.weixin.qq.com/connect/qrconnect?appid=$appid&redirect_uri=$redirect_url&response_type=code&scope=snsapi_login &state=$state#wechat_redirect";
+            return $this->redirect($wxUrl);
+        }
     }
 
     /**
