@@ -61,7 +61,7 @@ class WechatController extends \yii\base\Controller
         $server->setMessageHandler(function ($message) {
             switch ($message->MsgType) {
                 case 'event':
-                    return '收到事件消息';
+                    return $this->returnWelcomeMsg($message);
                     break;
                 case 'text':
                     return $this->getText($message);
@@ -98,6 +98,19 @@ class WechatController extends \yii\base\Controller
             return 'ok';
         }
         return '收到文本消息';
+    }
+
+    public function returnWelcomeMsg($message)
+    {
+        if ($message->Event == 'subscribe')
+        {
+            $msg = "您好，欢迎关注阳光惠远客服中心；
+            请前往kf.shineip.com注册一个新用户，或者绑定一个已经存在的用户；
+            如有其他疑问，请联系0451-88084686";
+            return $msg;
+        }
+
+        return '收到事件信息';
     }
 
     public function actionTest()
