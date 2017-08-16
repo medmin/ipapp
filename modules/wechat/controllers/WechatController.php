@@ -108,7 +108,7 @@ class WechatController extends \yii\base\Controller
             $notice = $app->notice;
             $messageID = $notice->send([
                 'touser' => 'oSEZTsySF0F4HI7F2KUFkGY5iJ44',
-                'template' => TemplateForm::CUSTOMER_ALERTS_NOTIFICATION,
+                'template_id' => TemplateForm::CUSTOMER_ALERTS_NOTIFICATION,
                 'url' => 'http://kf.shineip.com',
                 'data' => [
                     'first' => $model->first,
@@ -120,8 +120,9 @@ class WechatController extends \yii\base\Controller
                 ],
             ]);
             if ($messageID) {
-                var_dump($messageID);
-                exit;
+                // messageID 是个对象
+                // object(EasyWeChat\Support\Collection)#254 (1) { ["items":protected]=> array(3) { ["errcode"]=> int(0) ["errmsg"]=> string(2) "ok" ["msgid"]=> int(421397396) } }
+                return $messageID->items['errmsg'];
             }
         }
 
