@@ -44,7 +44,7 @@ use yii\widgets\ActiveForm;
     <?php // echo $form->field($model, 'eventFinishUnixTS') ?>
 
     <?php  echo $form->field($model, 'eventStatus', ['options' => ['class' => 'col-md-3']])
-    ->dropDownList(['ACTIVE' => Yii::t('app','ACTIVE'), 'INACTIVE' => Yii::t('app','INACTIVE'), 'PENDING' => Yii::t('app','PENDING')]) ?>
+    ->dropDownList(['' => '', 'ACTIVE' => Yii::t('app','ACTIVE'), 'INACTIVE' => Yii::t('app','INACTIVE'), 'PENDING' => Yii::t('app','PENDING')]) ?>
 
     <div class="form-group col-md-12">
         <?= Html::submitButton(Yii::t('app', 'Search'), ['class' => 'btn btn-primary']) ?>
