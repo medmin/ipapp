@@ -131,9 +131,9 @@ class SiteController extends Controller
                 Yii::$app->session->setFlash('error','授权失败');
                 return $this->redirect(['login']);
             }
-            $wxUser = WxUser::findOne(['union_id'=>$userinfo['unionid']]);
+            $wxUser = WxUser::findOne(['unionid'=>$userinfo['unionid']]);
             if($wxUser){
-                $userIdentity = Users::findIdentity($wxUser->user_id);
+                $userIdentity = Users::findIdentity($wxUser->userID);
                 if(Yii::$app->user->login($userIdentity, 3600 * 24 * 30)){
                     return $this->goBack();
                 } else {
@@ -176,7 +176,7 @@ class SiteController extends Controller
     public function actionWxSignup()
     {
         $model = new WxSignupForm(['scenario' => WxSignupForm::SCENARIO_REGISTER]);
-        if (Yii::$app->getSession()->get('wx_unionid')) {
+        if (!Yii::$app->getSession()->get('wx_unionid')) {
             return $this->redirect(['wx-login']);
         }
         $model->unionid = Yii::$app->getSession()->get('wx_unionid');
@@ -199,7 +199,7 @@ class SiteController extends Controller
     public function actionWxSignupBind()
     {
         $model = new WxSignupForm(['scenario' => WxSignupForm::SCENARIO_BIND]);
-        if(Yii::$app->getSession()->get('wx_unionid')) {
+        if(!Yii::$app->getSession()->get('wx_unionid')) {
             return $this->redirect(['wx-login']);
         }
         $model->unionid = Yii::$app->getSession()->get('wx_unionid');

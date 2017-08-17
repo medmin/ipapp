@@ -31,6 +31,7 @@ class UsersController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
+                    'check-exist' => ['POST'],
                 ],
             ],
             'access' => [
@@ -55,6 +56,11 @@ class UsersController extends Controller
                         'allow' => true,
                         'actions' => ['personal-settings', 'reset-password', 'my-patents'],
                         'roles' => ['@']
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['check-exist'],
+                        'roles' => ['?']
                     ]
                 ],
             ],
@@ -292,6 +298,19 @@ class UsersController extends Controller
         return $this->render('my-patents', ['dataProvider' => $dataProvider]);
     }
 
+    /**
+     * ajax检测用户是否存在
+     *
+     * @return string
+     */
+    public function actionCheckExist()
+    {
+        $username = Yii::$app->request->post('username');
+        if (Users::findByUsernameOrEmail($username)) {
+            return Json::encode(['code' => true]);
+        }
+        return Json::encode(['code' => false]);
+    }
     /**
      * Finds the Users model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

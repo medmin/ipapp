@@ -52,6 +52,7 @@ class WxSignupForm extends Model
             ['username', 'string', 'min' => 2, 'max' => 255],
             ['email', 'email'],
             ['email', 'string', 'max' => 255],
+            ['email', 'unique', 'targetAttribute' => 'userEmail', 'targetClass' => '\app\models\Users', 'message' => Yii::t('app','This email has already been taken'), 'on' => self::SCENARIO_REGISTER],
         ];
     }
 

@@ -6,7 +6,7 @@ use yii\bootstrap\ActiveForm;
 /* @var $form yii\bootstrap\ActiveForm */
 /* @var $model \app\models\LoginForm */
 
-$this->title = '登录';
+$this->title = '登录 | 阳光惠远';
 
 $fieldOptions1 = [
     'options' => ['class' => 'form-group has-feedback'],
@@ -19,7 +19,6 @@ $fieldOptions2 = [
 ];
 $this->registerCss('
 .more-sign {
-    display: none;
     margin-top: 30px;
     text-align: center;
 }
@@ -109,7 +108,7 @@ $this->registerCss('
         <!--        <a href="#">I forgot my password</a><br>-->
         <?= Html::a('注册一个新用户', ['site/signup'])?>
         <div class="more-sign">
-            <h6>微信账号登录</h6>
+            <h6>社交账号登录</h6>
             <a href="<?= \yii\helpers\Url::to('/site/wx-login') ?>"><i class="fa fa-weixin wx-icon"></i></a>
         </div>
 

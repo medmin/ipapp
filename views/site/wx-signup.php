@@ -10,10 +10,27 @@ use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 
 $action = Yii::$app->controller->action->id;
+
+$check_user_url = \yii\helpers\Url::to(['/users/check-exist']);
+$wx_signup_bind = \yii\helpers\Url::to(['/site/wx-signup-bind']);
+$js = <<<JS
+$('#wxsignupform-email').blur(function() {
+  let email = $(this).val().trim();
+  if (email === '') return;
+  console.log(email)
+  $.post('$check_user_url', {username:email}, function(data) {
+    if (data.code === true && confirm('该邮箱已注册,是否跳转到绑定页面？')) {
+        window.location.href = '$wx_signup_bind' + '?user=' + email;
+    }
+  },'json');
+})
+JS;
+
 if ($action == 'wx-signup-bind') {
     $this->title = '绑定账号 | 阳光惠远';
 } else {
     $this->title = '创建帐号 | 阳光惠远 ';
+    $this->registerJs($js, \yii\web\View::POS_END);
 }
 $fieldOptions = function($icon){
     return [
@@ -32,10 +49,15 @@ $fieldOptions = function($icon){
         <p class="login-box-msg">微信账号绑定</p>
         <?php $form = ActiveForm::begin(['id' => 'wx-signup-bind-form', 'enableClientValidation' => true]); ?>
 
+        <?php 
+        if (Yii::$app->request->queryParams) {
+            
+        }
+        ?>
         <?= $form
             ->field($model, 'username', $fieldOptions('user'))
             ->label(false)
-            ->textInput(['placeholder' => '请输入要绑定的用户名或者邮箱']) ?>
+            ->textInput(['placeholder' => '请输入要绑定的用户名或者邮箱', 'value' => Yii::$app->request->queryParams['user'] ?? '']) ?>
 
         <?= $form
             ->field($model, 'password', $fieldOptions('lock'))
