@@ -8,6 +8,8 @@
 
 namespace app\modules\wechat\controllers;
 
+use app\modules\wechat\models\DefaultMenu;
+use app\modules\wechat\models\Options;
 use app\modules\wechat\models\TemplateForm;
 use Yii;
 use EasyWeChat\Foundation\Application;
@@ -19,17 +21,7 @@ class WechatController extends \yii\base\Controller
     public function init()
     {
         parent::init();
-        $this->options = [
-            'debug'  => YII_DEBUG,
-            'app_id' => Yii::$app->params['wechat']['id'],
-            'secret' => Yii::$app->params['wechat']['secret'],
-            'token'  => Yii::$app->params['wechat']['token'],
-            'aes_key' => Yii::$app->params['wechat']['aes_key'],
-            'log' => [
-                'level' => 'debug',
-                'file'  => Yii::$app->params['wechat_log_path'], // XXX: 绝对路径！！！！
-            ],
-        ];
+        $this->options = (new Options())->getOptions();
     }
 
     public function behaviors()
@@ -142,4 +134,14 @@ class WechatController extends \yii\base\Controller
         return $this->render('template', ['model' => $model]);
 
     }
+
+
+    public function getDefaultMenu()
+    {
+        $menu = new DefaultMenu();
+
+        return $menu->getDefaultMenu();
+
+    }
+
 }
