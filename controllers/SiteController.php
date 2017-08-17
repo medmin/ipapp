@@ -90,6 +90,9 @@ class SiteController extends Controller
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
+        if ($this->isMicroMessage()) {
+            return $this->redirect('wx-login');
+        }
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
@@ -163,7 +166,11 @@ class SiteController extends Controller
             $redirect_url = urlencode(Url::to(['site/wx-login'], true));
 //            $redirect_url = urlencode('http://kf.shineip.com/site/wx-login');
             $state = md5(time());
-            $wxUrl = "https://open.weixin.qq.com/connect/qrconnect?appid=$appid&redirect_uri=$redirect_url&response_type=code&scope=snsapi_login&state=$state#wechat_redirect";
+            if ($this->isMicroMessage()) {
+                $wxUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=$appid&redirect_uri=$redirect_url&response_type=code&scope=snsapi_userinfo&state=$state#wechat_redirect";
+            } else {
+                $wxUrl = "https://open.weixin.qq.com/connect/qrconnect?appid=$appid&redirect_uri=$redirect_url&response_type=code&scope=snsapi_login&state=$state#wechat_redirect";
+            }
             return $this->redirect($wxUrl);
         }
     }
@@ -253,5 +260,17 @@ class SiteController extends Controller
     public function actionAbout()
     {
         return $this->render('about');
+    }
+
+    /**
+     * 是否通过微信访问
+     * return bool
+     */
+    protected function isMicroMessage()
+    {
+        if (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger') !== false ) {
+            return true;
+        }
+        return false;
     }
 }

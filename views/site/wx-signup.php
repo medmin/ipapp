@@ -99,7 +99,10 @@ $fieldOptions = function($icon){
             ->passwordInput(['placeholder' => '请确认密码']) ?>
 
         <div class="row">
-            <div class="col-xs-4">
+            <div class="col-xs-6">
+                <?= Html::a('已有账号,直接绑定', ['wx-signup-bind'], ['class' => 'btn btn-danger btn-block btn-flat'])?>
+            </div>
+            <div class="col-xs-4 pull-right">
                 <?= Html::submitInput('注册', ['class' => 'btn btn-primary btn-block btn-flat']) ?>
             </div>
         </div>
