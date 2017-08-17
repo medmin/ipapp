@@ -8,6 +8,7 @@
 
 namespace app\modules\wechat\controllers;
 
+use app\modules\wechat\models\DefaultMenu;
 use app\modules\wechat\models\TemplateForm;
 use Yii;
 use EasyWeChat\Foundation\Application;
@@ -28,7 +29,7 @@ class WechatController extends \yii\base\Controller
             'log' => [
                 'level' => 'debug',
                 'file'  => Yii::$app->params['wechat_log_path'], // XXX: 绝对路径！！！！
-            ],
+            ]
         ];
     }
 
@@ -45,6 +46,7 @@ class WechatController extends \yii\base\Controller
      */
     public function actionValid()
     {
+
         $app =  new Application($this->options);
         $server = $app->server;
 
@@ -53,15 +55,16 @@ class WechatController extends \yii\base\Controller
 
     }
 
-    public function actionEchomsg()
+    public function actionProcessMessage()
     {
+
         $app =  new Application($this->options);
         $server = $app->server;
 
         $server->setMessageHandler(function ($message) {
             switch ($message->MsgType) {
                 case 'event':
-                    return '收到事件消息';
+                    return $this->returnWelcomeMsg($message);
                     break;
                 case 'text':
                     return $this->getText($message);
@@ -100,6 +103,19 @@ class WechatController extends \yii\base\Controller
         return '收到文本消息';
     }
 
+    public function returnWelcomeMsg($message)
+    {
+        if ($message->Event == 'subscribe')
+        {
+            $msg = "您好，欢迎关注阳光惠远客服中心；" . PHP_EOL .
+                "请前往kf.shineip.com注册一个新用户，或者绑定一个已经存在的用户；" . PHP_EOL .
+                "如有其他疑问，请联系0451-88084686。";
+            return $msg;
+        }
+
+        return '收到事件信息';
+    }
+
     public function actionTest()
     {
         $model = new TemplateForm();
@@ -129,4 +145,14 @@ class WechatController extends \yii\base\Controller
         return $this->render('template', ['model' => $model]);
 
     }
+
+
+    public function actionGetDefaultMenu()
+    {
+        $menu = new DefaultMenu();
+
+        return $menu->getDefaultMenu();
+
+    }
+
 }
