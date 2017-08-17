@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Users;
+use app\models\WxSignupForm;
 use Yii;
 use yii\filters\AccessControl;
 use yii\helpers\Url;
@@ -13,6 +14,8 @@ use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\SignupForm;
 use app\queues\SendEmailJob;
+use app\models\WxUser;
+use app\models\WxUserinfo;
 
 class SiteController extends Controller
 {
@@ -26,7 +29,7 @@ class SiteController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['login', 'signup', 'wx-login', 'wx-signup'],
+                        'actions' => ['login', 'signup', 'wx-login', 'wx-signup', 'wx-signup-bind'],
                         'allow' => true,
                         'roles' => ['?'],
                     ],
@@ -120,13 +123,42 @@ class SiteController extends Controller
     public function actionWxLogin()
     {
         $appid = Yii::$app->params['wechat_open']['app_id'];
-        if (isset(Yii::$app->request->params['code'])) {
-            $weiAPI = new \app\lib\WechatAPI($appid,Yii::$app->params['wechat_open']['app_secret']);
-            $userinfo = $weiAPI->authUserInfo(Yii::$app->request->getQueryParam('code'));
-            echo '<pre>';
-            print_r($userinfo);
-            echo '</pre>';
-            exit;
+        if (isset($_REQUEST['code'])) {
+            try{
+                $weiAPI = new \app\lib\WechatAPI($appid,Yii::$app->params['wechat_open']['app_secret']);
+                $userinfo = $weiAPI->authUserInfo(Yii::$app->request->getQueryParam('code'));
+            } catch (\Exception $e) {
+                Yii::$app->session->setFlash('error','授权失败');
+                return $this->redirect(['login']);
+            }
+            $wxUser = WxUser::findOne(['union_id'=>$userinfo['unionid']]);
+            if($wxUser){
+                $userIdentity = Users::findIdentity($wxUser->user_id);
+                if(Yii::$app->user->login($userIdentity, 3600 * 24 * 30)){
+                    return $this->goBack();
+                } else {
+                    // 这个else 我自己都觉得不会出现，去掉末尾会一直提示缺少return - -
+                    Yii::$app->getSession()->set('error','未知错误');
+                    return $this->redirect(['login']);
+                }
+            }else {
+                if(WxUserinfo::findOne(['unionid'=> $userinfo['unionid']])===null){
+                    $wxUserinfo = new WxUserinfo();
+                    $wxUserinfo->openid = $userinfo['openid'];
+                    $wxUserinfo->unionid = $userinfo['unionid'];
+                    $wxUserinfo->nickname = $userinfo['nickname'];
+                    $wxUserinfo->sex = $userinfo['sex'];
+                    $wxUserinfo->province = $userinfo['province'];
+                    $wxUserinfo->city = $userinfo['city'];
+                    $wxUserinfo->country = $userinfo['country'];
+                    $wxUserinfo->headimgurl = $userinfo['headimgurl'];
+                    $wxUserinfo->createdAt = time();
+                    $wxUserinfo->save();
+                }
+
+                Yii::$app->getSession()->set('wx_unionid',$userinfo['unionid']);
+                return $this->redirect(['wx-signup']);
+            }
         } else {
             $redirect_url = urlencode(Url::to(['site/wx-login'], true));
 //            $redirect_url = urlencode('http://kf.shineip.com/site/wx-login');
@@ -134,6 +166,53 @@ class SiteController extends Controller
             $wxUrl = "https://open.weixin.qq.com/connect/qrconnect?appid=$appid&redirect_uri=$redirect_url&response_type=code&scope=snsapi_login&state=$state#wechat_redirect";
             return $this->redirect($wxUrl);
         }
+    }
+
+    /**
+     * web 微信注册
+     *
+     * @return string|Response
+     */
+    public function actionWxSignup()
+    {
+        $model = new WxSignupForm(['scenario' => WxSignupForm::SCENARIO_REGISTER]);
+        if (Yii::$app->getSession()->get('wx_unionid')) {
+            return $this->redirect(['wx-login']);
+        }
+        $model->unionid = Yii::$app->getSession()->get('wx_unionid');
+        if ($model->load(Yii::$app->request->post()) && ($user = $model->signup()) !== null){
+            if (Yii::$app->getUser()->login($user)) {
+                return $this->goHome();
+            }
+        }
+        $this->layout = 'main-login';
+        return $this->render('wx-signup', [
+            'model' => $model,
+        ]);
+    }
+
+    /**
+     * 微信绑定
+     *
+     * @return string|Response
+     */
+    public function actionWxSignupBind()
+    {
+        $model = new WxSignupForm(['scenario' => WxSignupForm::SCENARIO_BIND]);
+        if(Yii::$app->getSession()->get('wx_unionid')) {
+            return $this->redirect(['wx-login']);
+        }
+        $model->unionid = Yii::$app->getSession()->get('wx_unionid');
+
+        if ($model->load(Yii::$app->request->post()) && ($user = $model->bind())) {
+            if (Yii::$app->getUser()->login($user)) {
+                return $this->goHome();
+            }
+        }
+        $this->layout = 'main-login';
+        return $this->render('wx-signup', [
+            'model' => $model,
+        ]);
     }
 
     /**

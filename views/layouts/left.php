@@ -9,7 +9,7 @@
                 <img src="<?= $directoryAsset ?>/img/user2-160x160.jpg" class="img-circle" alt="User Image"/>
             </div>
             <div class="pull-left info">
-                <p><?=Yii::$app->user->identity->userFullname?></p>
+                <p><?= \yii\helpers\Html::encode(Yii::$app->user->identity->userUsername) ?></p>
 
                 <a href="javascript:;"><i class="fa fa-circle text-success"></i> Online</a>
             </div>

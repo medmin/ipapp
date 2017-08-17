@@ -144,8 +144,7 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 
             return $lastChar === $token;
         };
-
-        if (!preg_match('/^\d{17}[0-9xX]$/', $this->$attribute) || !$checkIDCode($this->$attribute)) {
+        if ($this->$attribute !== 'N/A' && (!preg_match('/^\d{17}[0-9xX]$/', $this->$attribute) || !$checkIDCode($this->$attribute))) {
             $this->addError($attribute, '请填写正确的身份证号码');
         }
     }
@@ -189,6 +188,31 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public static function findByUsername($username)
     {
         return static::findOne(['userUsername' => $username]);
+    }
+
+    /**
+     * Finds user by email
+     *
+     * @param  string $email
+     * @return static|null
+     */
+    public static function findByEmail($email)
+    {
+        return static::findOne(['userEmail' => $email]);
+    }
+
+    /**
+     * 通过用户名或者邮箱来登录
+     *
+     * @param $usernameOrEmail
+     * @return Users|null
+     */
+    public static function findByUsernameOrEmail($usernameOrEmail)
+    {
+        if (filter_var($usernameOrEmail, FILTER_VALIDATE_EMAIL)) {
+            return self::findByEmail($usernameOrEmail);
+        }
+        return self::findByUsername($usernameOrEmail);
     }
 
     /**
