@@ -11,18 +11,35 @@ namespace app\modules\wechat\models;
 
 use yii\base\Model;
 use EasyWeChat\Foundation\Application;
+use Yii;
 
 class DefaultMenu extends Model
 {
 
-    public $options;
+    public $options = [];
     public $app;
     public $buttons;
     public $menu;
 
+    public function init()
+    {
+        parent::init();
+        $this->options = [
+            'debug'  => YII_DEBUG,
+            'app_id' => Yii::$app->params['wechat']['id'],
+            'secret' => Yii::$app->params['wechat']['secret'],
+            'token'  => Yii::$app->params['wechat']['token'],
+            'aes_key' => Yii::$app->params['wechat']['aes_key'],
+            'log' => [
+                'level' => 'debug',
+                'file'  => Yii::$app->params['wechat_log_path'], // XXX: 绝对路径！！！！
+            ]
+        ];
+    }
+
     public function getDefaultMenu()
     {
-        $this->options = (new Options())->getOptions();
+
         $this->app = new Application($this->options);
 
 
