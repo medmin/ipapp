@@ -125,10 +125,11 @@ class SiteController extends Controller
 
     public function actionWxLogin()
     {
-        $appid = Yii::$app->params['wechat_open']['app_id'];
+        $app_id = $this->isMicroMessage() ? Yii::$app->params['wechat']['id'] : Yii::$app->params['wechat_open']['app_id'];
+        $app_secret = $this->isMicroMessage() ? Yii::$app->params['wechat']['secret'] : Yii::$app->params['wechat_open']['app_secret'];
         if (isset($_REQUEST['code'])) {
             try{
-                $weiAPI = new \app\lib\WechatAPI($appid,Yii::$app->params['wechat_open']['app_secret']);
+                $weiAPI = new \app\lib\WechatAPI($app_id, $app_secret);
                 $userinfo = $weiAPI->authUserInfo(Yii::$app->request->getQueryParam('code'));
             } catch (\Exception $e) {
                 Yii::$app->session->setFlash('error','授权失败');
@@ -167,9 +168,9 @@ class SiteController extends Controller
 //            $redirect_url = urlencode('http://kf.shineip.com/site/wx-login');
             $state = md5(time());
             if ($this->isMicroMessage()) {
-                $wxUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=$appid&redirect_uri=$redirect_url&response_type=code&scope=snsapi_userinfo&state=$state#wechat_redirect";
+                $wxUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=$app_id&redirect_uri=$redirect_url&response_type=code&scope=snsapi_userinfo&state=$state#wechat_redirect";
             } else {
-                $wxUrl = "https://open.weixin.qq.com/connect/qrconnect?appid=$appid&redirect_uri=$redirect_url&response_type=code&scope=snsapi_login&state=$state#wechat_redirect";
+                $wxUrl = "https://open.weixin.qq.com/connect/qrconnect?appid=$app_id&redirect_uri=$redirect_url&response_type=code&scope=snsapi_login&state=$state#wechat_redirect";
             }
             return $this->redirect($wxUrl);
         }
