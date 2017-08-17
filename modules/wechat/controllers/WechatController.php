@@ -136,7 +136,7 @@ class WechatController extends \yii\base\Controller
     }
 
 
-    public function getDefaultMenu()
+    public function actionGetDefaultMenu()
     {
         $menu = new DefaultMenu();
 
