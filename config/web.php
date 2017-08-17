@@ -62,7 +62,7 @@ $config = [
             'showScriptName' => false,
             'rules' => [
                 'GET wechat/server' => 'wechat/wechat/valid',
-                'POST wechat/server' => 'wechat/wechat/process-message'
+                'POST wechat/server' => 'wechat/wechat/processmessage'
             ],
         ],
         'assetManager' => [

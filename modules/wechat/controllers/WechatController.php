@@ -45,7 +45,7 @@ class WechatController extends \yii\base\Controller
 
     }
 
-    public function actionProcessMessage()
+    public function actionProcessmessage()
     {
         $app =  new Application($this->options);
         $server = $app->server;
