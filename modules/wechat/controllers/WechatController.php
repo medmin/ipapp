@@ -37,6 +37,7 @@ class WechatController extends \yii\base\Controller
      */
     public function actionValid()
     {
+        $this->options = (new Options())->getOptions();
         $app =  new Application($this->options);
         $server = $app->server;
 
