@@ -68,15 +68,20 @@ $(".export-excel").click(function(){
                     [
                         'class' => 'yii\grid\ActionColumn',
                         'header' => Yii::t('app', 'Operation'),
-                        'template' => '{view} {update} '/* . 'associate' */,
+                        'template' => '{view} {update} {upload}'/* . 'associate' */,
                         'buttons' => [
-                            'associate' => function($url, $model, $key) {
+                            'associate' => function ($url, $model, $key) {
                                 return Html::a('<span class="fa fa-user-plus"></span>', 'javascript:;', ['title' => '关联用户', 'data-toggle' => 'tooltip']);
+                            },
+                            'upload' => function ($url, $model, $key) {
+                                return Html::a('<i class="fa fa-upload"></i>', 'javascript:;', ['title' => '上传文件', 'data-toggle' => 'tooltip', 'data-id' => $model->patentAjxxbID]);
                             }
                         ],
                     ],
                 ],
             ]); ?>
+        </div>
+        <div class="box-footer clearfix">
             <button type="button" class="export-excel btn btn-primary pull-right" style="margin-right: 5px;">
                 <i class="fa fa-download"></i> 导出本页数据
             </button>

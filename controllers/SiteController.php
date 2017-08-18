@@ -184,7 +184,7 @@ class SiteController extends Controller
     public function actionWxSignup()
     {
         $model = new WxSignupForm(['scenario' => WxSignupForm::SCENARIO_REGISTER]);
-        if (!Yii::$app->getSession()->get('wx_unionid')) {
+        if (!!Yii::$app->getSession()->get('wx_unionid')) {
             return $this->redirect(['wx-login']);
         }
         $model->unionid = Yii::$app->getSession()->get('wx_unionid');

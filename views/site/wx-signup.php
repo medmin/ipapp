@@ -80,7 +80,7 @@ $fieldOptions = function($icon){
 
         <div class="row">
             <div class="col-xs-12 form-group">
-                <?= Html::a('已有账号,直接绑定', ['wx-signup-bind'], ['class' => 'btn btn-danger btn-block btn-flat'])?>
+                <?= Html::a('已有账号,请点此按钮进行绑定', ['wx-signup-bind'], ['class' => 'btn btn-danger btn-block btn-flat text-black'])?>
             </div>
         </div>
 

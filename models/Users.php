@@ -323,6 +323,22 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         return $this->hasMany(Patents::className(), ['patentUserLiaisonID' => 'userID']);
     }
 
+    /**
+     * 获取关联微信,拿到WxUserinfo信息
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getWxUserinfo()
+    {
+        return $this->hasOne(WxUserinfo::className(), ['unionid' => 'unionid'])->viaTable(WxUser::tableName(), ['userID' => 'userID']);
+    }
+
+    /**
+     * 修改用户之后更改权限
+     * 
+     * @param bool $insert
+     * @param array $changedAttributes
+     */
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
