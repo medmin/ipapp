@@ -77,7 +77,34 @@ var searchToggle = function(){
                         }
                     ],
 
-                    ['class' => 'yii\grid\ActionColumn'],
+                    [
+                        'class' => 'yii\grid\ActionColumn',
+                        'header' => Yii::t('app', 'Operation'),
+                        'template' => '
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    操作
+                                    <span class="fa fa-caret-down"></span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li>{view}</li>
+                                    <li>{update}</li>
+                                    <li>{delete}</li>
+                                </li>
+                            </div>
+                        ',
+                        'buttons' => [
+                            'view' => function ($url, $model, $key) {
+                                return Html::a('查看', $url, ['target' => '_blank']);
+                            },
+                            'update' => function ($url, $model, $key) {
+                                return Html::a('更新', $url, ['target' => '_blank']);
+                            },
+                            'delete' => function ($url, $model, $key) {
+                                return Html::a('删除', $url, ['data-method' => 'post', 'data-confirm' => Yii::t('yii', '确认删除此专利事件？')]);
+                            }
+                        ],
+                    ],
                 ],
             ]); ?>
         </div>
