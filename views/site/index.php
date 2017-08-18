@@ -10,14 +10,17 @@ $this->title = '';
 <?php if (Yii::$app->user->identity->userRole == \app\models\Users::ROLE_CLIENT): ?>
     <?php
     $events = app\models\Patentevents::find()->where(['eventUserID' => Yii::$app->user->id])->orderBy(['eventCreatUnixTS' => SORT_DESC])->all();
-    if (!$events) {
+    $patents = \app\models\Patents::find()->where(['patentUserID' => Yii::$app->user->id])->count();
+    if (!$events && !$patents) {
         $html = '<div class="alert alert-warning alert-dismissible">';
 //        $html .= '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>';
         $html .= '<h4><i class="icon fa fa-warning"></i> 提示!</h4>';
-        $html .= '您未绑定专利，可以' . \yii\helpers\Html::a('点此', ['site/contact'], ['title' => '反馈']) . '进行反馈或者致电客服进行绑定';
+        $html .= '<p>如果您已经在我司办理专利相关业务，请' . \yii\helpers\Html::a('联系我们', ['site/contact'], ['title' => '反馈']) . '来绑定您的专利信息，以便查看您所有的专利进度。</p><p>如果您尚未在我司办理专利业务，欢迎拨打<a href="tel:0451-88084686">0451-88084686</a>进行咨询。</p>';
         $html .= '</div>';
         echo $html;
         // 没有进度的时候可以显示一些新闻之类的 TODO
+    } elseif (!$events && $patents) {
+        echo '';
     } else {
         echo $this->render('/patents/timeline', ['models' => $events, 'link' => true]);
     }

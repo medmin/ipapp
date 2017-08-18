@@ -39,7 +39,7 @@ use dmstr\widgets\Alert;
     <div class="pull-right hidden-xs">
         <b>Version</b> 2.0
     </div>
-    <strong>Copyright &copy; <?= date('Y') == '2017' ? '2017' : ('2017-' . date('Y')) ?> <a href="####"><?= Yii::$app->params['Company'] ?></a>.</strong> All rights
+    <strong>Copyright &copy; <?= date('Y') == '2017' ? '2017' : ('2017-' . date('Y')) ?> <?= \yii\helpers\Html::a(Yii::$app->params['company'], Yii::$app->params['company_link'], ['target' => '_blank'])?>.</strong> All rights
     reserved.
 </footer>
 

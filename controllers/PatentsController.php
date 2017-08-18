@@ -40,7 +40,7 @@ class PatentsController extends Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['index', 'view', 'export'],
+                        'actions' => ['index', 'view', 'export', 'search'],
                         'roles' => ['admin', 'secadmin']
                     ],
                     [
@@ -174,9 +174,14 @@ class PatentsController extends Controller
         return $this->render('main', ['models' => $events]);
     }
 
+    /**
+     * 导出Excel
+     *
+     * @param $rows
+     */
     public function actionExport($rows)
     {
-        if (empty($rows)) return false;
+        if (empty($rows)) return;
         $rows = json_decode($rows);
         $objPHPExcel = new \PHPExcel();
         $objPHPExcel->getProperties()
@@ -213,8 +218,19 @@ class PatentsController extends Controller
         header('Cache-Control: max-age=0');
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
         $objWriter->save('php://output');
-//        return true;
     }
+
+    /**
+     * 搜索跳转到搜索标题，意义不大
+     *
+     * @param $q
+     * @return \yii\web\Response
+     */
+    public function actionSearch($q)
+    {
+        return $this->redirect(['/patents/index','PatentsSearch[patentTitle]' => $q]);
+    }
+    
     
     /**
      * Finds the Patents model based on its primary key value.

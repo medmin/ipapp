@@ -38,7 +38,7 @@ $this->params['breadcrumbs'][] = $this->title;
                      'userEmail:email',
                      'userCellphone',
                      'userLandline',
-                     'userAddress',
+//                     'userAddress',
                      'userLiaison',
                     // 'userLiaisonID',
                      [

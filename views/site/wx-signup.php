@@ -75,8 +75,14 @@ $fieldOptions = function($icon){
     </div>
     <?php else: ?>
     <div class="register-box-body" id="wx-register">
-        <p class="login-box-msg">注册微信绑定账号</p>
+
         <?php $form = ActiveForm::begin(['id' => 'wx-signup-form', 'enableClientValidation' => true]); ?>
+
+        <div class="row">
+            <div class="col-xs-12 form-group">
+                <?= Html::a('已有账号,直接绑定', ['wx-signup-bind'], ['class' => 'btn btn-danger btn-block btn-flat'])?>
+            </div>
+        </div>
 
         <?= $form
             ->field($model, 'email', $fieldOptions('envelope'))
@@ -99,11 +105,9 @@ $fieldOptions = function($icon){
             ->passwordInput(['placeholder' => '请确认密码']) ?>
 
         <div class="row">
-            <div class="col-xs-6">
-                <?= Html::a('已有账号,直接绑定', ['wx-signup-bind'], ['class' => 'btn btn-danger btn-block btn-flat'])?>
-            </div>
-            <div class="col-xs-4 pull-right">
-                <?= Html::submitInput('注册', ['class' => 'btn btn-primary btn-block btn-flat']) ?>
+
+            <div class="col-xs-12">
+                <?= Html::submitInput('注册微信绑定账号', ['class' => 'btn btn-primary btn-block btn-flat']) ?>
             </div>
         </div>
         <?php ActiveForm::end()?>
