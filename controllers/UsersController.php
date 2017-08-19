@@ -4,7 +4,6 @@ namespace app\controllers;
 
 use app\models\Notification;
 use app\models\Patents;
-use Symfony\Component\Yaml\Tests\A;
 use Yii;
 use app\models\Users;
 use app\models\UsersSearch;
@@ -249,6 +248,10 @@ class UsersController extends Controller
 //                'toAddressArray' => [$userEmail, $liaisonEmail, 'info@shineip.com'],
 //                'emailSubjectString' => '警告: 客户信息被删除'
 //            ]));
+            $wxUser = \app\models\WxUser::findOne(['userID' => $model->userID]);
+            if ($wxUser) {
+                $wxUser->delete();
+            }
             $model->delete();
         }
 
