@@ -32,7 +32,7 @@ class SignupForm extends Model
     {
         return [
             [['username', 'email'], 'trim'],
-            [['username', 'email', 'password', 'repeatPassword', 'citizenID'], 'required'],
+            [['username', 'email', 'password', 'repeatPassword'], 'required'],
             ['repeatPassword', 'compare', 'compareAttribute'=>'password', 'message' => Yii::t('app','The two passwords differ')],
             ['username', 'unique', 'targetAttribute' => 'userUsername', 'targetClass' => '\app\models\Users', 'message' => Yii::t('app','This username has already been taken')],
             ['username', 'string', 'min' => 2, 'max' => 16],
@@ -40,8 +40,8 @@ class SignupForm extends Model
             ['email', 'string', 'max' => 255],
             ['email', 'unique', 'targetAttribute' => 'userEmail', 'targetClass' => '\app\models\Users', 'message' => Yii::t('app','This email has already been taken')],
             ['password', 'string', 'min' => 6],
-            ['citizenID', 'unique', 'targetAttribute' => 'userCitizenID', 'targetClass' => '\app\models\Users', 'message' => Yii::t('app','This citizenID number has already been taken')],
-            [['organization', 'name', 'cellPhone', 'landLine', 'address', 'liaison', 'note'], 'default', 'value' => 'N/A'],
+//            ['citizenID', 'unique', 'targetAttribute' => 'userCitizenID', 'targetClass' => '\app\models\Users', 'message' => Yii::t('app','This citizenID number has already been taken')],
+            [['citizenID', 'organization', 'name', 'cellPhone', 'landLine', 'address', 'liaison', 'note'], 'default', 'value' => 'N/A'],
 //            [['organization', 'name', 'cellPhone', 'landLine', 'address', 'liaison', 'note'], 'required'],
             [['organization', 'name', 'cellPhone', 'landLine', 'address', 'liaison', 'note'], 'string', 'max' => 255],
         ];
