@@ -56,7 +56,7 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         return [
             [['userUsername', 'userPassword', 'userOrganization', 'userFullname', 'userCitizenID', 'userEmail', 'userCellphone', 'userLandline', 'userAddress', 'userLiaison', 'userLiaisonID', 'userRole', 'userNote', 'authKey', 'UnixTimestamp'], 'required'],
-            [['userUsername', 'userCitizenID', 'userEmail'], 'unique'],
+            [['userUsername', 'userEmail'], 'unique'],
             [['userLiaisonID', 'userRole', 'UnixTimestamp'], 'integer'],
             ['userEmail', 'email'],
             ['userCitizenID', 'validateCitizenID'],

@@ -14,8 +14,6 @@
                 <a href="javascript:;"><i class="fa fa-circle text-success"></i> Online</a>
             </div>
         </div>
-        <? endif; ?>
-
         <!-- search form -->
         <form action="<?= \yii\helpers\Url::to('/patents/search') ?>" method="get" class="sidebar-form" style="display: <?= Yii::$app->user->identity->userRole == \app\models\Users::ROLE_CLIENT ? 'none' : 'block' ?>">
             <div class="input-group">
@@ -27,6 +25,8 @@
             </div>
         </form>
         <!-- /.search form -->
+        <? endif; ?>
+
 
         <?php
         if (Yii::$app->user->isGuest || Yii::$app->user->identity->userRole == \app\models\Users::ROLE_CLIENT) {
