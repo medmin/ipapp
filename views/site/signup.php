@@ -45,22 +45,22 @@ $this->registerJs("
         <?= $form
             ->field($model, 'username', $fieldOptions('user'))
             ->label(false)
-            ->textInput(['placeholder' => $model->getAttributeLabel('username')]) ?>
+            ->textInput(['placeholder' => $model->getAttributeLabel('username') ]) ?>
 
         <?= $form
             ->field($model, 'email', $fieldOptions('envelope'))
             ->label(false)
-            ->textInput(['placeholder' => $model->getAttributeLabel('email')]) ?>
+            ->textInput(['placeholder' => '必填：' . $model->getAttributeLabel('email')]) ?>
 
         <?= $form
             ->field($model, 'password', $fieldOptions('lock'))
             ->label(false)
-            ->passwordInput(['placeholder' => $model->getAttributeLabel('password')]) ?>
+            ->passwordInput(['placeholder' => '必填：' .$model->getAttributeLabel('password')]) ?>
 
         <?= $form
             ->field($model, 'repeatPassword', $fieldOptions('log-in'))
             ->label(false)
-            ->passwordInput(['placeholder' => $model->getAttributeLabel('repeatPassword')]) ?>
+            ->passwordInput(['placeholder' => '必填：' .$model->getAttributeLabel('repeatPassword')]) ?>
 
         <?= $form
             ->field($model, 'citizenID',$fieldOptions('info-sign'))
