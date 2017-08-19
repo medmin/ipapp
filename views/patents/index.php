@@ -68,13 +68,28 @@ $(".export-excel").click(function(){
                     [
                         'class' => 'yii\grid\ActionColumn',
                         'header' => Yii::t('app', 'Operation'),
-                        'template' => '{view} {update} {upload}'/* . 'associate' */,
+                        'template' => '
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    操作
+                                    <span class="fa fa-caret-down"></span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li>{view}</li> 
+                                    <li>{update}</li>
+                                    <li>{upload}</li>
+                                </ul>
+                            </div>
+                        ',
                         'buttons' => [
-                            'associate' => function ($url, $model, $key) {
-                                return Html::a('<span class="fa fa-user-plus"></span>', 'javascript:;', ['title' => '关联用户', 'data-toggle' => 'tooltip']);
+                            'view' => function ($url, $model, $key) {
+                                return Html::a('查看', $url, ['target' => '_blank']);
+                            },
+                            'update' => function ($url, $model, $key) {
+                                return Html::a('更新', $url, ['target' => '_blank']);
                             },
                             'upload' => function ($url, $model, $key) {
-                                return Html::a('<i class="fa fa-upload"></i>', 'javascript:;', ['title' => '上传文件', 'data-toggle' => 'tooltip', 'data-id' => $model->patentAjxxbID]);
+                                return Html::a('上传文件', 'javascript:;', ['data-id' => $model->patentAjxxbID]);
                             }
                         ],
                     ],
