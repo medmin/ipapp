@@ -107,7 +107,7 @@ $fieldOptions = function($icon){
         <div class="row">
 
             <div class="col-xs-12">
-                <?= Html::submitInput('注册微信绑定账号', ['class' => 'btn btn-primary btn-block btn-flat']) ?>
+                <?= Html::submitInput('注册新账号', ['class' => 'btn btn-primary btn-block btn-flat']) ?>
             </div>
         </div>
         <?php ActiveForm::end()?>
