@@ -15,25 +15,25 @@ use yii\widgets\ActiveForm;
         'method' => 'get',
     ]); ?>
 
-    <?= $form->field($model, 'fileID') ?>
+<!--    --><?//= $form->field($model, 'fileID', ['options' => ['class' => 'col-md-3']]) ?>
 
-    <?= $form->field($model, 'patentAjxxbID') ?>
+    <?= $form->field($model, 'patentAjxxbID', ['options' => ['class' => 'col-md-3']]) ?>
 
-    <?= $form->field($model, 'fileName') ?>
+    <?= $form->field($model, 'fileName', ['options' => ['class' => 'col-md-3']]) ?>
 
-    <?= $form->field($model, 'filePath') ?>
+<!--    --><?//= $form->field($model, 'filePath') ?>
 
-    <?= $form->field($model, 'fileUploadUserID') ?>
+    <?= $form->field($model, 'fileUploadUserID', ['options' => ['class' => 'col-md-3']]) ?>
 
     <?php // echo $form->field($model, 'fileUploadedAt') ?>
 
-    <?php // echo $form->field($model, 'fileUpdateUserID') ?>
+    <?= $form->field($model, 'fileUpdateUserID', ['options' => ['class' => 'col-md-3']] ) ?>
 
     <?php // echo $form->field($model, 'fileUpdatedAt') ?>
 
     <?php // echo $form->field($model, 'fileNote') ?>
 
-    <div class="form-group">
+    <div class="form-group col-md-12">
         <?= Html::submitButton(Yii::t('app', 'Search'), ['class' => 'btn btn-primary']) ?>
         <?= Html::resetButton(Yii::t('app', 'Reset'), ['class' => 'btn btn-default']) ?>
     </div>
