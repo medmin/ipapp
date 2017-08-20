@@ -34,7 +34,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'filePath',
             'fileUploadUserID',
             'fileUploadedAt',
-            'filehUpdateUserID',
+            'fileUpdateUserID',
             'fileUpdatedAt',
             'fileNote',
         ],

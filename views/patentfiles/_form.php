@@ -22,7 +22,7 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'fileUploadedAt')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'filehUpdateUserID')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'fileUpdateUserID')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'fileUpdatedAt')->textInput(['maxlength' => true]) ?>
 

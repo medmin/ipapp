@@ -27,7 +27,7 @@ use yii\widgets\ActiveForm;
 
     <?php // echo $form->field($model, 'fileUploadedAt') ?>
 
-    <?php // echo $form->field($model, 'filehUpdateUserID') ?>
+    <?php // echo $form->field($model, 'fileUpdateUserID') ?>
 
     <?php // echo $form->field($model, 'fileUpdatedAt') ?>
 

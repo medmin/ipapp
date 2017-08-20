@@ -13,7 +13,7 @@ use Yii;
  * @property string $filePath
  * @property string $fileUploadUserID
  * @property string $fileUploadedAt
- * @property string $filehUpdateUserID
+ * @property string $fileUpdateUserID
  * @property string $fileUpdatedAt
  * @property string $fileNote
  *
@@ -36,10 +36,9 @@ class Patentfiles extends \yii\db\ActiveRecord
     {
         return [
             [['patentAjxxbID', 'fileUploadedAt'], 'required'],
-            [['fileUploadedAt', 'fileUpdatedAt'], 'integer'],
+            [['fileUploadedAt', 'fileUpdatedAt', 'fileUploadUserID', 'fileUpdateUserID'], 'integer'],
             [['patentAjxxbID'], 'string', 'max' => 20],
             [['fileName', 'filePath', 'fileNote'], 'string', 'max' => 1000],
-            [['fileUploadUserID', 'filehUpdateUserID'], 'string', 'max' => 24],
             [['patentAjxxbID'], 'exist', 'skipOnError' => true, 'targetClass' => Patents::className(), 'targetAttribute' => ['patentAjxxbID' => 'patentAjxxbID']],
         ];
     }
@@ -56,7 +55,7 @@ class Patentfiles extends \yii\db\ActiveRecord
             'filePath' => Yii::t('app', 'File Path'),
             'fileUploadUserID' => Yii::t('app', 'File Upload User ID'),
             'fileUploadedAt' => Yii::t('app', 'File Uploaded At'),
-            'filehUpdateUserID' => Yii::t('app', 'Fileh Update User ID'),
+            'fileUpdateUserID' => Yii::t('app', 'File Update User ID'),
             'fileUpdatedAt' => Yii::t('app', 'File Updated At'),
             'fileNote' => Yii::t('app', 'File Note'),
         ];
