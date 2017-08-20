@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\grid\GridView;
+use app\modules\wechat\models\TemplateForm;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\UsersSearch */
@@ -9,6 +10,76 @@ use yii\grid\GridView;
 
 $this->title = Yii::t('app', 'Users');
 $this->params['breadcrumbs'][] = $this->title;
+$js = <<<JS
+let template1 = `
+<div class="form-group">
+    <label for="template-keyword1" class="control-label">客户名称:</label>
+    <input name="template[keyword1]" type="text" class="form-control" id="template-keyword1">
+</div>
+<div class="form-group">
+    <label for="template-keyword2" class="control-label">客服类型:</label>
+    <input name="template[keyword2]" type="text" class="form-control" id="template-keyword2">
+</div>
+<div class="form-group">
+    <label for="template-keyword3" class="control-label">提醒内容:</label>
+    <input name="template[keyword3]" type="text" class="form-control" id="template-keyword3">
+</div>
+<div class="form-group">
+    <label for="template-keyword4" class="control-label">通知时间:</label>
+    <input name="template[keyword4]" type="text" class="form-control" id="template-keyword4">
+</div>
+`;
+let template2 = `
+<div class="form-group">
+    <label for="template-keyword1" class="control-label">待办内容:</label>
+    <input name="template[keyword1]" type="text" class="form-control" id="template-keyword1">
+</div>
+<div class="form-group">
+    <label for="template-keyword2" class="control-label">待办时间:</label>
+    <input name="template[keyword2]" type="text" class="form-control" id="template-keyword2">
+</div>
+`;
+
+$("#templates-select").change(function() {
+  let type = $(this).children('option:selected').val();
+  let append = $("#modal-append");
+  switch(type)
+  {
+      case "WXrxhUrFslEmmVlnQqwCKI1kVbF6FsoIYoSg6aX4Cug":
+        append.html(template1);
+        break;
+      case "j0VDfgYFGY9BJSjdyI8PjwuNMYHwgHpvKOIOMlX732w":
+        append.html(template2);
+        break;
+      default :
+        append.html(template1);
+  }
+});
+
+$("#templates-submit").click(function() {
+  let form = $("#templates-form");
+  // console.log(form.attr("action"), form.serialize(),1,form)
+  $.post(form.attr("action"), form.serialize(), function(data) {
+    if (data['code'] === 0) {
+        // 发送成功
+    }
+    alert(data['msg']);
+    $("wechatModal").modal("hide");
+    form[0].reset();
+  });
+});
+
+$('#wechatModal').on('hidden.bs.modal', function (e) {
+  $("#templates-form")[0].reset();
+  console.log('yin')
+});
+
+function toggleWechatModal(openid) {
+  $("#template-openid").val(openid);
+  $("#wechatModal").modal("show");
+}
+JS;
+$this->registerJs($js, \yii\web\View::POS_END);
 ?>
 <div class="users-index">
     <div class="box box-default">
@@ -87,7 +158,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                 return Html::a('更新', $url, ['target' => '_blank']);
                             },
                             'wechat' => function ($url, $model, $key) {
-                                return isset($model->wxUserinfo->openid) ? Html::a('微信通知', '#', ['id' => 'wechat', 'data-id' => $model->wxUserinfo->openid, 'data-toggle' => "modal", 'data-target' => "#wechatModal"]) : '';
+                                return isset($model->wxUserinfo->openid) ? Html::a('微信通知', 'javascript:toggleWechatModal('.$model->wxUserinfo->openid.')', ['id' => 'wechat']) : '';
                             }
                         ]
                     ],
@@ -104,25 +175,46 @@ $this->params['breadcrumbs'][] = $this->title;
                 <h4 class="modal-title">发送微信模板消息</h4>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label for="template-first" class="control-label">模板标题:</label>
-                    <input type="text" class="form-control" id="template-first">
-                </div>
-                <div class="form-group">
-                    <label for="template-keyword1" class="control-label">客户名:</label>
-                    <input type="text" class="form-control" id="template-keyword1">
-                </div>
-                <div class="form-group">
-                    <label for="template-keyword2" class="control-label">订单信息:</label>
-                    <input type="text" class="form-control" id="template-keyword2">
-                </div>
-                <div class="form-group">
-                    <label for="template-remark" class="control-label">模板备注:</label>
-                    <input type="text" class="form-control" id="template-remark">
-                </div>
+                <form action="<?= \yii\helpers\Url::to(['/wechat/wechat/send-template']) ?>" id="templates-form">
+                    <input type="text" title="openid" value="" name="template[openid]" style="display: none;" id="template-openid">
+                    <div class="form-group">
+                        <label>选择模板类型</label>
+                        <select title class="form-control" id="templates-select" name="template[name]">
+                            <option value="<?= TemplateForm::CUSTOMER_ALERTS_NOTIFICATION ?>"><?= TemplateForm::status()[TemplateForm::CUSTOMER_ALERTS_NOTIFICATION] ?></option>
+                            <option value="<?= TemplateForm::SCHEDULE ?>"><?= TemplateForm::status()[TemplateForm::SCHEDULE] ?></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="template-first" class="control-label">标题:</label>
+                        <input name="template[first]" type="text" class="form-control" id="template-first">
+                    </div>
+                    <div id="modal-append">
+                        <div class="form-group">
+                            <label for="template-keyword1" class="control-label">客户名称:</label>
+                            <input name="template[keyword1]" type="text" class="form-control" id="template-keyword1">
+                        </div>
+                        <div class="form-group">
+                            <label for="template-keyword2" class="control-label">客服类型:</label>
+                            <input name="template[keyword2]" type="text" class="form-control" id="template-keyword2">
+                        </div>
+                        <div class="form-group">
+                            <label for="template-keyword3" class="control-label">提醒内容:</label>
+                            <input name="template[keyword3]" type="text" class="form-control" id="template-keyword3">
+                        </div>
+                        <div class="form-group">
+                            <label for="template-keyword4" class="control-label">通知时间:</label>
+                            <input name="template[keyword4]" type="text" class="form-control" id="template-keyword4">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="template-remark" class="control-label">备注:</label>
+                        <input name="template[remark]" type="text" class="form-control" id="template-remark">
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="templates-submit">发送</button>
             </div>
         </div>
     </div>
