@@ -127,7 +127,8 @@ return [
 
     // wechat
     'Unionid' => '微信UnionID',
-    'Openid' => '微信OpenID',
+    'Openid' => '开放平台OpenID',
+    'Fakeid' => '公众平台OpenID',
     'Nickname' => '微信昵称',
     'Sex' => '性别',
     'City' => '城市',

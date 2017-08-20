@@ -324,6 +324,16 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
+     * 获取微信unionid 和 fakeid
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getWxUser()
+    {
+        return $this->hasOne(WxUser::className(), ['userID' => 'userID']);
+    }
+
+    /**
      * 获取关联微信,拿到WxUserinfo信息
      *
      * @return \yii\db\ActiveQuery

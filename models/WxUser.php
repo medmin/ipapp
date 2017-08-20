@@ -9,6 +9,7 @@ use Yii;
  *
  * @property integer $userID
  * @property string $unionid
+ * @property string $fakeid
  * @property integer $createdAt
  */
 class WxUser extends \yii\db\ActiveRecord
@@ -29,7 +30,7 @@ class WxUser extends \yii\db\ActiveRecord
         return [
             [['userID', 'unionid', 'createdAt'], 'required'],
             [['userID', 'createdAt'], 'integer'],
-            [['unionid'], 'string', 'max' => 50],
+            [['unionid', 'fakeid'], 'string', 'max' => 50],
         ];
     }
 
@@ -41,6 +42,7 @@ class WxUser extends \yii\db\ActiveRecord
         return [
             'userID' => Yii::t('app', 'User ID'),
             'unionid' => Yii::t('app', 'Unionid'),
+            'fakeid' => Yii::t('app', 'Fakeid'),
             'createdAt' => Yii::t('app', 'Created At'),
         ];
     }
