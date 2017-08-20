@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use app\models\Patentfiles;
 use app\models\PatentfilesSearch;
+use yii\helpers\Json;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -108,15 +109,20 @@ class PatentfilesController extends Controller
         return $this->redirect(['index']);
     }
 
-    public function actionUpload()
+    public function actionUpload($ajxxb_id)
     {
+        $this->layout = false;
         $model = new UploadForm();
+        $model->ajxxb_id = $ajxxb_id;
 
         if (Yii::$app->request->isPost) {
             $model->patentFiles = UploadedFile::getInstances($model, 'patentFiles');
             if ($model->upload()) {
                 // file is uploaded successfully
+//                return Json::encode(['code' => 0, 'msg' => 'success']);
                 return $this->render('upload', ['model' => $model]);
+            } else {
+//                return Json::encode(['code' => 1, 'msg' => json_encode($model->errors)]);
             }
         }
 

@@ -25,6 +25,19 @@ $(".export-excel").click(function(){
         window.location.href = "'. \yii\helpers\Url::to('export') .'" + "?rows=" + JSON.stringify(array)
     }
 });
+var upload = function (id) {
+    var h = $.get("/patentfiles/upload?ajxxb_id=" + id, function(data){
+        if (data) {
+            var html = data;
+            $("#filesModal .modal-body").html(html);
+            $("#filesModal").modal("show");
+        } else {
+            console.log("error");
+        }
+    })
+    
+    
+}
 ',\yii\web\View::POS_END);
 ?>
 <div class="patents-index">
@@ -89,7 +102,7 @@ $(".export-excel").click(function(){
                                 return Html::a('更新', $url, ['target' => '_blank']);
                             },
                             'upload' => function ($url, $model, $key) {
-                                return Html::a('上传文件', 'javascript:;', ['data-id' => $model->patentAjxxbID]);
+                                return Html::a('上传文件', 'javascript:upload("'. $model->patentAjxxbID .'")');
                             }
                         ],
                     ],
@@ -100,6 +113,23 @@ $(".export-excel").click(function(){
             <button type="button" class="export-excel btn btn-primary pull-right" style="margin-right: 5px;">
                 <i class="fa fa-download"></i> 导出本页数据
             </button>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="filesModal" tabindex="-1" role="dialog" aria-labelledby="filesModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="filesModalLabel">上传文件</h4>
+            </div>
+            <div class="modal-body">
+
+            </div>
+<!--            <div class="modal-footer">-->
+<!--                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
+<!--                <button type="button" class="btn btn-primary">Save changes</button>-->
+<!--            </div>-->
         </div>
     </div>
 </div>

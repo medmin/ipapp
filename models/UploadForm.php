@@ -19,11 +19,13 @@ class UploadForm extends Model
      * @var UploadedFile[]
      */
     public $patentFiles;
+    public $ajxxb_id;
 
     public function rules()
     {
         return [
             [['patentFiles'], 'file', 'skipOnEmpty' => false, 'maxFiles' => 5],
+            ['ajxxb_id', 'required'],
         ];
     }
 
