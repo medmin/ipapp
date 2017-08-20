@@ -19,7 +19,7 @@ use yii\widgets\ActiveForm;
 <?= $form->field($model, 'patentFiles[]')->fileInput(['multiple' => true, 'accept' => '*'/*, 'style' => 'display: none'*/])->label(false) ?>
 
 <p class="text-muted well well-sm no-shadow">
-    注意：最多一次性上传5个文件，单个文件最大16M <br>
+    注意：一次性最多上传5个文件，一次性最大上传50M <br>
     可以上传的文件后缀有：tiff, png, jpg, doc, docx, xls, xlsx, ppt, pptx, pdf, zip, rar, 7z, txt
 </p>
 

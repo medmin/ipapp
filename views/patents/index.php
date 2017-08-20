@@ -26,7 +26,7 @@ $(".export-excel").click(function(){
     }
 });
 var upload = function (id) {
-    var h = $.get("/patentfiles/upload?ajxxb_id=" + id, function(data){
+    var h = $.get("'.\yii\helpers\Url::to(['patentfiles/upload']).'?ajxxb_id=" + id, function(data){
         if (data) {
             var html = data;
             $("#filesModal .modal-body").html(html);
