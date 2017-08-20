@@ -35,9 +35,10 @@ var upload = function (id) {
             console.log("error");
         }
     })
-    
-    
-}
+};
+$("#uploadform-patentfiles").on("change",function(){
+    $("#filesCover").val($(this).val());
+})
 ',\yii\web\View::POS_END);
 ?>
 <div class="patents-index">

@@ -16,18 +16,20 @@ use yii\widgets\ActiveForm;
 
 <?= $form->field($model, 'ajxxb_id')->hiddenInput(['value' => $model->ajxxb_id])->label(false) ?>
 
-<?= $form->field($model, 'patentFiles[]')->fileInput(['multiple' => true, 'accept' => '*', 'style' => 'display: none'])->label(false) ?>
+<?= $form->field($model, 'patentFiles[]')->fileInput(['multiple' => true, 'accept' => '*'/*, 'style' => 'display: none'*/])->label(false) ?>
 
 <p class="text-muted well well-sm no-shadow">
     注意：最多一次性上传5个文件，单个文件最大16M <br>
     可以上传的文件后缀有：tiff, png, jpg, doc, docx, xls, xlsx, ppt, pptx, pdf, zip, rar, 7z, txt
 </p>
 
-<div class="input-group col-md-12" onclick="$('input[id=uploadform-patentfiles]').click();">
-    <input type="text" class="form-control" title="选择文件">
-    <span class="input-group-btn">
-      <button type="button" class="btn btn-default btn-flat">选择文件</button>
-    </span>
+<!--<div class="input-group col-md-12" onclick="$('input[id=uploadform-patentfiles]').click();">-->
+<!--    <input type="text" class="form-control" id="filesCover" title="选择文件">-->
+<!--    <span class="input-group-btn">-->
+<!--      <button type="button" class="btn btn-default btn-flat">选择文件</button>-->
+<!--    </span>-->
+<!--</div>-->
+<div class="input-group">
     <button class="btn btn-info pull-right filesSubmit">确认上传</button>
 </div>
 
