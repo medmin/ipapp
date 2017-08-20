@@ -10,8 +10,10 @@ namespace app\modules\wechat\controllers;
 
 use app\modules\wechat\models\DefaultMenu;
 use app\modules\wechat\models\TemplateForm;
+use EasyWeChat\Js\Js;
 use Yii;
 use EasyWeChat\Foundation\Application;
+use yii\helpers\Json;
 
 class WechatController extends \yii\base\Controller
 {
@@ -153,6 +155,50 @@ class WechatController extends \yii\base\Controller
 
         return $menu->getDefaultMenu();
 
+    }
+
+
+    public function actionSendTemplate()
+    {
+        $template = Yii::$app->request->post('template');
+        switch ($template['name']) {
+            case TemplateForm::CUSTOMER_ALERTS_NOTIFICATION:
+                $model = new TemplateForm(['scenario' => 'keywords_4']);
+                break;
+            case TemplateForm::SCHEDULE:
+                $model = new TemplateForm(['scenario' => 'keywords_2']);
+                break;
+            case TemplateForm::PROJECT_PROGRESS_NOTIFICATION:
+                $model = new TemplateForm(['scenario' => 'keywords_2']);
+                break;
+            default:
+                return Json::encode(['code' => -1, 'msg' => '模板类型错误']);
+        }
+        if ($model->load($template, '') && $model->validate()) {
+            $data = $template;
+            array_splice($data,0, 2);
+            $app = new Application($this->options);
+            $notice = $app->notice;
+            $messageID = $notice->send([
+                'touser' => $template['openid'],
+                'template_id' => $template['name'],
+                'url' => 'http://kf.shineip.com',
+                'data' => $data,
+            ]);
+            if ($messageID) {
+                // messageID 是个对象
+                // object(EasyWeChat\Support\Collection)#254 (1) { ["items":protected]=> array(3) { ["errcode"]=> int(0) ["errmsg"]=> string(2) "ok" ["msgid"]=> int(421397396) } }
+                if ($messageID->items['errmsg'] == 'ok') {
+                    return Json::encode(['code' => 0, 'msg' => '发送成功']);
+                } else {
+                    return Json::encode(['code' => 1, 'msg' => $messageID->items['errmsg']]);
+                }
+            } else {
+                return Json::encode(['code' => -1, 'msg' => '未知错误']);
+            }
+        } else {
+            return Json::encode(['code' => 1, 'msg' => json_encode($model->errors)]);
+        }
     }
 
 }
