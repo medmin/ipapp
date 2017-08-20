@@ -19,7 +19,7 @@ class PatentfilesSearch extends Patentfiles
     {
         return [
             [['fileID', 'fileUploadedAt', 'fileUpdatedAt'], 'integer'],
-            [['patentAjxxbID', 'fileName', 'filePath', 'fileUploadUserID', 'filehUpdateUserID', 'fileNote'], 'safe'],
+            [['patentAjxxbID', 'fileName', 'filePath', 'fileUploadUserID', 'fileUpdateUserID', 'fileNote'], 'safe'],
         ];
     }
 
@@ -68,7 +68,7 @@ class PatentfilesSearch extends Patentfiles
             ->andFilterWhere(['like', 'fileName', $this->fileName])
             ->andFilterWhere(['like', 'filePath', $this->filePath])
             ->andFilterWhere(['like', 'fileUploadUserID', $this->fileUploadUserID])
-            ->andFilterWhere(['like', 'filehUpdateUserID', $this->filehUpdateUserID])
+            ->andFilterWhere(['like', 'fileUpdateUserID', $this->fileUpdateUserID])
             ->andFilterWhere(['like', 'fileNote', $this->fileNote]);
 
         return $dataProvider;
