@@ -52,6 +52,8 @@ class UploadForm extends Model
                         . '.'. $file->extension ;
                     $fileObj->fileUploadUserID = Yii::$app->user->id;
                     $fileObj->fileUploadedAt = time();
+                    $fileObj->fileUpdateUserID = Yii::$app->user->id;
+                    $fileObj->fileUpdatedAt = time();
 
                     $fileObj->save();
                     if(!$fileObj->save())
