@@ -120,7 +120,7 @@ class PatentfilesController extends Controller
             if ($model->upload()) {
                 // file is uploaded successfully
 //                return Json::encode(['code' => 0, 'msg' => 'success']);
-                return $this->render('upload', ['model' => $model]);
+                return $this->redirect(\yii\helpers\Url::to(['patents/index']));
             } else {
 //                return Json::encode(['code' => 1, 'msg' => json_encode($model->errors)]);
             }
