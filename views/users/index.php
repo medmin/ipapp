@@ -158,7 +158,7 @@ $this->registerJs($js, \yii\web\View::POS_END);
                                 return Html::a('更新', $url, ['target' => '_blank']);
                             },
                             'wechat' => function ($url, $model, $key) {
-                                return isset($model->wxUserinfo->openid) ? Html::a('微信通知', 'javascript:toggleWechatModal('.$model->wxUserinfo->openid.')', ['id' => 'wechat']) : '';
+                                return (isset($model->wxUser->fakeid) && !empty($model->wxUser->fakeid)) ? Html::a('微信通知', 'javascript:toggleWechatModal("'.$model->wxUser->fakeid.'")', ['id' => 'wechat']) : '';
                             }
                         ]
                     ],

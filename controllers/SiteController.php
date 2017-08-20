@@ -137,6 +137,10 @@ class SiteController extends Controller
             }
             $wxUser = WxUser::findOne(['unionid'=>$userinfo['unionid']]);
             if($wxUser){
+                if ($this->isMicroMessage() && $wxUser->fakeid == '') {
+                    $wxUser->fakeid = $userinfo['openid'];
+                    $wxUser->save();
+                }
                 $userIdentity = Users::findIdentity($wxUser->userID);
                 if(Yii::$app->user->login($userIdentity, 3600 * 24 * 30)){
                     return $this->goBack();
@@ -161,6 +165,7 @@ class SiteController extends Controller
                 }
 
                 Yii::$app->getSession()->set('wx_unionid',$userinfo['unionid']);
+                Yii::$app->getSession()->set('wx_openid',$userinfo['openid']);
                 return $this->redirect(['wx-signup']);
             }
         } else {
@@ -188,6 +193,7 @@ class SiteController extends Controller
             return $this->redirect(['wx-login']);
         }
         $model->unionid = Yii::$app->getSession()->get('wx_unionid');
+        $model->openid = Yii::$app->getSession()->get('wx_openid', '');
         if ($model->load(Yii::$app->request->post()) && ($user = $model->signup()) !== null){
             if (Yii::$app->getUser()->login($user)) {
                 return $this->goHome();
@@ -211,6 +217,7 @@ class SiteController extends Controller
             return $this->redirect(['wx-login']);
         }
         $model->unionid = Yii::$app->getSession()->get('wx_unionid');
+        $model->openid = Yii::$app->getSession()->get('wx_openid', '');
 
         if ($model->load(Yii::$app->request->post()) && ($user = $model->bind())) {
             if (Yii::$app->getUser()->login($user)) {

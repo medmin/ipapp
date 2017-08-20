@@ -17,6 +17,7 @@ class WxSignupForm extends Model
     const SCENARIO_BIND = 'bind';
 
     public $unionid;
+    public $openid;
     public $username;
     public $password;
     public $repeatPassword;
@@ -45,7 +46,7 @@ class WxSignupForm extends Model
         return [
             [['unionid', 'email', 'password', 'repeatPassword', 'fullname'], 'required', 'on' => self::SCENARIO_REGISTER],
             [['unionid', 'username', 'password'], 'required', 'on' => self::SCENARIO_BIND],
-            ['unionid', 'string', 'max'=>50],
+            [['unionid', 'openid'], 'string', 'max'=>50],
             ['password', 'string', 'min' => 6],
             ['password', 'validatePassword', 'on' => self::SCENARIO_BIND],
             ['repeatPassword', 'compare', 'compareAttribute'=>'password', 'message' => Yii::t('app','The two passwords differ'), 'on' => self::SCENARIO_REGISTER],
@@ -108,6 +109,7 @@ class WxSignupForm extends Model
             $wxUser = new WxUser();
             $wxUser->userID = $user->userID;
             $wxUser->unionid = $this->unionid;
+            $wxUser->fakeid = $this->isMicroMessage() ? $this->openid : '';
             $wxUser->createdAt = time();
             if (!$wxUser->save()) {
                 throw new Exception();
@@ -152,6 +154,7 @@ class WxSignupForm extends Model
             $wxUser = new WxUser();
             $wxUser->userID = $user->userID;
             $wxUser->unionid = $this->unionid;
+            $wxUser->fakeid = $this->isMicroMessage() ? $this->openid : '';
             $wxUser->createdAt = time();
             if(!$wxUser->save()){
                 throw new Exception();
@@ -175,5 +178,17 @@ class WxSignupForm extends Model
                 $this->addError($attribute, Yii::t('app','Incorrect username or password.'));
             }
         }
+    }
+
+    /**
+     * 是否通过微信访问
+     * return bool
+     */
+    protected function isMicroMessage()
+    {
+        if (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger') !== false ) {
+            return true;
+        }
+        return false;
     }
 }
