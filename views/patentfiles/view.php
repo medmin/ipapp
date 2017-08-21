@@ -31,7 +31,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'fileID',
             'patentAjxxbID',
             'fileName',
-            'filePath',
+//            'filePath',
             'fileUploadUserID',
             'fileUploadedAt',
             'fileUpdateUserID',
