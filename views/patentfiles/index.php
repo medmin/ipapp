@@ -9,6 +9,11 @@ use yii\grid\GridView;
 
 $this->title = Yii::t('app', 'Patentfiles');
 $this->params['breadcrumbs'][] = $this->title;
+$this->registerJs('
+var searchToggle = function(){
+        $("#toggleSearchBtn").trigger("click");
+    }
+',\yii\web\View::POS_END);
 ?>
 <div class="patentfiles-index">
 
