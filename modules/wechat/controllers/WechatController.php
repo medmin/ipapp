@@ -120,27 +120,27 @@ class WechatController extends \yii\base\Controller
 
     public function actionTest()
     {
-        $model = new TemplateForm();
+        $model = new TemplateForm(['scenarios' => 'keywords_4']);
         if ($model->load(Yii::$app->request->post())) {
             $app = new Application($this->options);
             $notice = $app->notice;
-            $messageID = $notice->send([
-                'touser' => 'oSEZTsySF0F4HI7F2KUFkGY5iJ44',
-                'template_id' => TemplateForm::CUSTOMER_ALERTS_NOTIFICATION,
-                'url' => 'http://kf.shineip.com',
-                'data' => [
-                    'first' => $model->first,
-                    'keyword1' => $model->keyword1,
-                    'keyword2' => $model->keyword2,
-                    'keyword3' => $model->keyword3,
-                    'keyword4' => $model->keyword4,
-                    'remark' => $model->remark,
-                ],
-            ]);
-            if ($messageID) {
+            $userId = 'oSEZTs3PbPyyJPyHastxW8s3JcUo';
+            $templateId = TemplateForm::CUSTOMER_ALERTS_NOTIFICATION;
+            $url = 'http://kf.shineip.com';
+            $data = [
+                'first' => $model->first,
+                'keyword1' => $model->keyword1,
+                'keyword2' => $model->keyword2,
+                'keyword3' => $model->keyword3,
+                'keyword4' => $model->keyword4,
+                'remark' => $model->remark,
+            ];
+            $result = $notice->to($userId)->uses($templateId)->andUrl($url)->data($data)->send();
+
+            if ($result) {
                 // messageID 是个对象
                 // object(EasyWeChat\Support\Collection)#254 (1) { ["items":protected]=> array(3) { ["errcode"]=> int(0) ["errmsg"]=> string(2) "ok" ["msgid"]=> int(421397396) } }
-                return $messageID->items['errmsg'];
+                return $result;
             }
         }
 
@@ -188,11 +188,8 @@ class WechatController extends \yii\base\Controller
             if ($messageID) {
                 // messageID 是个对象
                 // object(EasyWeChat\Support\Collection)#254 (1) { ["items":protected]=> array(3) { ["errcode"]=> int(0) ["errmsg"]=> string(2) "ok" ["msgid"]=> int(421397396) } }
-                if ($messageID->items['errmsg'] == 'ok') {
-                    return Json::encode(['code' => 0, 'msg' => '发送成功']);
-                } else {
-                    return Json::encode(['code' => 1, 'msg' => $messageID->items['errmsg']]);
-                }
+                return Json::encode(['code' => 0, 'msg' => '发送成功']);
+
             } else {
                 return Json::encode(['code' => -1, 'msg' => '未知错误']);
             }

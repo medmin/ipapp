@@ -61,12 +61,12 @@ $("#templates-submit").click(function() {
   // console.log(form.attr("action"), form.serialize(),1,form)
   $.post(form.attr("action"), form.serialize(), function(data) {
     if (data['code'] === 0) {
-        // 发送成功
+       $("#wechatModal").modal("hide");
+       form[0].reset();
+    } else {
+        alert(data['msg']);
     }
-    alert(data['msg']);
-    $("wechatModal").modal("hide");
-    form[0].reset();
-  });
+  }, 'json');
 });
 
 $('#wechatModal').on('hidden.bs.modal', function (e) {
