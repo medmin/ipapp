@@ -11,6 +11,7 @@ use app\models\eac\Rwsl;
 use app\models\Patentevents;
 use app\models\Patents;
 use app\models\Users;
+use function GuzzleHttp\Psr7\str;
 use yii\console\Controller;
 use Faker\Factory;
 
@@ -87,6 +88,9 @@ class HelloController extends Controller
         }
     }
 
+    /**
+     * 生成假专利数据
+     */
     public function actionPatentsFaker()
     {
         $start = time();
@@ -117,6 +121,12 @@ class HelloController extends Controller
         $this->stdout('OK,Time Consuming:' . time() - $start);
     }
 
+    /**
+     * 生成假事件
+     *
+     * @param $ajxbid
+     * @return int
+     */
     public function actionEventsFaker($ajxbid)
     {
         $patent = Patents::findOne(['patentAjxxbID' => $ajxbid]);
@@ -151,5 +161,24 @@ class HelloController extends Controller
         }
         $this->stdout('OK');
         return Controller::EXIT_CODE_NORMAL;
+    }
+
+    public function actionResetDemo($password)
+    {
+        $demo = Users::findOne(['userUsername' => 'demo']);
+        if (!$demo) {
+            $this->stdout('Demo does not exist, use \'yii rbac/demo generate\'' . PHP_EOL);
+            return Controller::EXIT_CODE_ERROR;
+        }
+        if (strlen($password) < 6 || strlen($password) > 30) {
+            $this->stdout('Password length does not match' . PHP_EOL);
+            return Controller::EXIT_CODE_ERROR;
+        }
+        $demo->setPassword($password);
+        if ($demo->save()) {
+            $this->stdout($password . PHP_EOL);
+            return Controller::EXIT_CODE_NORMAL;
+        }
+        return Controller::EXIT_CODE_ERROR;
     }
 }

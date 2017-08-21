@@ -36,7 +36,7 @@ class PatentfilesController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['delete', 'index', 'view'],
+                        'actions' => ['delete', 'index', 'view', 'upload'],
                         'roles' => ['admin', 'secadmin']
                     ],
                     [
