@@ -20,7 +20,7 @@ use yii\widgets\ActiveForm;
 
 <p class="text-muted well well-sm no-shadow">
     注意：一次性最多上传5个文件，一次性最大上传50M <br>
-    可以上传的文件后缀有：tiff, png, jpg, doc, docx, xls, xlsx, ppt, pptx, pdf, zip, rar, 7z, txt
+    可以上传的文件后缀有：tif, png, jpg, doc, docx, xls, xlsx, ppt, pptx, pdf, zip, rar, 7z, txt
 </p>
 
 <!--<div class="input-group col-md-12" onclick="$('input[id=uploadform-patentfiles]').click();">-->

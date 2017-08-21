@@ -203,7 +203,7 @@ class PatentfilesController extends Controller
             $path_parts = pathinfo($filePath);
             $ext = strtolower($path_parts["extension"]);
             switch ($ext) {
-                case "tiff":
+                case "tif":
                     header("Content-type: application/tiff");
                     header("Content-Disposition: attachment; filename=\"".$path_parts["basename"]."\"");//不懂啥意思
                     break;

@@ -42,7 +42,7 @@ class UploadForm extends Model
 
                 if(
                 !in_array($extension,
-                    ['tiff', 'png', 'jpg', 'doc', 'docx', 'xls', 'xlsx',
+                    ['tif', 'png', 'jpg', 'doc', 'docx', 'xls', 'xlsx',
                         'ppt', 'pptx', 'pdf', 'zip', 'rar', '7z', 'txt'] )
                 )
                 {
