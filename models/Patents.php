@@ -21,9 +21,11 @@ use Yii;
  * @property string $patentApplicationNo
  * @property string $patentPatentNo
  * @property string $patentNote
+ * @property string $patentApplicationDate
  * @property integer $UnixTimestamp
  *
  * @property Patentevents[] $patentevents
+ * @property Patentfiles[] $patentfiles
  */
 class Patents extends \yii\db\ActiveRecord
 {
@@ -49,6 +51,7 @@ class Patents extends \yii\db\ActiveRecord
             [['patentUserLiaison', 'patentAgent', 'patentProcessManager'], 'string', 'max' => 24],
             [['patentTitle', 'patentApplicationNo', 'patentPatentNo'], 'string', 'max' => 40],
             [['patentNote'], 'string', 'max' => 1000],
+            [['patentApplicationDate'], 'string', 'max' => 14],
             [['patentAjxxbID'], 'unique'],
         ];
     }
@@ -73,6 +76,7 @@ class Patents extends \yii\db\ActiveRecord
             'patentApplicationNo' => Yii::t('app', 'Patent Application No'),
             'patentPatentNo' => Yii::t('app', 'Patent Patent No'),
             'patentNote' => Yii::t('app', 'Patent Note'),
+            'patentApplicationDate' => Yii::t('app', 'Patent Application Date'),
             'UnixTimestamp' => Yii::t('app', 'Unix Timestamp'),
         ];
     }
@@ -92,6 +96,14 @@ class Patents extends \yii\db\ActiveRecord
     public function getAgentContact()
     {
         return $this->hasOne(Users::className(), ['userFullname' => 'patentAgent'])->select(['userCellphone', 'userLandline']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPatentfiles()
+    {
+        return $this->hasMany(Patentfiles::className(), ['patentAjxxbID' => 'patentAjxxbID']);
     }
 
     public function beforeSave($insert)

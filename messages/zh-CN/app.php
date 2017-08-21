@@ -98,6 +98,7 @@ return [
     'Update Patents' => '更新专利',
     'My Patents' => '我的专利',
     'Patent User Liaison ID' => '商务专员ID',
+    'Patent Application Date' => '专利申请日',
 
     //Patentevents
     'Patentevents' => '专利事务列表',

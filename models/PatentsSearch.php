@@ -22,7 +22,7 @@ class PatentsSearch extends Patents
     {
         return [
             [['patentID', 'patentUserID', 'patentUserLiaisonID', 'UnixTimestamp'], 'integer'],
-            [['patentAjxxbID', 'patentEacCaseNo', 'patentType', 'patentUsername', 'patentUserLiaison', 'patentAgent', 'patentProcessManager', 'patentTitle', 'patentApplicationNo', 'patentPatentNo', 'patentNote', 'organization'], 'safe'],
+            [['patentAjxxbID', 'patentEacCaseNo', 'patentType', 'patentUsername', 'patentUserLiaison', 'patentAgent', 'patentProcessManager', 'patentTitle', 'patentApplicationNo', 'patentPatentNo', 'patentNote', 'organization', 'patentApplicationDate'], 'safe'],
         ];
     }
 
@@ -73,6 +73,7 @@ class PatentsSearch extends Patents
             'patentID' => $this->patentID,
             'patentUserID' => $this->patentUserID,
             'patentUserLiaisonID' => $this->patentUserLiaisonID,
+            'patentApplicationDate' => $this->patentApplicationDate,
         ]);
 
         $query->andFilterWhere(['like', 'patentAjxxbID', $this->patentAjxxbID])

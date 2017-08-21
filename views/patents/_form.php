@@ -34,6 +34,8 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'patentNote')->textarea(['rows' => 6]) ?>
 
+    <?= $form->field($model, 'patentApplicationDate')->textInput(['maxlength' => true]) ?>
+
     <?= $form->field($model, 'UnixTimestamp')->textInput() ?>
 
     <div class="form-group">

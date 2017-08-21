@@ -75,6 +75,7 @@ $("#uploadform-patentfiles").on("change",function(){
                     'patentProcessManager',
                     'patentTitle',
                     'patentApplicationNo',
+//                  'patentApplicationDate',
 //                    'patentPatentNo',
 //                    'patentNote:ntext',
                     // 'UnixTimestamp:datetime',
