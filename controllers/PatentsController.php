@@ -47,6 +47,11 @@ class PatentsController extends Controller
                         'allow' => true,
                         'actions' => ['main'],
                         'roles' => ['@']
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['demo']
                     ]
                 ],
             ],

@@ -7,6 +7,7 @@
 
 namespace app\commands;
 
+use app\models\Users;
 use Yii;
 use yii\console\Controller;
 
@@ -75,5 +76,39 @@ class RbacController extends Controller
         $this->stdout('Complete' . PHP_EOL);
         return Controller::EXIT_CODE_NORMAL;
 
+    }
+
+    public function actionDemo()
+    {
+        if (Users::findOne(['userUsername' => 'demo'])) {
+            $this->stdout('The demo already exists' . PHP_EOL);
+            return Controller::EXIT_CODE_ERROR;
+        }
+        $auth = Yii::$app->authManager;
+        $demo = $auth->createRole('demo');
+        $auth->add($demo);
+
+        $demo_user = new Users();
+        $demo_user->userUsername = 'demo';
+        $demo_user->setPassword('123456');
+        $demo_user->userOrganization = 'doze';
+        $demo_user->userFullname = 'doze测试使用';
+        $demo_user->userCitizenID = '110226199703041433';
+        $demo_user->userEmail = 'demo@demo.com';
+        $demo_user->userCellphone = '18953412586'; //填写 '' 会报错
+        $demo_user->userLandline = '13245648';
+        $demo_user->userAddress = '河南郑州';
+        $demo_user->userLiaison = 'N/A';
+        $demo_user->userLiaisonID = 0;
+        $demo_user->userRole = Users::DEMO;
+        $demo_user->userNote = 'N/A';
+        $demo_user->generateAuthKey();
+        $demo_user->UnixTimestamp = time() * 1000;
+
+        if ($demo_user->save() && $auth->assign($demo, $demo_user->userID)) {
+            $this->stdout('Complete' . PHP_EOL);
+            return Controller::EXIT_CODE_NORMAL;
+        }
+        return Controller::EXIT_CODE_ERROR;
     }
 }

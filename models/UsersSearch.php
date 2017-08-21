@@ -60,6 +60,7 @@ class UsersSearch extends Users
         if (Yii::$app->user->identity->userRole == Users::ROLE_ADMIN) {
             $query->andWhere(['<>', 'userID', Yii::$app->user->id]);
         }
+        $query->andWhere(['<>', 'userRole', Users::DEMO]);
 
         $this->load($params);
 

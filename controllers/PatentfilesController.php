@@ -12,6 +12,7 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use app\models\UploadForm;
 use yii\web\UploadedFile;
+use yii\filters\AccessControl;
 
 /**
  * PatentfilesController implements the CRUD actions for Patentfiles model.
@@ -28,6 +29,26 @@ class PatentfilesController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
+                ],
+            ],
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['delete', 'index', 'view'],
+                        'roles' => ['admin', 'secadmin']
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['download'],
+                        'roles' => ['@']
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['demo']
+                    ]
                 ],
             ],
         ];
@@ -110,6 +131,12 @@ class PatentfilesController extends Controller
         return $this->redirect(['index']);
     }
 
+    /**
+     * 上传文件
+     *
+     * @param $ajxxb_id
+     * @return string|\yii\web\Response
+     */
     public function actionUpload($ajxxb_id)
     {
         $this->layout = false;
@@ -145,8 +172,5 @@ class PatentfilesController extends Controller
             throw new NotFoundHttpException('The requested page does not exist.');
         }
     }
-
-
-
 
 }

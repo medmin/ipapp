@@ -42,6 +42,11 @@ class PatenteventsController extends Controller
                         'actions' => ['index', 'view', 'create', 'update', 'todo'],
                         'roles' => ['admin', 'secadmin']
                     ],
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['demo']
+                    ]
                 ],
             ],
         ];

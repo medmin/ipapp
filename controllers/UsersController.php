@@ -60,6 +60,11 @@ class UsersController extends Controller
                         'allow' => true,
                         'actions' => ['check-exist'],
                         'roles' => ['?']
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'notify'],
+                        'roles' => ['demo']
                     ]
                 ],
             ],
@@ -209,6 +214,10 @@ class UsersController extends Controller
             // TODO
             return true;
         }else{
+            /* demo 不能修改 */
+            if (Yii::$app->user->identity->userRole == Users::DEMO) {
+                return Json::encode(['code' => -1, 'message' => 'demo用户禁止修改']);
+            }
             $client = Users::findOne(Yii::$app->user->id);
             if (!$client->validatePassword(Yii::$app->request->post('oldPassword'))) {
                 return Json::encode(['code' => -1, 'message' => Yii::t('app','Old Password is invalid')]);

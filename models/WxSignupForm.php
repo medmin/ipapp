@@ -133,10 +133,10 @@ class WxSignupForm extends Model
         try {
 
             /**
-             * 检查用户
+             * 检查用户,如果demo用户禁止绑定
              */
             $user = Users::findByUsernameOrEmail($this->username);
-            if($user == null){
+            if($user == null || $user->userUsername == 'demo'){
                 throw new Exception();
             }
 

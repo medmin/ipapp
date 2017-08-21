@@ -41,6 +41,9 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     /* 超级管理员 */
     const ROLE_ADMIN = 4;
 
+    /* demo 测试使用 */
+    const DEMO = 99;
+
     /**
      * @inheritdoc
      */
@@ -352,8 +355,8 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
-        if (!$insert) {
-            // 更新
+        // 如果是更新并且userRole设置了
+        if (!$insert && isset($changedAttributes['userRole'])) {
             $auth = Yii::$app->authManager;
             if ($changedAttributes['userRole'] != Users::ROLE_CLIENT) {
                 // 先移除,踩坑：revoke() 和 assign() 第一参数要求是yii\rbac\Role对象，不是role的字符串

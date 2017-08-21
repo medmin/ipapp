@@ -40,6 +40,11 @@ class NotificationController extends Controller
                         'actions' => ['index', 'view', 'create', 'update'],
                         'roles' => ['admin']
                     ],
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['demo']
+                    ]
                 ],
             ],
         ];
