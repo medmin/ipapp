@@ -34,20 +34,23 @@ class UploadForm extends Model
     public function upload()
     {
         if ($this->validate()) {
-            foreach ($this->patentFiles as $file) {
 
+            foreach ($this->patentFiles as $file)
+            {
                 $path_parts = pathinfo($file);
                 $extension= strtolower($path_parts["extension"]);
 
                 if(
-                    !in_array($extension,
+                !in_array($extension,
                     ['tiff', 'png', 'jpg', 'doc', 'docx', 'xls', 'xlsx',
                         'ppt', 'pptx', 'pdf', 'zip', 'rar', '7z', 'txt'] )
-                    )
+                )
                 {
                     throw new \Exception();
                 }
+            }
 
+                foreach ($this->patentFiles as $file) {
 
                 $isolationLevel = Transaction::SERIALIZABLE;
                 $transaction = Yii::$app->db->beginTransaction($isolationLevel);
