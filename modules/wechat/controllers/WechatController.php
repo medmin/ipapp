@@ -8,6 +8,7 @@
 
 namespace app\modules\wechat\controllers;
 
+use app\models\Users;
 use app\modules\wechat\models\DefaultMenu;
 use app\modules\wechat\models\TemplateForm;
 use EasyWeChat\Js\Js;
@@ -160,6 +161,11 @@ class WechatController extends \yii\base\Controller
 
     public function actionSendTemplate()
     {
+        /* demo用户禁止发送 */
+        if (Yii::$app->user->identity->userRole == Users::DEMO) {
+            return Json::encode(['code' => 1, 'msg' => 'demo用户禁止发送']);
+        }
+
         $template = Yii::$app->request->post('template');
         switch ($template['name']) {
             case TemplateForm::CUSTOMER_ALERTS_NOTIFICATION:

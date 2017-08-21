@@ -143,7 +143,7 @@ $this->registerJs($js, \yii\web\View::POS_END);
                                 </button>
                                 <ul class="dropdown-menu" role="menu">
                                     <li>{view}</li> 
-                                    '.(Yii::$app->user->identity->userRole == \app\models\Users::ROLE_ADMIN ? '
+                                    '.((Yii::$app->user->identity->userRole == \app\models\Users::ROLE_ADMIN || Yii::$app->user->identity->userRole == \app\models\Users::DEMO) ? '
                                     <li>{update}</li>
                                     <li>{wechat}</li>
                                     ' : '').'

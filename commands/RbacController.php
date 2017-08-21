@@ -78,6 +78,11 @@ class RbacController extends Controller
 
     }
 
+    /**
+     * 生成一个demo用户,修改其他controller只让demo访问index
+     *
+     * @return int
+     */
     public function actionDemo()
     {
         if (Users::findOne(['userUsername' => 'demo'])) {

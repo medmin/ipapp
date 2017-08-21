@@ -188,14 +188,14 @@ class PatentfilesController extends Controller
     /**
      * 下载文件
      *
-     * @param $id
+     * @param $ajxxb_id
      */
-    public function actionDownload($id)
+    public function actionDownload($ajxxb_id)
     {
         ignore_user_abort(true);
-        set_time_limit(0); // disable the time limit for this script
+        set_time_limit(600); // disable the time limit for this script
 
-        $model = $this->findModel($id);
+        $model = $this->findModel($ajxxb_id);
         $filePath = $model->filePath;
 
         if ($fd = fopen ($filePath, "r")) {
