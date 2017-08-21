@@ -92,6 +92,7 @@ $("#uploadform-patentfiles").on("change",function(){
                                     <li>{view}</li> 
                                     <li>{update}</li>
                                     <li>{upload}</li>
+                                    <li>{download}</li>
                                 </ul>
                             </div>
                         ',
@@ -104,6 +105,9 @@ $("#uploadform-patentfiles").on("change",function(){
                             },
                             'upload' => function ($url, $model, $key) {
                                 return Html::a('上传文件', 'javascript:upload("'. $model->patentAjxxbID .'")');
+                            },
+                            'download' => function($url, $model, $key){
+                                return Html::a('下载文件', 'javascript:download("'. $model->patentAjxxbID .'")');
                             }
                         ],
                     ],

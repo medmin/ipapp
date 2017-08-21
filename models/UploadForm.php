@@ -52,6 +52,8 @@ class UploadForm extends Model
                         . '.'. $file->extension ;
                     $fileObj->fileUploadUserID = Yii::$app->user->id;
                     $fileObj->fileUploadedAt = time();
+                    $fileObj->fileUpdateUserID = Yii::$app->user->id;
+                    $fileObj->fileUpdatedAt = time();
 
                     $fileObj->save();
                     if(!$fileObj->save())
@@ -66,8 +68,8 @@ class UploadForm extends Model
 
                     $eventObj->eventRwslID = uniqid();
                     $eventObj->patentAjxxbID = $this->ajxxb_id;
-                    $eventObj->eventContentID = '1000';
-                    $eventObj->eventContent = Rwsl::rwdyIdMappingContent()['1000']
+                    $eventObj->eventContentID = 'file';
+                    $eventObj->eventContent = Rwsl::rwdyIdMappingContent()['file']
                         .': '. $file->baseName . '; '
                         . '专利：'.Patents::findOne(['patentAjxxbID' => $this->ajxxb_id])->patentTitle;
                     $eventObj->eventCreatUnixTS = time() *1000;

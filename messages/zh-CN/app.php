@@ -135,4 +135,16 @@ return [
     'Province' => '省份',
     'Country' => '国家',
     'Headimgurl' => '头像',
+
+    //patentfiles, 专利文件表
+    'Patentfiles' => '专利文件列表',
+    'File ID' => '文件ID',
+    'Patent Ajxxb ID' => 'Ajxxb_ID',
+    'File Name' => '文件名',
+    'File Path' => '文件路径',
+    'File Upload User ID' => '文件上传人ID',
+    'File Uploaded At' => '上传时间',
+    'File Update User ID' => '文件更新人ID',
+    'File Updated At' => '更新时间',
+    'File Note' => '备注',
 ];

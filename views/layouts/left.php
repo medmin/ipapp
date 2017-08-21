@@ -65,6 +65,7 @@
                         ['label' => '专利列表', 'icon' => 'file-text-o', 'url' => \yii\helpers\Url::to(['patents/index'])],
                         ['label' => '专利事件', 'icon' => 'list-ul', 'url' => \yii\helpers\Url::to(['patentevents/index'])],
                         ['label' => '待办事务' . ($todo_count > 0 ? ('(' . $todo_count . ')') : ''), 'icon' => 'pencil', 'url' => \yii\helpers\Url::to(['/patentevents/todo'])],
+                        ['label' => '专利文件列表', 'icon' => 'folder-open-o', 'url' => \yii\helpers\Url::to(['patentfiles/index'])],
 //                        [
 //                            'label' => '系统工具',
 //                            'icon' => 'share',

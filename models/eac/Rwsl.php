@@ -110,7 +110,7 @@ class Rwsl extends \yii\db\ActiveRecord
             '19' => '确认缴费',
             '21' => '提交复审请求',
             'custom' => '自定义类型',
-            '1000' => '新增专利文件'
+            'file' => '新增专利文件'
         ];
     }
 
