@@ -80,6 +80,7 @@ class RbacController extends Controller
 
     /**
      * 生成一个demo用户,修改其他controller只让demo访问index
+     * 修改密码使用 hello/reset-demo $password
      *
      * @return int
      */

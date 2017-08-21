@@ -42,6 +42,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     'patentTitle',
                     'patentApplicationNo',
                     'patentPatentNo',
+                    'patentApplicationDate',
                     'patentNote:ntext',
                     [
                         'attribute' => 'Unix Timestamp',

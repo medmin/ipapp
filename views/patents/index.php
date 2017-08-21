@@ -25,7 +25,7 @@ $(".export-excel").click(function(){
         window.location.href = "'. \yii\helpers\Url::to('export') .'" + "?rows=" + JSON.stringify(array)
     }
 });
-var upload = function (id) {
+var upload = function(id) {
     var h = $.get("'.\yii\helpers\Url::to(['patentfiles/upload']).'?ajxxb_id=" + id, function(data){
         if (data) {
             var html = data;
@@ -36,9 +36,19 @@ var upload = function (id) {
         }
     })
 };
+var download = function(id) {
+    var url = "'.\yii\helpers\Url::to(['patentfiles/download-group']).'?ajxxb_id=" + id;
+    $.get(url, function(data) {
+        if (!data) {
+            alert("该专利没有可下载文件");
+        } else {
+           window.location.href = url;
+        }
+    });
+};
 $("#uploadform-patentfiles").on("change",function(){
     $("#filesCover").val($(this).val());
-})
+});
 ',\yii\web\View::POS_END);
 ?>
 <div class="patents-index">
@@ -75,7 +85,7 @@ $("#uploadform-patentfiles").on("change",function(){
                     'patentProcessManager',
                     'patentTitle',
                     'patentApplicationNo',
-//                  'patentApplicationDate',
+                    'patentApplicationDate',
 //                    'patentPatentNo',
 //                    'patentNote:ntext',
                     // 'UnixTimestamp:datetime',
