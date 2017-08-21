@@ -84,18 +84,21 @@ class PatentfilesController extends Controller
      * @param integer $id
      * @return mixed
      */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->fileID]);
-        } else {
-            return $this->render('update', [
-                'model' => $model,
-            ]);
-        }
-    }
+//    public function actionUpdate($id)
+//    {
+//        $model = $this->findModel($id);
+//
+//        if ($model->load(Yii::$app->request->post()) && $model->save())
+//        {
+//            return $this->redirect(['view', 'id' => $model->fileID]);
+//        }
+//        else
+//        {
+//            return $this->render('update', [
+//                'model' => $model,
+//            ]);
+//        }
+//    }
 
     /**
      * Deletes an existing Patentfiles model.
@@ -105,9 +108,18 @@ class PatentfilesController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $theSingleOneModel = $this->findModel($id);
+        $filePath = $theSingleOneModel->filePath;
 
-        return $this->redirect(['index']);
+        if( unlink($filePath) && $theSingleOneModel->delete() )
+        {
+            return $this->redirect(['index']);
+        }
+        else
+        {
+            throw new \Exception;
+        }
+
     }
 
     public function actionUpload($ajxxb_id)
