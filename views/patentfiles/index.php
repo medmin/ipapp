@@ -49,7 +49,7 @@ var download = function(id) {
                         'attribute' => 'fileUploadUserID',
                         'label' => '文件上传人',
                         'value' => function ($model) {
-                            return $model->uploadUser->userFullname;
+                            return $model->uploadUser->userFullname ?? '';
                         }
                     ],
                     [
@@ -62,7 +62,7 @@ var download = function(id) {
                         'attribute' => 'fileUpdateUserID',
                         'label' => '文件更新人',
                         'value' => function ($model) {
-                            return $model->updateUser->userFullname;
+                            return $model->updateUser->userFullname ?? '';
                         }
                     ],
                     [

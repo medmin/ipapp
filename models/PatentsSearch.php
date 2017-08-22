@@ -46,7 +46,7 @@ class PatentsSearch extends Patents
     {
         $query = Patents::find();
 
-        if (isset($params['PatentsSearch']['organization'])) {
+        if (isset($params['PatentsSearch']['organization']) && $params['PatentsSearch']['organization'] !== '') {
             $query->where(['in', 'patentUserID', (new Query())->select('userID')->from('users')->where(['like', 'userOrganization', $params['PatentsSearch']['organization']])]);
         }
 
