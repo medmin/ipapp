@@ -40,13 +40,9 @@ class UploadForm extends Model
                 $path_parts = pathinfo($file);
                 $extension= strtolower($path_parts["extension"]);
 
-                if(
-                !in_array($extension,
-                    ['tif', 'png', 'jpg', 'doc', 'docx', 'xls', 'xlsx',
-                        'ppt', 'pptx', 'pdf', 'zip', 'rar', '7z', 'txt'] )
-                )
-                {
-                    throw new \Exception();
+                if (!in_array($extension, ['tif', 'png', 'jpg', 'doc', 'docx', 'xls', 'xlsx','ppt', 'pptx', 'pdf', 'zip', 'rar', '7z', 'txt'])
+                ) {
+                    throw new yii\web\ForbiddenHttpException('不允许上传'. $extension . '类型的文件'. PHP_EOL . '可以上传的文件后缀有：tif, png, jpg, doc, docx, xls, xlsx, ppt, pptx, pdf, zip, rar, 7z, txt');
                 }
             }
 
@@ -70,7 +66,6 @@ class UploadForm extends Model
                     $fileObj->fileUpdateUserID = Yii::$app->user->id;
                     $fileObj->fileUpdatedAt = time();
 
-                    $fileObj->save();
                     if(!$fileObj->save())
                     {
 //                        print_r($fileObj->errors);exit;
@@ -81,12 +76,11 @@ class UploadForm extends Model
                     //新建一条专利事务的记录
                     $eventObj = new Patentevents();
 
-                    $eventObj->eventRwslID = uniqid();
+                    $eventObj->eventRwslID = uniqid() . '_' . $fileObj->fileID; // 加上id是为了方便后期判断这个event属于那个文件
                     $eventObj->patentAjxxbID = $this->ajxxb_id;
                     $eventObj->eventContentID = 'file';
                     $eventObj->eventContent = Rwsl::rwdyIdMappingContent()['file']
-                        .': '. $file->baseName . '; '
-                        . '专利：'.Patents::findOne(['patentAjxxbID' => $this->ajxxb_id])->patentTitle;
+                        .': '. $file->baseName . '.' . $file->extension;
                     $eventObj->eventCreatUnixTS = time() *1000;
                     $eventObj->eventCreatPerson = '';
                     $eventObj->eventStatus = 'INACTIVE';
@@ -94,7 +88,6 @@ class UploadForm extends Model
                     $eventObj->eventFinishPerson = '';
                     $eventObj->eventUserID = 0;
 
-                    $eventObj->save();
                     if(!$eventObj->save())
                     {
                         throw new \Exception();

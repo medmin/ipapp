@@ -13,6 +13,9 @@ $this->registerJs('
 var searchToggle = function(){
         $("#toggleSearchBtn").trigger("click");
     }
+var download = function(id) {
+    window.location.href = "'. \yii\helpers\Url::to(['patentfiles/download']) .'?id=" + id;
+}
 ',\yii\web\View::POS_END);
 ?>
 <div class="patentfiles-index">
@@ -36,20 +39,32 @@ var searchToggle = function(){
                 'dataProvider' => $dataProvider,
         //        'filterModel' => $searchModel,
                 'columns' => [
-                    ['class' => 'yii\grid\SerialColumn'],
+//                    ['class' => 'yii\grid\SerialColumn'],
 
                     'fileID',
                     'patentAjxxbID',
                     'fileName',
         //            'filePath',
-                    'fileUploadUserID',
+                    [
+                        'attribute' => 'fileUploadUserID',
+                        'label' => '文件上传人',
+                        'value' => function ($model) {
+                            return $model->uploadUser->userFullname;
+                        }
+                    ],
                     [
                         'attribute' => 'fileUploadedAt',
                         'value' => function ($model) {
                             return Yii::$app->formatter->asDatetime($model->fileUploadedAt);
                         }
                     ],
-                     'fileUpdateUserID',
+                    [
+                        'attribute' => 'fileUpdateUserID',
+                        'label' => '文件更新人',
+                        'value' => function ($model) {
+                            return $model->updateUser->userFullname;
+                        }
+                    ],
                     [
                         'attribute' => 'fileUpdatedAt',
                         'value' => function ($model) {
@@ -77,16 +92,16 @@ var searchToggle = function(){
                                 ',
                         'buttons' => [
                             'view' => function ($url, $model, $key) {
-                                return Html::a('查看', $url, ['target' => '_blank']);
+                                return Html::a('查看', $url);
                             },
                             'update' => function ($url, $model, $key) {
-                                return Html::a('更新', $url, ['target' => '_blank']);
+                                return Html::a('更新', $url);
                             },
                             'delete' => function ($url, $model, $key) {
-                                return Html::a('删除文件', 'javascript:delete("'. $model->patentAjxxbID .'")');
+                                return Html::a('删除', $url, ['data-method' => 'post', 'data-confirm' => Yii::t('yii', 'Are you sure you want to delete this item?')]);
                             },
                             'download' => function($url, $model, $key){
-                                return Html::a('下载文件', 'javascript:download("'. $model->patentAjxxbID .'")');
+                                return Html::a('下载文件', 'javascript:download("'. $model->fileID .'")');
                             }
                         ],
                     ],

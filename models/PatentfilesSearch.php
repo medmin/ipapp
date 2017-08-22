@@ -41,7 +41,7 @@ class PatentfilesSearch extends Patentfiles
      */
     public function search($params)
     {
-        $query = Patentfiles::find();
+        $query = Patentfiles::find()->joinWith(['uploadUser']);
 
         // add conditions that should always apply here
 

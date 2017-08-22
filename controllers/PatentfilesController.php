@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\Patentevents;
 use app\models\Patents;
+use app\models\Users;
 use Yii;
 use app\models\Patentfiles;
 use app\models\PatentfilesSearch;
@@ -134,12 +135,30 @@ class PatentfilesController extends Controller
         $theSingleOneModel = $this->findModel($id);
         $filePath = $theSingleOneModel->filePath;
 
-        if (unlink($filePath) && $theSingleOneModel->delete()) {
-            return $this->redirect(['index']);
-        } else {
-            throw new \Exception;
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            // 增加event
+            $event = new Patentevents();
+            $event->eventRwslID = uniqid() . '_' . $theSingleOneModel->fileID;
+            $event->patentAjxxbID = $theSingleOneModel->patentAjxxbID;
+            $event->eventContentID = 'deleteFile';
+            $event->eventContent = \app\models\eac\Rwsl::rwdyIdMappingContent()[$event->eventContentID]
+                . $theSingleOneModel->fileName;
+            $event->eventCreatUnixTS = time() *1000;
+            $event->eventCreatPerson = Yii::$app->user->identity->userFullname;
+            $event->eventStatus = 'INACTIVE';
+            $event->eventFinishUnixTS = time() *1000;
+            $event->eventFinishPerson = Yii::$app->user->identity->userFullname;
+            $event->eventUserID = 0;
+            if (!$event->save() || !unlink($filePath) || !$theSingleOneModel->delete()) {
+                throw new \Exception();
+            }
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
         }
-
+        return $this->redirect(['index']);
     }
 
     /**
@@ -185,7 +204,7 @@ class PatentfilesController extends Controller
     }
 
     /**
-     * 下载文件
+     * 下载单个文件
      *
      * @param $id
      * @return bool
@@ -197,6 +216,13 @@ class PatentfilesController extends Controller
 
         $model = $this->findModel($id);
         if (!$model) {
+            return false;
+        }
+
+        // 如果客户看的专利文件不是自己的，返回false
+        if (Yii::$app->user->identity->userRole == Users::ROLE_CLIENT
+            && Yii::$app->user->id !== Patents::findOne($model->patentAjxxbID)->patentUserID
+        ) {
             return false;
         }
         $filePath = $model->filePath;

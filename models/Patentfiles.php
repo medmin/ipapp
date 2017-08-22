@@ -68,4 +68,20 @@ class Patentfiles extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Patents::className(), ['patentAjxxbID' => 'patentAjxxbID']);
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUploadUser()
+    {
+        return $this->hasOne(Users::className(), ['userID' => 'fileUploadUserID']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUpdateUser()
+    {
+        return $this->hasOne(Users::className(), ['userID' => 'fileUpdateUserID']);
+    }
 }
