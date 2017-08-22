@@ -15,6 +15,7 @@ use yii\filters\VerbFilter;
 use app\models\UploadForm;
 use yii\web\UploadedFile;
 use yii\filters\AccessControl;
+use yii\db\Transaction;
 
 /**
  * PatentfilesController implements the CRUD actions for Patentfiles model.
@@ -134,8 +135,8 @@ class PatentfilesController extends Controller
     {
         $theSingleOneModel = $this->findModel($id);
         $filePath = $theSingleOneModel->filePath;
-
-        $transaction = Yii::$app->db->beginTransaction();
+        $isolationLevel = Transaction::SERIALIZABLE;
+        $transaction = Yii::$app->db->beginTransaction($isolationLevel);
         try {
             // 增加event
             $event = new Patentevents();
@@ -149,7 +150,8 @@ class PatentfilesController extends Controller
             $event->eventStatus = 'INACTIVE';
             $event->eventFinishUnixTS = time() *1000;
             $event->eventFinishPerson = Yii::$app->user->identity->userFullname;
-            $event->eventUserID = 0;
+            $event->eventUserID = Patents::findOne(['patentAjxxbID' => $this->ajxxb_id])->patentUserID;
+            $event->eventUsername = Patents::findOne(['patentAjxxbID' => $this->ajxxb_id])->patentUsername;
             if (!$event->save() || !unlink($filePath) || !$theSingleOneModel->delete()) {
                 throw new \Exception();
             }
