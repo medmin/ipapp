@@ -150,8 +150,8 @@ class PatentfilesController extends Controller
             $event->eventStatus = 'INACTIVE';
             $event->eventFinishUnixTS = time() *1000;
             $event->eventFinishPerson = Yii::$app->user->identity->userFullname;
-            $event->eventUserID = Patents::findOne(['patentAjxxbID' => $this->ajxxb_id])->patentUserID;
-            $event->eventUsername = Patents::findOne(['patentAjxxbID' => $this->ajxxb_id])->patentUsername;
+            $event->eventUserID = Patents::findOne(['patentAjxxbID' => $theSingleOneModel->patentAjxxbID])->patentUserID;
+            $event->eventUsername = Patents::findOne(['patentAjxxbID' => $theSingleOneModel->patentAjxxbID])->patentUsername;
             if (!$event->save() || !unlink($filePath) || !$theSingleOneModel->delete()) {
                 throw new \Exception();
             }
