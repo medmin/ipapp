@@ -144,7 +144,7 @@ class PatentfilesController extends Controller
             $event->patentAjxxbID = $theSingleOneModel->patentAjxxbID;
             $event->eventContentID = 'deleteFile';
             $event->eventContent = \app\models\eac\Rwsl::rwdyIdMappingContent()[$event->eventContentID]
-                . $theSingleOneModel->fileName . strtolower(pathinfo($filePath)["extension"]);
+                . $theSingleOneModel->fileName . '.' .strtolower(pathinfo($filePath)["extension"]);
             $event->eventCreatUnixTS = time() *1000;
             $event->eventCreatPerson = Yii::$app->user->identity->userFullname;
             $event->eventStatus = 'INACTIVE';
