@@ -86,7 +86,8 @@ class UploadForm extends Model
                     $eventObj->eventStatus = 'INACTIVE';
                     $eventObj->eventFinishUnixTS = time() *1000;
                     $eventObj->eventFinishPerson = '';
-                    $eventObj->eventUserID = 0;
+                    $eventObj->eventUserID = Patents::findOne(['patentAjxxbID' => $this->ajxxb_id])->patentUserID;
+                    $eventObj->eventUsername = Patents::findOne(['patentAjxxbID' => $this->ajxxb_id])->patentUsername;
 
                     if(!$eventObj->save())
                     {
