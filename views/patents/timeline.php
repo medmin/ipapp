@@ -42,6 +42,19 @@ function color($i) {
 }
 $i = 0;
 $link = $link ?? false;
+
+$this->registerCss('
+.file-download {
+    margin-left: 5px;
+    cursor: pointer;
+//    color: #3c8dbc;
+}
+');
+$this->registerJs('
+var download = function(id) {
+    window.location.href = "'. \yii\helpers\Url::to(['patentfiles/download']) .'?id=" + id;
+}
+',\yii\web\View::POS_END);
 ?>
 <ul class="timeline timeline-inverse">
     <? foreach (group($models) as $idx => $group_model): ?>

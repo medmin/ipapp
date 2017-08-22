@@ -199,7 +199,7 @@ class PatentfilesController extends Controller
         if (($model = Patentfiles::findOne($id)) !== null) {
             return $model;
         } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('文件不存在');
         }
     }
 
@@ -207,7 +207,7 @@ class PatentfilesController extends Controller
      * 下载单个文件
      *
      * @param $id
-     * @return bool
+     * @throws NotFoundHttpException
      */
     public function actionDownload($id)
     {
@@ -215,15 +215,12 @@ class PatentfilesController extends Controller
         set_time_limit(600); // disable the time limit for this script
 
         $model = $this->findModel($id);
-        if (!$model) {
-            return false;
-        }
 
         // 如果客户看的专利文件不是自己的，返回false
         if (Yii::$app->user->identity->userRole == Users::ROLE_CLIENT
-            && Yii::$app->user->id !== Patents::findOne($model->patentAjxxbID)->patentUserID
+            && Yii::$app->user->id !== Patents::findOne(['patentAjxxbID' => $model->patentAjxxbID])->patentUserID
         ) {
-            return false;
+            throw new NotFoundHttpException('文件不存在');
         }
         $filePath = $model->filePath;
 
