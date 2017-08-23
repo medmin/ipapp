@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\PatentsSearch */
@@ -102,6 +103,7 @@ $("#uploadform-patentfiles").on("change",function(){
                                 <ul class="dropdown-menu" role="menu">
                                     <li>{view}</li> 
                                     <li>{update}</li>
+                                    <li>{create-event}</li>
                                     <li>{schedule}</li>
                                     <li>{upload}</li>
                                     <li>{download}</li>
@@ -122,7 +124,10 @@ $("#uploadform-patentfiles").on("change",function(){
                                 return Html::a('下载文件', 'javascript:download("'. $model->patentAjxxbID .'")');
                             },
                             'schedule' => function ($url, $model, $key) {
-                                return Html::a('进度', \yii\helpers\Url::to(['main', 'id' => $model->patentAjxxbID]));
+                                return Html::a('进度', Url::to(['main', 'id' => $model->patentAjxxbID]));
+                            },
+                            'create-event' => function ($url, $model, $key) {
+                                return Html::a('添加事件', Url::to(['/patentevents/create', 'ajxxb_id' => $model->patentAjxxbID ]));
                             }
                         ],
                     ],

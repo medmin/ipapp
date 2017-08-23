@@ -26,7 +26,7 @@ $("#finishDateTime").change(function(){
 
         <?= $form->field($model, 'eventNote')->textarea(['rows' => 3]) ?>
 
-        <?= $form->field($model, 'patentAjxxbID')->textInput(['maxlength' => true, 'disabled' => $model->patentAjxxbID ? true : false]) ?>
+        <?= $form->field($model, 'patentAjxxbID')->textInput(['maxlength' => true, 'disabled' => $model->patentAjxxbID ? true : false, 'value' => Yii::$app->request->queryParams['ajxxb_id'] ?? '']) ?>
     </div>
 
 
