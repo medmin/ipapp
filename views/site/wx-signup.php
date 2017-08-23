@@ -90,6 +90,11 @@ $fieldOptions = function($icon){
             ->textInput(['placeholder' => '请输入注册邮箱']) ?>
 
         <?= $form
+            ->field($model, 'email', $fieldOptions('mobile-phone'))
+            ->label(false)
+            ->textInput(['placeholder' => '请输入手机号码']) ?>
+
+        <?= $form
             ->field($model, 'fullname', $fieldOptions('heart'))
             ->label(false)
             ->textInput(['placeholder' => '请输入您的真实姓名,以便我们核对专利']) ?>
