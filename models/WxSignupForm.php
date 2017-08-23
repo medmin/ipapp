@@ -81,7 +81,7 @@ class WxSignupForm extends Model
             /**
              * 创建用户
              */
-            $users_count = Users::find()->count() + 1234;
+            $users_count = Users::find()->count() + 1234 + mt_rand(21, 99) ;
             $user = new Users();
             $user->userUsername = '阳光惠远_' . $users_count;
             $user->setPassword($this->password);

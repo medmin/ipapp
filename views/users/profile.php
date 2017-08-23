@@ -8,6 +8,8 @@
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
+/* @var $model \app\models\Users */
+
 $this->title = Yii::t('app','Personal Settings');
 $this->params['breadcrumbs'][] = $this->title;
 
@@ -59,6 +61,12 @@ $this->registerJs('
                     </div>
                 <?php } ?>
                 <?php $form = ActiveForm::begin() ?>
+
+                <?= $form->field($model, 'userUsername')->textInput() ?>
+
+                <?= $form->field($model, 'userCitizenID')->textInput() ?>
+
+                <?= $form->field($model, 'userFullname')->textInput() ?>
 
                 <?= $form->field($model, 'userCellphone')->textInput() ?>
 
