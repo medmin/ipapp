@@ -23,6 +23,7 @@ class WxSignupForm extends Model
     public $repeatPassword;
     public $email;
     public $fullname;
+    public $cellphone;
 
     /**
      * 场景区分
@@ -31,7 +32,7 @@ class WxSignupForm extends Model
      */
     public function scenarios(){
         $scenarios = parent::scenarios();
-        $scenarios[self::SCENARIO_REGISTER] = ['unionid', 'email', 'password', 'repeatPassword', 'fullname'];
+        $scenarios[self::SCENARIO_REGISTER] = ['unionid', 'email', 'password', 'repeatPassword', 'fullname', 'cellphone'];
         $scenarios[self::SCENARIO_BIND] = ['unionid', 'username', 'password'];
         return $scenarios;
     }
@@ -44,7 +45,7 @@ class WxSignupForm extends Model
     public function rules()
     {
         return [
-            [['unionid', 'email', 'password', 'repeatPassword', 'fullname'], 'required', 'on' => self::SCENARIO_REGISTER],
+            [['unionid', 'email', 'password', 'repeatPassword', 'fullname', 'cellphone'], 'required', 'on' => self::SCENARIO_REGISTER],
             [['unionid', 'username', 'password'], 'required', 'on' => self::SCENARIO_BIND],
             [['unionid', 'openid'], 'string', 'max'=>50],
             ['password', 'string', 'min' => 6],
@@ -67,6 +68,7 @@ class WxSignupForm extends Model
             'password' => Yii::t('app', 'Password'),
             'fullname' => Yii::t('app', 'Fullname'),
             'repeatPassword' => Yii::t('app', 'Repeat Password'),
+            'cellphone' => Yii::t('app', 'Cell Phone')
         ];
     }
 
@@ -90,7 +92,7 @@ class WxSignupForm extends Model
             // 以下信息可空
             $user->userCitizenID = 'N/A';
             $user->userOrganization = 'N/A';
-            $user->userCellphone = 'N/A';
+            $user->userCellphone = $this->cellphone;
             $user->userLandline = 'N/A';
             $user->userAddress = 'N/A'; // 可写微信地址
             $user->userLiaison = 'N/A';
