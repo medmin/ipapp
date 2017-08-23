@@ -66,7 +66,7 @@ $("#uploadform-patentfiles").on("change",function(){
         </div>
     </div>
     <div class="box box-primary">
-        <div class="box-body">
+        <div class="box-body table-responsive">
             <?= GridView::widget([
                 'dataProvider' => $dataProvider,
 //        'filterModel' => $searchModel,

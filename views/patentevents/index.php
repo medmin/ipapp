@@ -37,7 +37,7 @@ var searchToggle = function(){
         <div class="box-header">
             <p><?= Html::a(Yii::t('app', 'Create Patentevents'), ['create'], ['class' => 'btn btn-success']) ?></p>
         </div>
-        <div class="box-body">
+        <div class="box-body table-responsive">
             <?= GridView::widget([
                 'dataProvider' => $dataProvider,
 //        'filterModel' => $searchModel,

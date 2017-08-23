@@ -78,19 +78,31 @@ function toggleWechatModal(openid) {
   $("#template-openid").val(openid);
   $("#wechatModal").modal("show");
 }
+function searchToggle() {
+  $("#toggleSearchBtn").trigger("click");
+}
 JS;
 $this->registerJs($js, \yii\web\View::POS_END);
 ?>
 <div class="users-index">
-    <div class="box box-default">
+    <div class="box box-default collapsed-box">
+        <div class="box-header with-border">
+            <a href="javascript:void(0)" onclick="searchToggle()" style="display: block;"><h3 class="box-title"><small>搜索</small></h3></a>
 
+            <div class="box-tools pull-right">
+                <button id="toggleSearchBtn" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="box-body">
+            <?php  echo $this->render('_search', ['model' => $searchModel]); ?>
+        </div>
+    </div>
+    <div class="box box-primary">
         <?php if (Yii::$app->user->identity->userRole == \app\models\Users::ROLE_ADMIN) {
             echo '<div class="box-header with-border"><p>' . Html::a(Yii::t('app', 'Create Users'), ['create'], ['class' => 'btn btn-success']) . '</p></div>';
         }?>
-        <div class="box-body">
-            <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
-
-
+        <div class="box-body table-responsive">
             <?= GridView::widget([
                 'dataProvider' => $dataProvider,
 //                'filterModel' => $searchModel,

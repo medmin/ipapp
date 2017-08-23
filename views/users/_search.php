@@ -13,13 +13,16 @@ use yii\widgets\ActiveForm;
     <?php $form = ActiveForm::begin([
         'action' => ['index'],
         'method' => 'get',
+        'fieldConfig' => [
+                'options' => ['class' => 'col-md-4']
+        ]
     ]); ?>
 
-    <?= $form->field($model, 'userID') ?>
+    <?//= $form->field($model, 'userID') ?>
 
     <?= $form->field($model, 'userUsername') ?>
 
-    <?= $form->field($model, 'userPassword') ?>
+    <?//= $form->field($model, 'userPassword') ?>
 
     <?= $form->field($model, 'userOrganization') ?>
 
@@ -33,7 +36,7 @@ use yii\widgets\ActiveForm;
 
     <?php // echo $form->field($model, 'userCitizenID') ?>
 
-    <?php // echo $form->field($model, 'userEmail') ?>
+    <?php  echo $form->field($model, 'userEmail') ?>
 
     <?php // echo $form->field($model, 'userCellphone') ?>
 
@@ -41,7 +44,7 @@ use yii\widgets\ActiveForm;
 
     <?php // echo $form->field($model, 'userAddress') ?>
 
-    <?php // echo $form->field($model, 'userLiaison') ?>
+    <?php  echo $form->field($model, 'userLiaison') ?>
 
     <?php // echo $form->field($model, 'userLiaisonID') ?>
 
@@ -53,7 +56,7 @@ use yii\widgets\ActiveForm;
 
     <?php // echo $form->field($model, 'UnixTimestamp') ?>
 
-    <div class="form-group">
+    <div class="form-group col-md-12">
         <?= Html::submitButton(Yii::t('app', 'Search'), ['class' => 'btn btn-primary']) ?>
         <?= Html::resetButton(Yii::t('app', 'Reset'), ['class' => 'btn btn-default']) ?>
     </div>

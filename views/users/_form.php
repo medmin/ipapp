@@ -62,7 +62,7 @@ $this->registerJs('
             $employees = Users::find()->select(['userID', 'userFullname'])->where(['userRole' => Users::ROLE_EMPLOYEE])->asArray()->all();
             $employees = [0 => 'N/A'] + array_column($employees, 'userFullname', 'userID');
 
-            echo $form->field($model, 'userLiaisonID', ['options' => ['style' => 'display:none']])->dropDownList($employees, ['prompt' => Yii::t('app','Select An Employee')]);
+            echo $form->field($model, 'userLiaisonID', ['options' => ['style' => ($model->userRole == Users::ROLE_CLIENT ? 'display:block' : 'display:none')]])->dropDownList($employees, ['prompt' => Yii::t('app','Select An Employee')]);
         }
     ?>
 

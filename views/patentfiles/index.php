@@ -34,7 +34,7 @@ var download = function(id) {
         </div>
     </div>
     <div class="box box-default">
-        <div class="box-body">
+        <div class="box-body table-responsive">
             <?= GridView::widget([
                 'dataProvider' => $dataProvider,
         //        'filterModel' => $searchModel,
