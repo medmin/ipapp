@@ -11,6 +11,7 @@ $this->params['breadcrumbs'][] = $this->title;
         if (!$models) {
             echo '该专利暂无动态';
         } else {
+            $this->title .= '：' . \app\models\Patents::findOne(['patentAjxxbID' => Yii::$app->request->queryParams['id']])->patentTitle;
             echo $this->render('timeline', ['models' => $models]);
         }
         ?>

@@ -102,6 +102,7 @@ $("#uploadform-patentfiles").on("change",function(){
                                 <ul class="dropdown-menu" role="menu">
                                     <li>{view}</li> 
                                     <li>{update}</li>
+                                    <li>{schedule}</li>
                                     <li>{upload}</li>
                                     <li>{download}</li>
                                 </ul>
@@ -117,8 +118,11 @@ $("#uploadform-patentfiles").on("change",function(){
                             'upload' => function ($url, $model, $key) {
                                 return Html::a('上传文件', 'javascript:upload("'. $model->patentAjxxbID .'")');
                             },
-                            'download' => function($url, $model, $key){
+                            'download' => function ($url, $model, $key) {
                                 return Html::a('下载文件', 'javascript:download("'. $model->patentAjxxbID .'")');
+                            },
+                            'schedule' => function ($url, $model, $key) {
+                                return Html::a('进度', \yii\helpers\Url::to(['main', 'id' => $model->patentAjxxbID]));
                             }
                         ],
                     ],

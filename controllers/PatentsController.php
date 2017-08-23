@@ -174,7 +174,11 @@ class PatentsController extends Controller
      */
     public function actionMain($id)
     {
-        $events = Patentevents::find()->where(['patentAjxxbID' => $id, 'eventUserID' => Yii::$app->user->id])->orderBy(['eventCreatUnixTS' => SORT_DESC])->all();
+        $where_condition = ['patentAjxxbID' => $id];
+        if (Yii::$app->user->identity->userRole == Users::ROLE_CLIENT) {
+            $where_condition += ['eventUserID' => Yii::$app->user->id];
+        }
+        $events = Patentevents::find()->where($where_condition)->orderBy(['eventCreatUnixTS' => SORT_DESC])->all();
 
         return $this->render('main', ['models' => $events]);
     }

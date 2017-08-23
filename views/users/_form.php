@@ -19,6 +19,10 @@ $this->registerJs('
             field_div.hide();
         }
     });
+    $("#users-userliaisonid").change(function(){
+        var liaison = $(this).find("option:selected").text();
+        $("#users-userliaison").val(liaison);
+    });
 ',\yii\web\View::POS_END);
 ?>
 
@@ -62,9 +66,10 @@ $this->registerJs('
             $employees = Users::find()->select(['userID', 'userFullname'])->where(['userRole' => Users::ROLE_EMPLOYEE])->asArray()->all();
             $employees = [0 => 'N/A'] + array_column($employees, 'userFullname', 'userID');
 
-            echo $form->field($model, 'userLiaisonID', ['options' => ['style' => ($model->userRole == Users::ROLE_CLIENT ? 'display:block' : 'display:none')]])->dropDownList($employees, ['prompt' => Yii::t('app','Select An Employee')]);
+            echo $form->field($model, 'userLiaisonID', ['options' => ['style' => ($model->userRole == Users::ROLE_CLIENT ? 'display:block' : 'display:none')]])->dropDownList($employees, ['prompt' => Yii::t('app','Select An Employee')])->label(Yii::t('app', 'User Liaison'));
         }
     ?>
+    <?= $form->field($model, 'userLiaison')->hiddenInput()->label(false) ?>
 
     <?= $form->field($model, 'userNote')->textarea(['rows' => 4]) ?>
 

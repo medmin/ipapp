@@ -158,6 +158,9 @@ $this->registerJs($js, \yii\web\View::POS_END);
                                     '.((Yii::$app->user->identity->userRole == \app\models\Users::ROLE_ADMIN || Yii::$app->user->identity->userRole == \app\models\Users::DEMO) ? '
                                     <li>{update}</li>
                                     <li>{wechat}</li>
+                                    ' : '').((Yii::$app->user->identity->userRole !== \app\models\Users::ROLE_CLIENT) ? '
+                                    <li>{patents}</li>
+                                    <li>{schedule}</li>
                                     ' : '').'
                                 </ul>
                             </div>
@@ -171,7 +174,13 @@ $this->registerJs($js, \yii\web\View::POS_END);
                             },
                             'wechat' => function ($url, $model, $key) {
                                 return (isset($model->wxUser->fakeid) && !empty($model->wxUser->fakeid)) ? Html::a('微信通知', 'javascript:toggleWechatModal("'.$model->wxUser->fakeid.'")', ['id' => 'wechat']) : '';
-                            }
+                            },
+                            'patents' => function ($url, $model, $key) {
+                                return Html::a('专利', \yii\helpers\Url::to(['patents/index', 'PatentsSearch[patentUserID]' => $key]));
+                            },
+                            'schedule' => function ($url, $model, $key) {
+                                return Html::a('主页', \yii\helpers\Url::to(['users/events-schedule', 'user_id' => $key]));
+                            },
                         ]
                     ],
                 ],

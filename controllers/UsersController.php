@@ -9,6 +9,7 @@ use app\models\Users;
 use app\models\UsersSearch;
 use yii\helpers\Json;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
@@ -48,7 +49,7 @@ class UsersController extends Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['index', 'view', 'notify'],
+                        'actions' => ['index', 'view', 'notify', 'events-schedule'],
                         'roles' => ['admin', 'manager', 'secadmin']
                     ],
                     [
@@ -236,6 +237,23 @@ class UsersController extends Controller
     }
 
     /**
+     * 查看客户专利进度(所有的进度)
+     *
+     * @param $user_id
+     * @return string
+     * @throws ForbiddenHttpException
+     */
+    public function actionEventsSchedule($user_id)
+    {
+        if (Yii::$app->user->identity->userRole == Users::ROLE_EMPLOYEE
+            && self::findModel($user_id)->userLiaisonID !== Yii::$app->user->id) {
+            throw new ForbiddenHttpException('无权访问该用户');
+        }
+        $events = \app\models\Patentevents::find()->where(['eventUserID' => $user_id])->orderBy(['eventCreatUnixTS' => SORT_DESC])->all();
+        return $this->render('events-schedule', ['events' => $events, 'username' => self::findModel($user_id)->userUsername]);
+    }
+
+    /**
      * Deletes an existing Users model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
@@ -338,7 +356,7 @@ class UsersController extends Controller
         }
         else
         {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('该用户不存在');
         }
     }
 }

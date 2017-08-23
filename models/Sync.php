@@ -56,6 +56,7 @@ class Sync extends Model
                             if ($ajxxbOneSingleRow['youxiaobj'] == '01') {
                                 $patent = new Patents();
                                 $patent->patentAjxxbID = $ajxxbOneSingleRow['aj_ajxxb_id'];
+                                $patent->patentUserID = 0;
                                 switch ($ajxxbOneSingleRow['zhuanlilx']) {
                                     case '01':
                                         $patent->patentType = '发明专利';

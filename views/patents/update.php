@@ -31,13 +31,8 @@ $this->params['breadcrumbs'][] = Yii::t('app', 'Update');
                 <?= $form->field($model, 'patentAgent')->textInput(['maxlength' => true]) ?>
 
                 <?= $form->field($model, 'patentProcessManager')->textInput(['maxlength' => true]) ?>
-                <?php
 
-                $employees = app\models\Users::find()->select(['userID', 'userFullname'])->where(['userRole' => app\models\Users::ROLE_EMPLOYEE])->asArray()->all();
-                $employees = [0 => 'N/A'] + array_column($employees, 'userFullname', 'userID');
-
-                echo $form->field($model, 'patentUserLiaisonID')->dropDownList($employees, ['prompt' => Yii::t('app','Select An Employee')])->label(Yii::t('app','Patent User Liaison'));
-                ?>
+                <?= $form->field($model, 'patentUserLiaison')->textInput(['maxlength' => true, 'disabled' => true]) ?>
 
                 <?= $form->field($model, 'patentTitle')->textInput(['maxlength' => true]) ?>
 

@@ -44,6 +44,7 @@ class Patents extends \yii\db\ActiveRecord
     {
         return [
             [['patentAjxxbID', 'patentEacCaseNo', 'patentType', 'UnixTimestamp'], 'required'],
+            ['patentUserID', 'required', 'message' => '需要取消用户绑定请填写 0 '],
             [['patentUserID', 'patentUserLiaisonID', 'UnixTimestamp'], 'integer'],
             [['patentAjxxbID', 'patentEacCaseNo'], 'string', 'max' => 20],
             [['patentType'], 'string', 'max' => 8],
@@ -106,21 +107,36 @@ class Patents extends \yii\db\ActiveRecord
         return $this->hasMany(Patentfiles::className(), ['patentAjxxbID' => 'patentAjxxbID']);
     }
 
+    /**
+     * 更改专利顺带更待专利事件
+     *
+     * @param bool $insert
+     * @return bool
+     */
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
             if (!$insert) {
                 if (isset($this->dirtyAttributes['patentUserID'])) {
-                    $user = Users::findOne($this->patentUserID);
-                    if (!$user) return false;
-                    $this->patentUsername = $user->userFullname;
-                    Patentevents::updateAll(['eventUserID' => $user->userID, 'eventUsername' => $user->userFullname], ['patentAjxxbID' => $this->patentAjxxbID, 'eventUserID' => 0]);
-                }
-                if (isset($this->dirtyAttributes['patentUserLiaisonID']) && $this->dirtyAttributes['patentUserLiaisonID'] != 0) {
-                    $liaison = Users::findOne($this->patentUserLiaisonID);
-                    if (!$liaison) return false;
-                    $this->patentUserLiaison = $liaison->userFullname;
-                    Patentevents::updateAll(['eventUserLiaisonID' => $liaison->userID, 'eventUserLiaison' => $liaison->userFullname], ['patentAjxxbID' => $this->patentAjxxbID, 'eventUserLiaisonID' => 0]);
+                    if ($this->dirtyAttributes['patentUserID'] == 0) {
+                        // 取消所有相关字段的值
+                        $this->patentUsername = '';
+                        $this->patentUserLiaisonID = 0;
+                        $this->patentUserLiaison = '';
+                        Patentevents::updateAll(['eventUserID' => 0, 'eventUsername' => '', 'eventUserLiaisonID' => 0, 'eventUserLiaison' => ''], ['patentAjxxbID' => $this->patentAjxxbID]);
+                    } else {
+                        $user = Users::findOne($this->dirtyAttributes['patentUserID']);
+                        if (!$user) return false;
+                        echo '<pre>';
+                        print_r($user);
+                        echo '</pre>';
+                        exit;
+                        // 更新所有相关的名字的字段 - -!
+                        $liaison_id = $user->userLiaisonID;
+                        $liaison_name = $liaison_id ? $user->userLiaison : '';
+                        $this->patentUsername = $user->userFullname;
+                        Patentevents::updateAll(['eventUserID' => $user->userID, 'eventUsername' => $user->userFullname, 'eventUserLiaisonID' => $liaison_id, 'eventUserLiaison' => $liaison_name], ['patentAjxxbID' => $this->patentAjxxbID]);
+                    }
                 }
             }
             return true;

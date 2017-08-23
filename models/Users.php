@@ -347,7 +347,7 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
-     * 修改用户之后更改权限
+     * 修改用户之后更改权限以及更改相关专利
      * 
      * @param bool $insert
      * @param array $changedAttributes
@@ -365,6 +365,13 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             if ($this->userRole != Users::ROLE_CLIENT) {
                 // 再添加
                 $auth->assign($auth->getRole(self::RoleCorrespond()[$this->userRole]), $this->userID);
+            }
+        }
+        // 如果更新了所属商务专员 需要同时更新专利以及专利事件 - -!
+        if (!$insert && isset($changedAttributes['userLiaisonID'])) {
+            if ($this->userLiaisonID != $changedAttributes['userLiaisonID']) {
+                Patents::updateAll(['patentUserLiaisonID' => $this->userLiaisonID, 'patentUserLiaison' => $this->userLiaisonID ? Users::findOne($this->userLiaisonID)->userFullname : ''], ['patentUserID' => $this->userID]);
+                Patentevents::updateAll(['eventUserLiaisonID' => $this->userLiaisonID, 'eventUserLiaison' => $this->userLiaisonID ? Users::findOne($this->userLiaisonID)->userFullname : ''], ['eventUserID' => $this->userID]);
             }
         }
     }
