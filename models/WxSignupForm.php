@@ -48,6 +48,7 @@ class WxSignupForm extends Model
             [['unionid', 'email', 'password', 'repeatPassword', 'fullname', 'cellphone'], 'required', 'on' => self::SCENARIO_REGISTER],
             [['unionid', 'username', 'password'], 'required', 'on' => self::SCENARIO_BIND],
             [['unionid', 'openid'], 'string', 'max'=>50],
+            ['cellphone', 'match', 'pattern' => '/^1[3-9][0-9]{9}$/', 'message' => Yii::t('app', 'Incorrect phone number')], // 如有 11 和 12 开头的再更改
             ['password', 'string', 'min' => 6],
             ['password', 'validatePassword', 'on' => self::SCENARIO_BIND],
             ['repeatPassword', 'compare', 'compareAttribute'=>'password', 'message' => Yii::t('app','The two passwords differ'), 'on' => self::SCENARIO_REGISTER],

@@ -22,6 +22,7 @@ return [
     'Land Line' => '固定电话',
     'Cell Phone' =>  '手机',
     'Address' => '收货地址',
+    'Incorrect phone number' => '手机号填写有误',
 
     // user_form
     'Client' => '普通用户',

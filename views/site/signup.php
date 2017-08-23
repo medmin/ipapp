@@ -63,6 +63,11 @@ $this->registerJs("
             ->passwordInput(['placeholder' => '必填：' .$model->getAttributeLabel('repeatPassword')]) ?>
 
         <?= $form
+            ->field($model,'cellPhone', $fieldOptions('phone'))
+            ->label(false)
+            ->textInput(['placeholder' => '必填：' .$model->getAttributeLabel('cellPhone')]) ?>
+
+        <?= $form
             ->field($model, 'citizenID',$fieldOptions('info-sign'))
             ->label(false)
             ->textInput(['placeholder' => $model->getAttributeLabel('citizenID')]) ?>
@@ -81,11 +86,6 @@ $this->registerJs("
             ->field($model,'landLine', $fieldOptions('phone-alt'))
             ->label(false)
             ->textInput(['placeholder' => $model->getAttributeLabel('landLine')]) ?>
-
-        <?= $form
-            ->field($model,'cellPhone', $fieldOptions('phone'))
-            ->label(false)
-            ->textInput(['placeholder' => $model->getAttributeLabel('cellPhone')]) ?>
 
         <?= $form
             ->field($model,'address', $fieldOptions('map-marker'))

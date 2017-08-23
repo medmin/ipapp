@@ -32,7 +32,7 @@ class SignupForm extends Model
     {
         return [
             [['username', 'email'], 'trim'],
-            [['username', 'email', 'password', 'repeatPassword'], 'required'],
+            [['username', 'email', 'password', 'cellPhone', 'repeatPassword'], 'required'],
             ['repeatPassword', 'compare', 'compareAttribute'=>'password', 'message' => Yii::t('app','The two passwords differ')],
             ['username', 'unique', 'targetAttribute' => 'userUsername', 'targetClass' => '\app\models\Users', 'message' => Yii::t('app','This username has already been taken')],
             ['username', 'string', 'min' => 2, 'max' => 16],
@@ -40,10 +40,11 @@ class SignupForm extends Model
             ['email', 'string', 'max' => 255],
             ['email', 'unique', 'targetAttribute' => 'userEmail', 'targetClass' => '\app\models\Users', 'message' => Yii::t('app','This email has already been taken')],
             ['password', 'string', 'min' => 6],
+            ['cellPhone', 'match', 'pattern' => '/^1[3-9][0-9]{9}$/', 'message' => Yii::t('app', 'Incorrect phone number')], // 如有 11 和 12 开头的再更改
 //            ['citizenID', 'unique', 'targetAttribute' => 'userCitizenID', 'targetClass' => '\app\models\Users', 'message' => Yii::t('app','This citizenID number has already been taken')],
-            [['citizenID', 'organization', 'name', 'cellPhone', 'landLine', 'address', 'liaison', 'note'], 'default', 'value' => 'N/A'],
+            [['citizenID', 'organization', 'name', 'landLine', 'address', 'liaison', 'note'], 'default', 'value' => 'N/A'],
 //            [['organization', 'name', 'cellPhone', 'landLine', 'address', 'liaison', 'note'], 'required'],
-            [['organization', 'name', 'cellPhone', 'landLine', 'address', 'liaison', 'note'], 'string', 'max' => 255],
+            [['organization', 'name', 'landLine', 'address', 'liaison', 'note'], 'string', 'max' => 255],
         ];
     }
 

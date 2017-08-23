@@ -17,7 +17,7 @@ $js = <<<JS
 $('#wxsignupform-email').blur(function() {
   let email = $(this).val().trim();
   if (email === '') return;
-  console.log(email)
+  console.log(email);
   $.post('$check_user_url', {username:email}, function(data) {
     if (data.code === true && confirm('该邮箱已注册,是否跳转到绑定页面？')) {
         window.location.href = '$wx_signup_bind' + '?user=' + email;

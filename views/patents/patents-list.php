@@ -28,8 +28,8 @@
 <!--            <dd>This is test</dd>-->
             <dt>主办人</dt>
             <dd><?= $model->patentAgent ? ($model->patentAgent . '(<a href="tel:' . $model->agentContact['userCellphone'] . '">' . $model->agentContact['userCellphone'] . '</a>)') : '<span class="text-red" style="text-decoration: underline">暂未设置</span>' ?></dd>
-<!--            <dt>申请号</dt>-->
-<!--            <dd></dd>-->
+            <dt>申请号</dt>
+            <dd><?= $model->patentApplicationNo ?? '<span class="text-red" style="text-decoration: underline">暂未设置</span>' ?></dd>
         </dl>
     </div>
 </div>
