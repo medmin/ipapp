@@ -40,8 +40,13 @@ class PatentsController extends Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['index', 'view', 'export', 'search'],
+                        'actions' => ['export', 'search'],
                         'roles' => ['admin', 'secadmin']
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'view'],
+                        'roles' => ['admin', 'secadmin', 'manager']
                     ],
                     [
                         'allow' => true,

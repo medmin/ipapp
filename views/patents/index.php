@@ -68,33 +68,57 @@ $("#uploadform-patentfiles").on("change",function(){
     </div>
     <div class="box box-primary">
         <div class="box-body table-responsive">
-            <?= GridView::widget([
-                'dataProvider' => $dataProvider,
+            <?php
+            if (Yii::$app->user->identity->userRole == \app\models\Users::ROLE_EMPLOYEE) {
+                echo GridView::widget([
+                    'dataProvider' => $dataProvider,
+                    'columns' => [
+                        [
+                            'attribute' => 'patentAjxxbID',
+                            'format' => 'html',
+                            'value' => function ($model) {
+                                return Html::a($model->patentAjxxbID, ['view', 'id' => $model->patentID]);
+                            }
+                        ],
+                        'patentEacCaseNo',
+                        'patentUsername',
+//                        'patentUserLiaison',
+//                        'patentAgent',
+//                        'patentProcessManager',
+                        'patentTitle',
+//                        'patentType',
+                        'patentApplicationNo',
+//                        'patentApplicationDate',
+                    ],
+                ]);
+            } else {
+                echo GridView::widget([
+                    'dataProvider' => $dataProvider,
 //        'filterModel' => $searchModel,
-                'columns' => [
+                    'columns' => [
 //                    ['class' => 'yii\grid\SerialColumn'],
 
 //            'patentID',
-                    'patentAjxxbID',
-                    'patentEacCaseNo',
-                    'patentType',
-                    'patentUserID',
-                    'patentUsername',
-                    // 'patentUserLiaisonID',
-                    'patentUserLiaison',
-                    'patentAgent',
-                    'patentProcessManager',
-                    'patentTitle',
-                    'patentApplicationNo',
-                    'patentApplicationDate',
+                        'patentAjxxbID',
+                        'patentEacCaseNo',
+                        'patentType',
+                        'patentUserID',
+                        'patentUsername',
+                        // 'patentUserLiaisonID',
+                        'patentUserLiaison',
+                        'patentAgent',
+                        'patentProcessManager',
+                        'patentTitle',
+                        'patentApplicationNo',
+                        'patentApplicationDate',
 //                    'patentPatentNo',
 //                    'patentNote:ntext',
-                    // 'UnixTimestamp:datetime',
+                        // 'UnixTimestamp:datetime',
 
-                    [
-                        'class' => 'yii\grid\ActionColumn',
-                        'header' => Yii::t('app', 'Operation'),
-                        'template' => '
+                        [
+                            'class' => 'yii\grid\ActionColumn',
+                            'header' => Yii::t('app', 'Operation'),
+                            'template' => '
                             <div class="btn-group">
                                 <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                     操作
@@ -110,35 +134,39 @@ $("#uploadform-patentfiles").on("change",function(){
                                 </ul>
                             </div>
                         ',
-                        'buttons' => [
-                            'view' => function ($url, $model, $key) {
-                                return Html::a('查看', $url, ['target' => '_blank']);
-                            },
-                            'update' => function ($url, $model, $key) {
-                                return Html::a('更新', $url, ['target' => '_blank']);
-                            },
-                            'upload' => function ($url, $model, $key) {
-                                return Html::a('上传文件', 'javascript:upload("'. $model->patentAjxxbID .'")');
-                            },
-                            'download' => function ($url, $model, $key) {
-                                return Html::a('下载文件', 'javascript:download("'. $model->patentAjxxbID .'")');
-                            },
-                            'schedule' => function ($url, $model, $key) {
-                                return Html::a('进度', Url::to(['main', 'id' => $model->patentAjxxbID]));
-                            },
-                            'create-event' => function ($url, $model, $key) {
-                                return Html::a('添加事件', Url::to(['/patentevents/create', 'ajxxb_id' => $model->patentAjxxbID ]));
-                            }
+                            'buttons' => [
+                                'view' => function ($url, $model, $key) {
+                                    return Html::a('查看', $url, ['target' => '_blank']);
+                                },
+                                'update' => function ($url, $model, $key) {
+                                    return Html::a('更新', $url, ['target' => '_blank']);
+                                },
+                                'upload' => function ($url, $model, $key) {
+                                    return Html::a('上传文件', 'javascript:upload("'. $model->patentAjxxbID .'")');
+                                },
+                                'download' => function ($url, $model, $key) {
+                                    return Html::a('下载文件', 'javascript:download("'. $model->patentAjxxbID .'")');
+                                },
+                                'schedule' => function ($url, $model, $key) {
+                                    return Html::a('进度', Url::to(['main', 'id' => $model->patentAjxxbID]));
+                                },
+                                'create-event' => function ($url, $model, $key) {
+                                    return Html::a('添加事件', Url::to(['/patentevents/create', 'ajxxb_id' => $model->patentAjxxbID ]));
+                                }
+                            ],
                         ],
                     ],
-                ],
-            ]); ?>
+                ]);
+            }
+            ?>
         </div>
+        <?php if (Yii::$app->user->identity->userRole !== \app\models\Users::ROLE_EMPLOYEE): ?>
         <div class="box-footer clearfix">
             <button type="button" class="export-excel btn btn-primary pull-right" style="margin-right: 5px;">
                 <i class="fa fa-download"></i> 导出本页数据
             </button>
         </div>
+        <?php endif; ?>
     </div>
 </div>
 <div class="modal fade" id="filesModal" tabindex="-1" role="dialog" aria-labelledby="filesModalLabel">

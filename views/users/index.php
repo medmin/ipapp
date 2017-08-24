@@ -103,15 +103,34 @@ $this->registerJs($js, \yii\web\View::POS_END);
             echo '<div class="box-header with-border"><p>' . Html::a(Yii::t('app', 'Create Users'), ['create'], ['class' => 'btn btn-success']) . '</p></div>';
         }?>
         <div class="box-body table-responsive">
-            <?= GridView::widget([
+            <?php if (Yii::$app->user->identity->userRole == \app\models\Users::ROLE_EMPLOYEE): ?>
+                <?= GridView::widget([
+                    'dataProvider' => $dataProvider,
+                    'columns' => [
+                        [
+                            'attribute' => 'userUsername',
+                            'value' => function ($model) {
+                                return Html::a($model->userUsername, \yii\helpers\Url::to(['view', 'id' => $model->userID]));
+                            },
+                            'format' => 'raw'
+                        ],
+//                        'userOrganization',
+                        'userFullname',
+                        'userEmail:email',
+                        'userCellphone',
+                        'userNote:ntext',
+                    ]
+                ]); ?>
+            <?php else: ?>
+                <?= GridView::widget([
                 'dataProvider' => $dataProvider,
-//                'filterModel' => $searchModel,
+    //                'filterModel' => $searchModel,
                 'columns' => [
-//                    ['class' => 'yii\grid\SerialColumn'],
+    //                    ['class' => 'yii\grid\SerialColumn'],
 
                     'userID',
                     'userUsername',
-//                    'userPassword',
+    //                    'userPassword',
                     'userOrganization',
                     'userFullname',
                     // 'userFirstname',
@@ -120,26 +139,26 @@ $this->registerJs($js, \yii\web\View::POS_END);
                     // 'userCitizenID',
                      'userEmail:email',
                      'userCellphone',
-//                     'userLandline',
-//                     'userAddress',
+    //                     'userLandline',
+    //                     'userAddress',
                      'userLiaison',
                     // 'userLiaisonID',
-//                     [
-//                         'attribute' => 'userRole',
-//                         'value' => function ($model) {
-//                              if ($model->userRole == \app\models\Users::ROLE_ADMIN) {
-//                                  $html = '<span class="text-red" style="text-decoration: underline">超级管理员</span>';
-//                              } elseif ($model->userRole == \app\models\Users::ROLE_SECONDARY_ADMIN) {
-//                                  $html = '<span class="text-green" style="text-decoration: underline">二级管理员</span>';
-//                              } elseif ($model->userRole == \app\models\Users::ROLE_EMPLOYEE) {
-//                                  $html = '<span class="text-blue" style="text-decoration: underline">商务专员</span>';
-//                              } else {
-//                                  $html = '<span>客户</span>';
-//                              }
-//                              return $html;
-//                         },
-//                         'format' => 'raw',
-//                     ],
+    //                     [
+    //                         'attribute' => 'userRole',
+    //                         'value' => function ($model) {
+    //                              if ($model->userRole == \app\models\Users::ROLE_ADMIN) {
+    //                                  $html = '<span class="text-red" style="text-decoration: underline">超级管理员</span>';
+    //                              } elseif ($model->userRole == \app\models\Users::ROLE_SECONDARY_ADMIN) {
+    //                                  $html = '<span class="text-green" style="text-decoration: underline">二级管理员</span>';
+    //                              } elseif ($model->userRole == \app\models\Users::ROLE_EMPLOYEE) {
+    //                                  $html = '<span class="text-blue" style="text-decoration: underline">商务专员</span>';
+    //                              } else {
+    //                                  $html = '<span>客户</span>';
+    //                              }
+    //                              return $html;
+    //                         },
+    //                         'format' => 'raw',
+    //                     ],
                      'userNote:ntext',
                     // 'authKey',
                     // 'UnixTimestamp:datetime',
@@ -167,10 +186,10 @@ $this->registerJs($js, \yii\web\View::POS_END);
                         ',
                         'buttons' => [
                             'view' => function ($url, $model, $key) {
-                                return Html::a('查看', $url, ['target' => '_blank']);
+                                return Html::a('查看', $url);
                             },
                             'update' => function ($url, $model, $key) {
-                                return Html::a('更新', $url, ['target' => '_blank']);
+                                return Html::a('更新', $url);
                             },
                             'wechat' => function ($url, $model, $key) {
                                 return (isset($model->wxUser->fakeid) && !empty($model->wxUser->fakeid)) ? Html::a('微信通知', 'javascript:toggleWechatModal("'.$model->wxUser->fakeid.'")', ['id' => 'wechat']) : '';
@@ -185,6 +204,7 @@ $this->registerJs($js, \yii\web\View::POS_END);
                     ],
                 ],
             ]); ?>
+            <?php endif; ?>
         </div>
     </div>
 </div>

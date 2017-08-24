@@ -77,6 +77,9 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+        if (!Yii::$app->user->isGuest && Yii::$app->user->identity->userRole == Users::ROLE_EMPLOYEE) {
+            return $this->redirect('/users/index');
+        }
         return $this->render('index');
     }
 

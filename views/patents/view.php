@@ -12,8 +12,9 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="patents-view">
     <div class="box box-info">
-        <? if (Yii::$app->user->identity->userRole == \app\models\Users::ROLE_ADMIN) {
-            $html = '<div class="box-header with-border"><p>';
+        <?
+        $html = '<div class="box-header with-border"><p>';
+        if (Yii::$app->user->identity->userRole == \app\models\Users::ROLE_ADMIN) {
             $html .= Html::a(Yii::t('app', 'Update'), ['update', 'id' => $model->patentID], ['class' => 'btn btn-primary']);
 //            $html .= Html::a(Yii::t('app', 'Delete'), ['delete', 'id' => $model->patentID], [
 //                    'class' => 'btn btn-danger',
@@ -22,9 +23,11 @@ $this->params['breadcrumbs'][] = $this->title;
 //                        'method' => 'post',
 //                    ],
 //                ]);
-            $html .= '</p></div>';
-            echo $html;
-        }?>
+        }
+        $html .= Html::a('进度', ['main', 'id' => $model->patentAjxxbID], ['class' => 'btn btn-info', 'style' => 'margin-left: 5px']);
+        $html .= '</p></div>';
+        echo $html;
+        ?>
         <div class="box-body">
             <?= DetailView::widget([
                 'model' => $model,

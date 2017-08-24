@@ -51,12 +51,16 @@ class PatentsSearch extends Patents
         }
 
         // add conditions that should always apply here
+        // 商务 只能查看自己的拥有客户的专利
+        if (Yii::$app->user->identity->userRole == Users::ROLE_EMPLOYEE) {
+            $query->andWhere(['PatentUserLiaisonID' => Yii::$app->user->id]);
+        }
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'sort' => [
                 'defaultOrder' => ['UnixTimestamp' => SORT_DESC],
-//                'attributes' => ['UnixTimestamp'],
+                'attributes' => ['UnixTimestamp', 'patentType', 'patentAgent', 'patentProcessManager', 'patentApplicationDate'],
             ]
         ]);
 

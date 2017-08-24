@@ -20,6 +20,7 @@ if (Yii::$app->controller->action->id === 'login') {
         app\assets\AppAsset::register($this);
     } else {
         app\assets\AppAsset::register($this);
+//        app\assets\IziToastAsset::register($this);
     }
 
     dmstr\web\AdminLteAsset::register($this);

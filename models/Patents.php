@@ -127,14 +127,12 @@ class Patents extends \yii\db\ActiveRecord
                     } else {
                         $user = Users::findOne($this->dirtyAttributes['patentUserID']);
                         if (!$user) return false;
-                        echo '<pre>';
-                        print_r($user);
-                        echo '</pre>';
-                        exit;
                         // 更新所有相关的名字的字段 - -!
                         $liaison_id = $user->userLiaisonID;
                         $liaison_name = $liaison_id ? $user->userLiaison : '';
                         $this->patentUsername = $user->userFullname;
+                        $this->patentUserLiaison = $liaison_name;
+                        $this->patentUserLiaisonID = $liaison_id;
                         Patentevents::updateAll(['eventUserID' => $user->userID, 'eventUsername' => $user->userFullname, 'eventUserLiaisonID' => $liaison_id, 'eventUserLiaison' => $liaison_name], ['patentAjxxbID' => $this->patentAjxxbID]);
                     }
                 }
