@@ -82,7 +82,7 @@ $this->registerCss('
         <?= $form
             ->field($model, 'username', $fieldOptions1)
             ->label(false)
-            ->textInput(['placeholder' => $model->getAttributeLabel('username')]) ?>
+            ->textInput(['placeholder' => '用户名或邮箱']) ?>
 
         <?= $form
             ->field($model, 'password', $fieldOptions2)
