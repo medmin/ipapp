@@ -90,7 +90,7 @@ $fieldOptions = function($icon){
             ->textInput(['placeholder' => '请输入注册邮箱']) ?>
 
         <?= $form
-            ->field($model, 'email', $fieldOptions('mobile-phone'))
+            ->field($model, 'cellphone', $fieldOptions('mobile-phone'))
             ->label(false)
             ->textInput(['placeholder' => '请输入手机号码']) ?>
 
