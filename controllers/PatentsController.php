@@ -35,12 +35,12 @@ class PatentsController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['create', 'update', 'delete'],
+                        'actions' => ['create', 'delete'],
                         'roles' => ['admin']
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['export', 'search'],
+                        'actions' => ['export', 'search', 'update'],
                         'roles' => ['admin', 'secadmin']
                     ],
                     [
