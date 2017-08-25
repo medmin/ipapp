@@ -117,3 +117,6 @@ a.desc:after {
 .logo-lg {
     /*font-family: "Microsoft Himalaya", sans-serif;*/
 }
+.dropdown-menu {
+    min-width: 10px;
+}

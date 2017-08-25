@@ -172,7 +172,7 @@ $this->registerJs($js, \yii\web\View::POS_END);
                                     操作
                                     <span class="fa fa-caret-down"></span>
                                 </button>
-                                <ul class="dropdown-menu" role="menu">
+                                <ul class="dropdown-menu pull-right" role="menu">
                                     <li>{view}</li> 
                                     '.((Yii::$app->user->identity->userRole == \app\models\Users::ROLE_ADMIN || Yii::$app->user->identity->userRole == \app\models\Users::DEMO) ? '
                                     <li>{update}</li>
