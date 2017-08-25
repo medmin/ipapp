@@ -86,7 +86,7 @@ var searchToggle = function(){
                                     操作
                                     <span class="fa fa-caret-down"></span>
                                 </button>
-                                <ul class="dropdown-menu" role="menu">
+                                <ul class="dropdown-menu pull-right" role="menu">
                                     <li>{view}</li>
                                     <li>{update}</li>
                                     <li>{delete}</li>

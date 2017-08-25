@@ -41,7 +41,14 @@ var download = function(id) {
     var url = "'.\yii\helpers\Url::to(['patentfiles/download-group']).'?ajxxb_id=" + id;
     $.get(url, function(data) {
         if (!data) {
-            alert("该专利没有可下载文件");
+            iziToast.show({
+                message: "该专利暂无文件可下载",
+                position: "topCenter",
+                progressBar: false,
+                transitionIn: "fadeDown",
+                theme: "dark",
+                timeout: 4000
+            });
         } else {
            window.location.href = url;
         }
@@ -50,6 +57,14 @@ var download = function(id) {
 $("#uploadform-patentfiles").on("change",function(){
     $("#filesCover").val($(this).val());
 });
+//$("body").on("submit", "#files-upload-form", function(e){
+//    e.preventDefault(); // 阻止默认行为
+//    var formData = new FormData($("#files-upload-form")[0]);
+//    console.log(formData)
+//    $.ajax({
+//    
+//    });
+//});
 ',\yii\web\View::POS_END);
 ?>
 <div class="patents-index">
@@ -124,7 +139,7 @@ $("#uploadform-patentfiles").on("change",function(){
                                     操作
                                     <span class="fa fa-caret-down"></span>
                                 </button>
-                                <ul class="dropdown-menu" role="menu">
+                                <ul class="dropdown-menu pull-right" role="menu">
                                     <li>{view}</li> 
                                     <li>{update}</li>
                                     <li>{create-event}</li>

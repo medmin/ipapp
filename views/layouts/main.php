@@ -20,11 +20,13 @@ if (Yii::$app->controller->action->id === 'login') {
         app\assets\AppAsset::register($this);
     } else {
         app\assets\AppAsset::register($this);
-//        app\assets\IziToastAsset::register($this);
+        app\assets\IziToastAsset::register($this);
     }
 
     dmstr\web\AdminLteAsset::register($this);
-    app\assets\AdminLtePluginAsset::register($this);
+    if (Yii::$app->controller->action->id === 'signup') {
+        app\assets\AdminLtePluginAsset::register($this); // 目前只用到icheck这一个插件，还只在signup页面用到
+    }
 
     $directoryAsset = Yii::$app->assetManager->getPublishedUrl('@vendor/almasaeed2010/adminlte/dist');
     ?>

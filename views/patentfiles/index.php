@@ -14,7 +14,22 @@ var searchToggle = function(){
         $("#toggleSearchBtn").trigger("click");
     }
 var download = function(id) {
-    window.location.href = "'. \yii\helpers\Url::to(['patentfiles/download']) .'?id=" + id;
+    var u = navigator.userAgent;
+    var isMicromessager = u.toLowerCase().match(/MicroMessenger/i) == "micromessenger";
+    var isAndroid = u.indexOf(\'Android\') > -1 || u.indexOf(\'Adr\') > -1;
+    if (isMicromessager && isAndroid) {
+        iziToast.show({
+                message: "安卓微信暂不支持下载文件，请在手机浏览器中打开并下载",
+                position: "center",
+                progressBar: false,
+                transitionInMobile: "fadeDown",
+                transitionOutMobile: "flipOutX",
+                theme: "dark",
+                timeout: 6000,
+            });
+    } else {
+        window.location.href = "'. \yii\helpers\Url::to(['patentfiles/download']) .'?id=" + id;
+    }
 }
 ',\yii\web\View::POS_END);
 ?>
@@ -82,7 +97,7 @@ var download = function(id) {
                                             操作
                                             <span class="fa fa-caret-down"></span>
                                         </button>
-                                        <ul class="dropdown-menu" role="menu">
+                                        <ul class="dropdown-menu pull-right" role="menu">
                                             <li>{view}</li> 
                                             <li>{update}</li>
                                             <li>{delete}</li>
