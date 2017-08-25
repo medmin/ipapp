@@ -52,7 +52,24 @@ $this->registerCss('
 ');
 $this->registerJs('
 var download = function(id) {
-    window.location.href = "'. \yii\helpers\Url::to(['patentfiles/download']) .'?id=" + id;
+    var u = navigator.userAgent;
+    var isMicromessager = u.toLowerCase().match(/MicroMessenger/i) == "micromessenger";
+    var isAndroid = u.indexOf(\'Android\') > -1 || u.indexOf(\'Adr\') > -1;
+    if (isMicromessager && isAndroid) {
+        iziToast.show({
+                message: "安卓微信暂不支持下载文件，请点击右上角在手机浏览器中打开并下载",
+                position: "topCenter",
+                progressBar: false,
+                transitionInMobile: "fadeDown",
+                transitionOutMobile: "flipOutX",
+                theme: "dark",
+                timeout: 6000,
+                backgroundColor: "yellow",
+                messageColor: "red",
+            });
+    } else {
+        window.location.href = "'. \yii\helpers\Url::to(['patentfiles/download']) .'?id=" + id;
+    }
 }
 ',\yii\web\View::POS_END);
 ?>

@@ -279,7 +279,7 @@ class SiteController extends Controller
      */
     protected function isMicroMessage()
     {
-//        if (YII_DEBUG) return false;
+        if (YII_DEBUG) return false;
         if (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger') !== false ) {
             return true;
         }
