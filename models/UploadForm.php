@@ -42,7 +42,9 @@ class UploadForm extends Model
 
                 if (!in_array($extension, ['tif', 'png', 'jpg', 'doc', 'docx', 'xls', 'xlsx','ppt', 'pptx', 'pdf', 'zip', 'rar', '7z', 'txt'])
                 ) {
-                    throw new yii\web\ForbiddenHttpException('不允许上传'. $extension . '类型的文件'. PHP_EOL . '可以上传的文件后缀有：tif, png, jpg, doc, docx, xls, xlsx, ppt, pptx, pdf, zip, rar, 7z, txt');
+                    $this->addError('patentFiles', '格式错误,不允许上传 '. $extension .' 格式的文件');
+                    return false;
+//                    throw new yii\web\ForbiddenHttpException('不允许上传'. $extension . '类型的文件'. PHP_EOL . '可以上传的文件后缀有：tif, png, jpg, doc, docx, xls, xlsx, ppt, pptx, pdf, zip, rar, 7z, txt');
                 }
             }
 

@@ -149,4 +149,5 @@ return [
     'File Update User ID' => '文件更新人ID',
     'File Updated At' => '更新时间',
     'File Note' => '备注',
+    'Files Uploaded' => '文件上传成功',
 ];

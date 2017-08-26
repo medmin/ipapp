@@ -179,10 +179,10 @@ class PatentfilesController extends Controller
             $model->patentFiles = UploadedFile::getInstances($model, 'patentFiles');
             if ($model->upload()) {
                 // file is uploaded successfully
-//                return Json::encode(['code' => 0, 'msg' => 'success']);
-                return $this->redirect(\yii\helpers\Url::to(['patents/index']));
+                return Json::encode(['code' => 0, 'msg' => Yii::t('app', 'Files Uploaded')]);
+//                return $this->redirect(\yii\helpers\Url::to(['patents/index']));
             } else {
-//                return Json::encode(['code' => 1, 'msg' => json_encode($model->errors)]);
+                return Json::encode(['code' => 1, 'msg' => json_encode($model->errors, JSON_UNESCAPED_UNICODE)]);
             }
         }
 

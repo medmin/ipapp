@@ -23,18 +23,11 @@ use yii\widgets\ActiveForm;
     可以上传的文件后缀有：tif, png, jpg, doc, docx, xls, xlsx, ppt, pptx, pdf, zip, rar, 7z, txt
 </p>
 
-<div class="progress progress-sm active" style="display: none">
-    <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 00%">
-        <span class="sr-only" >0%</span>
+<div class="progress active" style="display: none">
+    <div class="progress-bar progress-bar-success" id="files-progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 00%">0%
     </div>
 </div>
 
-<!--<div class="input-group col-md-12" onclick="$('input[id=uploadform-patentfiles]').click();">-->
-<!--    <input type="text" class="form-control" id="filesCover" title="选择文件">-->
-<!--    <span class="input-group-btn">-->
-<!--      <button type="button" class="btn btn-default btn-flat">选择文件</button>-->
-<!--    </span>-->
-<!--</div>-->
 <div class="input-group">
     <button class="btn btn-info pull-right">确认上传</button>
 </div>

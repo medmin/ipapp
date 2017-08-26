@@ -57,14 +57,71 @@ var download = function(id) {
 $("#uploadform-patentfiles").on("change",function(){
     $("#filesCover").val($(this).val());
 });
-//$("body").on("submit", "#files-upload-form", function(e){
-//    e.preventDefault(); // 阻止默认行为
-//    var formData = new FormData($("#files-upload-form")[0]);
+$("body").on("submit", "#files-upload-form", function(e){
+    // console.log($("#files-upload-form")[0]);
+    e.preventDefault(); // 阻止默认行为
+    var files_size = 0;
+    var files = $("#files-upload-form #uploadform-patentfiles")[0]; // 注意这个数组0
+    for (var i=0; i < files.files.length; i++) {
+        files_size += files.files[i].size;
+    }
+    if (files_size == 0) {
+        $("#filesModal").modal("hide");
+        return iziToast.show({
+            message: "没有上传任何文件",
+            position: "topCenter",
+            progressBar: false,
+            theme: "dark",
+            timeout: 4000,
+        });
+    }
+    if (files_size > 52428800) {
+        return iziToast.show({
+            message: "文件要求50MB以内",
+            position: "topCenter",
+            progressBar: false,
+            theme: "dark",
+            timeout: 4000,
+        });
+    }
+    $(".progress").css("display", "block");
+    var formData = new FormData($("#files-upload-form")[0]);
 //    console.log(formData)
-//    $.ajax({
-//    
-//    });
-//});
+    $.ajax({
+        type: "POST",
+        url: $("#files-upload-form").attr("action"),
+        data: formData,
+        xhr: function(e){
+            var xhr = new window.XMLHttpRequest();
+            xhr.upload.addEventListener("progress", function(e) {
+                if (e.lengthComputable) {
+//                    console.log("Bytes Loaded:" + e.loaded);
+//                    console.log("Total Size:" + e.total);
+//                    console.log("Percentage Uploaded:" + (e.loaded / e.total));
+                    var percent = Math.round(e.loaded / e.total * 100);
+
+                    $("#files-progress-bar").attr("aria-valuenow", percent).css("width", percent + "%").text(percent + "%");
+                }
+            });
+            return xhr;
+        },
+        processData: false,
+        contentType: false,
+        dataType: "json",
+        success: function (data) {
+            if (data["code"] == 0){
+                $("#filesModal").modal("hide");
+            }
+            return iziToast.show({
+                message: data["msg"],
+                position: "topCenter",
+                progressBar: false,
+                theme: "dark",
+                timeout: (data["code"] == 0) ? 5000 : 20000,
+            });
+        }
+    });
+});
 ',\yii\web\View::POS_END);
 ?>
 <div class="patents-index">
@@ -140,7 +197,7 @@ $("#uploadform-patentfiles").on("change",function(){
                                     <span class="fa fa-caret-down"></span>
                                 </button>
                                 <ul class="dropdown-menu pull-right" role="menu">
-                                    <li>{view}</li> 
+                                    <li>{view}</li>
                                     <li>{update}</li>
                                     <li>{create-event}</li>
                                     <li>{schedule}</li>

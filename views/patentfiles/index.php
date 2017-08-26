@@ -98,8 +98,7 @@ var download = function(id) {
                                             <span class="fa fa-caret-down"></span>
                                         </button>
                                         <ul class="dropdown-menu pull-right" role="menu">
-                                            <li>{view}</li> 
-                                            <li>{update}</li>
+                                            <li>{view}</li>
                                             <li>{delete}</li>
                                             <li>{download}</li>
                                         </ul>
