@@ -64,6 +64,17 @@ $("body").on("submit", "#files-upload-form", function(e){
     var files = $("#files-upload-form #uploadform-patentfiles")[0]; // 注意这个数组0
     for (var i=0; i < files.files.length; i++) {
         files_size += files.files[i].size;
+        // files.type不能正确识别压缩文件暂时不使用
+        var ext = files.files[i].name.substr(files.files[i].name.lastIndexOf(".") + 1);
+        if (ext.match(/^(tif|png|jpg|doc|docx|xls|xlsx|ppt|pptx|pdf|zip|rar|7z|txt)$/i) == null) {
+            return iziToast.show({
+                message: "不支持的文件格式：" + ext,
+                position: "topCenter",
+                progressBar: false,
+                theme: "dark",
+                timeout: 10000,
+            });
+        } 
     }
     if (files_size == 0) {
         $("#filesModal").modal("hide");
