@@ -188,7 +188,7 @@ $("body").on("submit", "#files-upload-form", function(e){
                         [
                             'label' => '申请单位',
                             'value' => function($model){
-                                return $model->getUserOrganization();
+                                return $model->userOrganization['userOrganization'];
                             }
                         ],
                         'patentUserID',
