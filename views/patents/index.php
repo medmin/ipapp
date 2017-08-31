@@ -185,6 +185,12 @@ $("body").on("submit", "#files-upload-form", function(e){
 
                         'patentEacCaseNo',
                         'patentTitle',
+                        [
+                            'label' => '申请单位',
+                            'value' => function($model){
+                                return $model->getUserOrganization();
+                            }
+                        ],
                         'patentUserID',
                         'patentUsername',
                         // 'patentUserLiaisonID',

@@ -107,6 +107,12 @@ class Patents extends \yii\db\ActiveRecord
         return $this->hasMany(Patentfiles::className(), ['patentAjxxbID' => 'patentAjxxbID']);
     }
 
+
+    public function getUserOrganization()
+    {
+        return $this->hasOne(Users::className(), ['userID' => 'patentUserID'])->select(['userOrganization']);
+    }
+
     /**
      * 更改专利顺带更待专利事件
      *

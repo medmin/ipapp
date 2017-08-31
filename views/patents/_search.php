@@ -31,7 +31,7 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'patentUserLiaison', ['options' => ['class' => 'col-md-3']]) ?>
 
-    <?= $form->field($model, 'organization', ['options' => ['class' => 'col-md-3']])->label('公司名称') ?>
+    <?= $form->field($model, 'organization', ['options' => ['class' => 'col-md-3']])->label('申请单位') ?>
 
     <?php // echo $form->field($model, 'patentAgent') ?>
 
