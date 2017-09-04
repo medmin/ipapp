@@ -23,6 +23,7 @@ return [
     'Cell Phone' =>  '手机',
     'Address' => '收货地址',
     'Incorrect phone number' => '手机号填写有误',
+    'Fullname' => '全名',
 
     // user_form
     'Client' => '普通用户',
@@ -58,8 +59,8 @@ return [
     'User Liaison ID' => '商务专员ID',
     'User Citizen ID' => '身份证号码',
     'User Nationality' => '国籍',
-//    'User Givenname' => '',
-//    'User Firstname' => '',
+    'User Givenname' => '姓',
+    'User Firstname' => '名',
 
     //users create
     'Create Users' => '创建新用户',
