@@ -15,6 +15,8 @@ use yii\web\BadRequestHttpException;
 use EasyWeChat\Foundation\Application;
 use EasyWeChat\Payment\Order;
 use yii\web\NotFoundHttpException;
+use yii\helpers\Url;
+use dosamigos\qrcode\QrCode;
 
 class PayController extends BaseController
 {
@@ -47,8 +49,8 @@ class PayController extends BaseController
             'payment' => [
                 'merchant_id' => Yii::$app->params['wechat']['mchid'],
                 'key' => Yii::$app->params['wechat']['key'],
-//                'cert_path' => Yii::$app->params['wechat']['cert_path'],
-//                'key_path' => Yii::$app->params['wechat']['key_path'],
+                'cert_path' => Yii::$app->params['wechat']['cert_path'],
+                'key_path' => Yii::$app->params['wechat']['key_path'],
                 'notify_url' => 'http://kf.shineip.com/pay/wxpay-notify',
             ]
         ];
@@ -87,21 +89,59 @@ class PayController extends BaseController
         // 创建订单
         $attributes = [
             'trade_type'       => 'JSAPI',
-            'body'             => '阳光惠远 - 专利续费', // TODO 自定义名称
+            'body'             => '阳光惠远 - 专利续费(测试)', // TODO 自定义名称
             'detail'           => '专利号：'.$patent->patentApplicationNo.PHP_EOL.'专利名称：'.$patent->patentTitle.PHP_EOL.'费用描述：'.$fee->fee_type,
             'out_trade_no'     => static::generateTradeNumber(),
-            'total_fee'        => $fee->amount * 100, // 单位：分
+            'total_fee'        => 1, //$fee->amount * 100, // 单位：分
             //'notify_url'       => '', // 支付结果通知网址，如果不设置则会使用配置里的默认地址
             'openid'           => Yii::$app->user->identity->wxUser->fakeid, // trade_type=JSAPI，此参数必传，用户在商户appid下的唯一标识，
             // ...
         ];
         $order = new Order($attributes);
         $result = $payment->prepare($order);
+
         if ($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS'){
             $prepayId = $result->prepay_id;
             $jsConfig = $payment->configForPayment($prepayId);
             $html = $this->renderPartial('/weui/_wxpay',['wx_json' => $jsConfig]);
             return Json::encode(['done' => true, 'data' => $html]);
+        } else {
+            echo '<pre>';
+            print_r($result);
+            echo '</pre>';
+            exit;
+        }
+    }
+
+    public function actionWxQrcode($id)
+    {
+        $patent = Patents::findOne(['patentAjxxbID' => $id]);
+        if ($patent == null) {
+            throw new NotFoundHttpException('专利不存在');
+        }
+        $fee = UnpaidAnnualFee::findOne(['patentAjxxbID' => $id, 'due_date' => $patent->patentFeeDueDate]);
+        if ($fee == null) {
+            throw new BadRequestHttpException('该专利暂时没有待缴年费');
+        }
+
+        $wxApp = new Application($this->options());
+        $payment = $wxApp->payment;
+        $notifyUrl = Yii::$app->request->getHostInfo() . Url::to(['/pay/wxpay-notify-qrcode']);
+        $attributes = [
+            'trade_type'       => 'NATIVE',
+            'body'             => '阳光惠远 - 专利续费', // TODO 自定义名称
+            'detail'           => '专利号：'.$patent->patentApplicationNo.PHP_EOL.'专利名称：'.$patent->patentTitle.PHP_EOL.'费用描述：'.$fee->fee_type,
+            'out_trade_no'     => static::generateTradeNumber(),
+            'total_fee'        => $fee->amount * 100, // 单位：分
+            'notify_url'       => $notifyUrl, // 支付结果通知网址，如果不设置则会使用配置里的默认地址
+        ];
+        $o = new Order($attributes);
+        $result = $payment->prepare($o);
+
+        if ($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS'){
+            $prepayId = $result->prepay_id;
+            $codeUrl = $result->code_url;
+            return QrCode::png($codeUrl);
         } else {
             echo '<pre>';
             print_r($result);
@@ -119,6 +159,23 @@ class PayController extends BaseController
         $payment = $wxApp->payment;
         $response = $payment->handleNotify(function ($notify, $successful) {
             if ($successful) {
+                // TODO 成功之后生成一个日志
+            }
+        });
+        $response->send();
+    }
+
+    /**
+     * 微信二维码回调
+     */
+    public function actionWxNotifyQrcode()
+    {
+        $wxApp = new Application($this->options());
+        $payment = $wxApp->payment;
+        $response = $payment->handleNotify(function ($notify, $successful) {
+            if ($successful) {
+                $order_arr = json_decode($notify, true);
+                $transactionId = $order_arr['transaction_id']; // 微信订单号
                 // TODO 成功之后生成一个日志
             }
         });
