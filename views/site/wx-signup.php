@@ -90,12 +90,12 @@ $fieldOptions = function($icon){
             ->textInput(['placeholder' => '请输入注册邮箱']) ?>
 
         <?= $form
-            ->field($model, 'cellphone', $fieldOptions('mobile-phone'))
+            ->field($model, 'cellphone', $fieldOptions('mobile'))
             ->label(false)
             ->textInput(['placeholder' => '请输入手机号码']) ?>
 
         <?= $form
-            ->field($model, 'fullname', $fieldOptions('heart'))
+            ->field($model, 'fullname', $fieldOptions('smile-o'))
             ->label(false)
             ->textInput(['placeholder' => '请输入您的真实姓名,以便我们核对专利']) ?>
 
@@ -105,7 +105,7 @@ $fieldOptions = function($icon){
             ->passwordInput(['placeholder' => '请输入密码']) ?>
 
         <?= $form
-            ->field($model, 'repeatPassword', $fieldOptions('log-in'))
+            ->field($model, 'repeatPassword', $fieldOptions('lock'))
             ->label(false)
             ->passwordInput(['placeholder' => '请确认密码']) ?>
 
