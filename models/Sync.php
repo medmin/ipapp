@@ -18,7 +18,7 @@ use yii\db\Transaction;
 class Sync extends Model
 {
     /**
-     * 同步专利
+     * 同步专利  -- 弃用，使用newSyncPatents
      * (new \app\models\Sync())->syncPatents();
      *
      * @param $days
@@ -130,7 +130,7 @@ class Sync extends Model
     }
 
     /**
-     * 同步专利事件
+     * 同步专利事件 -- 弃用 使用newSyncPatentevents
      *
      * @param $days
      * @return bool

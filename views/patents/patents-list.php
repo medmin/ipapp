@@ -1,8 +1,32 @@
 <?php
+use app\models\UnpaidAnnualFee;
 /* @var $model app\models\Patents */
 /* @var $idx integer */
+
+/* @var $box_type string */
+/* @var $fee app\models\UnpaidAnnualFee 缴费信息 */
+
+$box_type = 'box-default';
+$fee = UnpaidAnnualFee::findOne(['patentAjxxbID' => $model->patentAjxxbID, 'due_date' => $model->patentFeeDueDate]);
+if ($model->patentCaseStatus == '有效') {
+    // 15天之内红色 90天之内黄色 其他绿色
+    $diff_days = (int)date_diff(date_create(date('Ymd')),date_create($model->patentFeeDueDate))->format('%R%a');
+    if ($diff_days < 0) {
+        // TODO 过期
+    } elseif ($diff_days == 0) {
+        // TODO 今天到期
+    } elseif ($diff_days <= 15) {
+        $box_type = 'box-danger';
+    } elseif ($diff_days <= 90) {
+        $box_type = 'box-warning';
+    } else {
+        $box_type = 'box-success';
+    }
+} else {
+    // TODO 非有效期
+}
 ?>
-<div class="box box-solid box-default">
+<div class="box box-solid <?= $box_type ?>">
     <div class="box-header">
         <a href="javascript:void(0)" onclick="collapseToggle(<?= $idx ?>)" style="display: block">
 <!--            <i class="fa fa-file-o"></i>-->
@@ -32,5 +56,22 @@
             <dt>申请日</dt>
             <dd><?= $model->patentApplicationDate ?: '<span class="text-red" style="text-decoration: underline">暂未设置</span>' ?></dd>
         </dl>
+        <?php
+        if ($fee) {
+            echo '<a class="btn btn-success btn-xs" id="pay-btn" data-id="' . $fee->patentAjxxbID . '">缴费('. $fee->fee_type . ':' . $fee->amount .'元)</a><div id="wxJS"></div>'; // TODO 如何给客户展示：颜色以及显示内容等等
+        }
+        ?>
     </div>
 </div>
+<?php
+$this->registerJs('
+$(\'#pay-btn\').click(function(){
+        var url = "'. \yii\helpers\Url::to(["pay/payment"]).'";
+        $.post(url, {pay_type:\'WXPAY\',id:$(this).data(\'id\')}, function(d) {
+            if(d.done == true) {
+                $(\'#wxJS\').html(d.data)
+            }
+        },\'json\');
+    })
+')
+?>

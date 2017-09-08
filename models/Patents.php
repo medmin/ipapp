@@ -22,6 +22,14 @@ use Yii;
  * @property string $patentPatentNo
  * @property string $patentNote
  * @property string $patentApplicationDate
+ * @property integer $patentFeeManagerUserID
+ * @property string $patentCaseStatus
+ * @property string $patentApplicationInstitution
+ * @property string $patentInventors
+ * @property string $patentAgency
+ * @property string $patentAgencyAgent
+ * @property string $patentFeeDueDate
+ * @property string $patentAlteredItems
  * @property integer $UnixTimestamp
  *
  * @property Patentevents[] $patentevents
@@ -51,9 +59,11 @@ class Patents extends \yii\db\ActiveRecord
             [['patentUsername'], 'string', 'max' => 16],
             [['patentUserLiaison', 'patentAgent', 'patentProcessManager'], 'string', 'max' => 24],
             [['patentTitle', 'patentApplicationNo', 'patentPatentNo'], 'string', 'max' => 40],
-            [['patentNote'], 'string', 'max' => 1000],
-            [['patentApplicationDate'], 'string', 'max' => 14],
+            [['patentNote', 'patentInventors'], 'string', 'max' => 1000],
+            [['patentApplicationDate', 'patentFeeDueDate'], 'string', 'max' => 14],
             [['patentAjxxbID'], 'unique'],
+            [['patentAlteredItems'], 'string'],
+            [['patentCaseStatus', 'patentApplicationInstitution', 'patentAgency', 'patentAgencyAgent'], 'string', 'max' => 255],
         ];
     }
 
@@ -78,6 +88,14 @@ class Patents extends \yii\db\ActiveRecord
             'patentPatentNo' => Yii::t('app', 'Patent Patent No'),
             'patentNote' => Yii::t('app', 'Patent Note'),
             'patentApplicationDate' => Yii::t('app', 'Patent Application Date'),
+            'patentFeeManagerUserID' => Yii::t('app', 'Patent Fee Manager User ID'),
+            'patentCaseStatus' => Yii::t('app', 'Patent Case Status'),
+            'patentApplicationInstitution' => Yii::t('app', 'Patent Application Institution'),
+            'patentInventors' => Yii::t('app', 'Patent Inventors'),
+            'patentAgency' => Yii::t('app', 'Patent Agency'),
+            'patentAgencyAgent' => Yii::t('app', 'Patent Agency Agent'),
+            'patentFeeDueDate' => Yii::t('app', 'Patent Fee Due Date'),
+            'patentAlteredItems' => Yii::t('app', 'Patent Altered Items'),
             'UnixTimestamp' => Yii::t('app', 'Unix Timestamp'),
         ];
     }

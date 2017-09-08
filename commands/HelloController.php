@@ -163,6 +163,12 @@ class HelloController extends Controller
         return Controller::EXIT_CODE_NORMAL;
     }
 
+    /**
+     * 重置demo密码，返回修改后密码
+     * 
+     * @param $password
+     * @return int
+     */
     public function actionResetDemo($password)
     {
         $demo = Users::findOne(['userUsername' => 'demo']);
@@ -180,5 +186,30 @@ class HelloController extends Controller
             return Controller::EXIT_CODE_NORMAL;
         }
         return Controller::EXIT_CODE_ERROR;
+    }
+
+    /**
+     * 设置到期日和状态,如果申请日等于今天，默认下一年的今天是缴费日,费用管理员默认为自己
+     */
+    public function actionSetFeeDueDate()
+    {
+        $start = time();
+        $patents = Patents::find()->all();
+        foreach ($patents as $patent) {
+            $patent->patentCaseStatus = '有效';
+            $patent->patentFeeManagerUserID = $patent->patentUserID ?: null;
+            if (empty($patent->patentApplicationDate)) {
+                $patent->save();
+                continue;
+            }
+            $application_date = substr(trim($patent->patentApplicationDate),-4);
+            if ((int)$application_date > date('md')) {
+                $patent->patentFeeDueDate = (string)date('Y') . $application_date;
+            } else {
+                $patent->patentFeeDueDate = (string)(date('Y') + 1) . $application_date;
+            }
+            $patent->save();
+        }
+        $this->stdout('Time Consuming:' . (time()-$start) . ' seconds' . PHP_EOL);
     }
 }
