@@ -37,14 +37,8 @@ class FeeController extends Controller
 
         try
         {
-            //测试可以只拿2条下面的数据，正式上线的时候，要把测试数据注释了，把恢复2个查询语句
-//            $patentApplicationNumbers = Yii::$app->db->createCommand('SELECT patentApplicationNo FROM patents')->queryColumn();
-//            $existingApplicationNumbers = Yii::$app->db->createCommand('SELECT patentAjxxbID FROM patents')->queryColumn();
-
-            //Test data
-            $patentApplicationNumbers = ['2011103831338', '201410401158X'];
-            $existingApplicationNumbers = ['201410401158X'];
-
+            $patentApplicationNumbers_in_patents_table = Yii::$app->db->createCommand('SELECT patentApplicationNo FROM patents')->queryColumn();
+            $existingAjxxbID_in_fee_table = Yii::$app->db->createCommand('SELECT patentAjxxbID from unpaid_annual_fee')->queryColumn();
 
             $driver_extension = strtoupper(substr(PHP_OS,0,3)) == 'WIN' ? '.exe' : '';
 
@@ -55,11 +49,12 @@ class FeeController extends Controller
             $capabilities = $chromeOptions->toCapabilities();
             $driver = ChromeDriver::start($capabilities);
 
-
-
-            foreach ($patentApplicationNumbers as $patentApplicationNumber)
+            foreach ($patentApplicationNumbers_in_patents_table as $patentApplicationNumber)
             {
-                //不管申请号是否已经存在，每周都更新一次，如果不存在，就是insert
+                //先把这个申请号对应的ajxxbID查出来
+                $thisOnePatentAjxxbID = Patents::findOne(['patentApplicationNo' => $patentApplicationNumber])->patentAjxxbID;
+
+                //不管是不是已经存在年费记录，每周都更新一次，如果不存在，就是insert
                 $driver->get('http://cpquery.sipo.gov.cn/txnQueryFeeData.do?select-key:shenqingh=' . $patentApplicationNumber);
 
                 $xOffset = mt_rand(1,80);
@@ -89,13 +84,13 @@ class FeeController extends Controller
 
 //                    echo $titles[$i];
                     //每一次循环，都是遍历一个数组，结构是：['发明专利第6年年费', '2000', '2017-12-15']
-                    //判断一下申请号是否已经存在于unpaid_annual_fee，如果已经存在，就是update，如果不存在，就是insert
-                    if (in_array($patentApplicationNumber, $existingApplicationNumbers))
+                    //判断一下ajxxbID是否已经存在于unpaid_annual_fee，如果已经存在，就是update，如果不存在，就是insert
+
+                    if (in_array($thisOnePatentAjxxbID, $existingAjxxbID_in_fee_table))
                     {
-                        $unpaid_annual_fee_row = UnpaidAnnualFee::findOne(['patentApplicationNo' => $patentApplicationNumber]);
+                        $unpaid_annual_fee_row = UnpaidAnnualFee::findOne(['patentAjxxbID' => $thisOnePatentAjxxbID ]);
 
                         //这里就不用处理ajxxbID了，因为已经存在了
-                        //也不用处理patentApplicationNo，因为已经存在
 
                         foreach ($titles as $i => $title)
                         {
@@ -118,8 +113,7 @@ class FeeController extends Controller
 
                         $unpaid_annual_fee_obj = new UnpaidAnnualFee();
 
-                        $unpaid_annual_fee_obj->patentAjxxbID = Patents::findOne(['patentApplicationNo' => $patentApplicationNumber])->patentAjxxbID;
-                        $unpaid_annual_fee_obj->patentApplicationNo = $patentApplicationNumber;
+                        $unpaid_annual_fee_obj->patentAjxxbID = $thisOnePatentAjxxbID;
 
                         foreach ($titles as $i => $title)
                         {
