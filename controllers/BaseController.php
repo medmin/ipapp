@@ -14,6 +14,18 @@ class BaseController extends Controller
     public $isMicroMessage = false;
 
     /**
+     * @param \yii\base\Action $action
+     * @return bool
+     */
+    public function beforeAction($action) {
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+        $this->isMicroMessage = $this->isMicroMessage();
+        return true;
+    }
+
+    /**
      * 是否通过微信访问
      * return bool
      */

@@ -25,7 +25,8 @@
         "overtrue/wechat": "3.3.13",
         "phpoffice/phpexcel": "^1.8",
         "bower-asset/izitoast": "^1.1",
-        "facebook/webdriver": "^1.4"
+        "facebook/webdriver": "^1.4",
+        "endroid/qrcode": "^2.3"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",
