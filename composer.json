@@ -24,7 +24,8 @@
         "kartik-v/yii2-widget-datetimepicker": "*",
         "overtrue/wechat": "3.3.13",
         "phpoffice/phpexcel": "^1.8",
-        "bower-asset/izitoast": "^1.1"
+        "bower-asset/izitoast": "^1.1",
+        "facebook/webdriver": "^1.4"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",

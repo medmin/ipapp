@@ -8,11 +8,15 @@
  */
 namespace app\commands;
 
-use GuzzleHttp\Client;
+use app\models\Patents;
+use app\models\UnpaidAnnualFee;
 use Symfony\Component\CssSelector;
 use Symfony\Component\DomCrawler\Crawler;
 use yii\console\Controller;
 use Yii;
+use Facebook\WebDriver\Chrome\ChromeDriver;
+use Facebook\WebDriver\Chrome\ChromeOptions;
+use yii\db\Transaction;
 
 class FeeController extends Controller
 {
@@ -23,53 +27,134 @@ class FeeController extends Controller
     }
 
 
-    public function actionCpquery()
+    public function actionFee()
     {
-        $qqbrowserUA = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.104 Safari/537.36 Core/1.53.3368.400 QQBrowser/9.6.11860.400';
-        $chromeUA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36';
+//        $basicFeeURL = 'http://cpquery.sipo.gov.cn/txnQueryFeeData.do?select-key:shenqingh=';
+//        $basicInfoURL = 'http://cpquery.sipo.gov.cn/txnQueryBibliographicData.do?select-key:shenqingh=';
 
-        $infoUrl = 'http://cpquery.sipo.gov.cn/txnQueryBibliographicData.do?select-key:shenqingh=2011103831338&select-key:zhuanlilx=1&select-key:backPage=http%3A%2F%2Fcpquery.sipo.gov.cn%2FtxnQueryOrdinaryPatents.do%3Fselect-key%3Ashenqingh%3D2011103831338%26select-key%3Azhuanlimc%3D%26select-key%3Ashenqingrxm%3D%26select-key%3Azhuanlilx%3D%26select-key%3Ashenqingr_from%3D%26select-key%3Ashenqingr_to%3D%26verycode%3D0%26inner-flag%3Aopen-type%3Dwindow%26inner-flag%3Aflowno%3D1504359929595&inner-flag:open-type=window&inner-flag:flowno=1504686835497';
-        $feeUrl = 'http://cpquery.sipo.gov.cn/txnQueryFeeData.do?select-key:shenqingh=2011103831338&select-key:zhuanlilx=1&select-key:gonggaobj=&select-key:backPage=http%3A%2F%2Fcpquery.sipo.gov.cn%2FtxnQueryOrdinaryPatents.do%3Fselect-key%3Ashenqingh%3D2011103831338%26select-key%3Azhuanlimc%3D%26select-key%3Ashenqingrxm%3D%26select-key%3Azhuanlilx%3D%26select-key%3Ashenqingr_from%3D%26select-key%3Ashenqingr_to%3D%26verycode%3D0%26inner-flag%3Aopen-type%3Dwindow%26inner-flag%3Aflowno%3D1504359929595&inner-flag:open-type=window&inner-flag:flowno=1504360062755';
-        $feeUrlShort = 'http://cpquery.sipo.gov.cn/txnQueryFeeData.do?select-key:shenqingh=2011103831338';
+        $isolationLevel = Transaction::SERIALIZABLE;
+        $transaction = Yii::$app->db->beginTransaction($isolationLevel);
 
-        $basicFeeURL = 'http://cpquery.sipo.gov.cn/txnQueryFeeData.do?select-key:shenqingh=';
-        $basicInfoURL = 'http://cpquery.sipo.gov.cn/txnQueryBibliographicData.do?select-key:shenqingh=';
-
-        $client = new Client();
-
-        $requestOptions = [
-            'allow_redirects' => false,
-            'connect_timeout' => 60,
-            'debug' => true,
-            'headers' => [
-                'User-Agent' =>  "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Acoo Browser; SLCC1; .NET CLR 2.0.50727; Media Center PC 5.0; .NET CLR 3.0.04506)",
-            ],
-            'verify' => false,
-            'timeout' => 60,
-        ];
-
-        $response = $client->request('GET', $feeUrlShort, $requestOptions);
-
-        if ($response->getStatusCode() == 200)
+        try
         {
-            $body = $response->getBody()->getContents();
+            //测试可以只拿2条下面的数据，正式上线的时候，要把测试数据注释了，把恢复2个查询语句
+//            $patentApplicationNumbers = Yii::$app->db->createCommand('SELECT patentApplicationNo FROM patents')->queryColumn();
+//            $existingApplicationNumbers = Yii::$app->db->createCommand('SELECT patentAjxxbID FROM patents')->queryColumn();
 
-            $crawler = function ($str){
-                return new Crawler($str);
-            };
+            //Test data
+            $patentApplicationNumbers = ['2011103831338', '201410401158X'];
+            $existingApplicationNumbers = ['201410401158X'];
 
-            $feeToPayTableHtml = $crawler($body)->filter('#djfid > table')->each(
-                function ($node) {
-                    return $node->html();
+
+            $driver_extension = strtoupper(substr(PHP_OS,0,3)) == 'WIN' ? '.exe' : '';
+
+            putenv("webdriver.chrome.driver=". __DIR__ . "/../archives/chromedriver" . $driver_extension);
+
+            $chromeOptions = new ChromeOptions();
+            $chromeOptions->addArguments(['headless', 'start-maximized']);
+            $capabilities = $chromeOptions->toCapabilities();
+            $driver = ChromeDriver::start($capabilities);
+
+
+
+            foreach ($patentApplicationNumbers as $patentApplicationNumber)
+            {
+                //不管申请号是否已经存在，每周都更新一次，如果不存在，就是insert
+                $driver->get('http://cpquery.sipo.gov.cn/txnQueryFeeData.do?select-key:shenqingh=' . $patentApplicationNumber);
+
+                $xOffset = mt_rand(1,80);
+                $yOffset = mt_rand(1,80);
+                $driver->getMouse()->mouseMove(null, $xOffset, $yOffset);
+
+                $html = $driver->getPageSource();
+
+                $crawler = function ($str){
+                    return new Crawler($str);
+                };
+
+                $trTagHtml = $crawler($html)->filter('#djfid > table > tbody > tr')->each(
+                    function ($node) {
+                        return $node->html();
+                    }
+                );
+
+                foreach ($trTagHtml as $span)
+                {
+                    $titles = $crawler($span)->filter('td > span')->each(
+                        function ($node){
+                            return $node->attr('title');
+                        }
+                    );
+//                echo $titles[0]; 报错：Undefined offset: 0
+
+//                    echo $titles[$i];
+                    //每一次循环，都是遍历一个数组，结构是：['发明专利第6年年费', '2000', '2017-12-15']
+                    //判断一下申请号是否已经存在于unpaid_annual_fee，如果已经存在，就是update，如果不存在，就是insert
+                    if (in_array($patentApplicationNumber, $existingApplicationNumbers))
+                    {
+                        $unpaid_annual_fee_row = UnpaidAnnualFee::findOne(['patentApplicationNo' => $patentApplicationNumber]);
+
+                        //这里就不用处理ajxxbID了，因为已经存在了
+                        //也不用处理patentApplicationNo，因为已经存在
+
+                        foreach ($titles as $i => $title)
+                        {
+                            if($i == 0) {
+                                preg_match('/\d{1,}/', $titles[$i], $matches);
+                                $unpaid_annual_fee_row->fee_type = '专利的第' . $matches[1] . '年年费';
+                            }
+                            if ($i == 1){
+                                $unpaid_annual_fee_row->amount = $titles[$i];
+                            }
+
+                        }
+
+                        $unpaid_annual_fee_row->due_date = ''; //TODO for Mr. Mao
+
+                        $unpaid_annual_fee_row->save();
+                    }
+                    else
+                    {
+
+                        $unpaid_annual_fee_obj = new UnpaidAnnualFee();
+
+                        $unpaid_annual_fee_obj->patentAjxxbID = Patents::findOne(['patentApplicationNo' => $patentApplicationNumber])->patentAjxxbID;
+                        $unpaid_annual_fee_obj->patentApplicationNo = $patentApplicationNumber;
+
+                        foreach ($titles as $i => $title)
+                        {
+                            if($i == 0) {
+                                //注意：这里存的是乱码，将来取出来的时候，取出来后，要做正则表达式处理
+                                //preg_match('/\d{1,}/', $string, $matches);
+                                $unpaid_annual_fee_obj->fee_type = $titles[$i];
+                            }
+                            if ($i == 1){
+                                $unpaid_annual_fee_obj->amount = $titles[$i];
+                            }
+
+                        }
+
+                        $unpaid_annual_fee_obj->due_date = ''; //TODO for Mr. Mao
+
+                        $unpaid_annual_fee_obj->save();
+
+                    }
+
                 }
-            );
 
-            var_dump($feeToPayTableHtml);
-//            echo $feeTr;
+                $driver->quit();
+            }
 
-
-            echo PHP_EOL . 'Voila';
+            $transaction->commit();
+        }
+        catch (\Exception $e)
+        {
+            $transaction->rollBack();
+            throw $e;
         }
 
+        echo PHP_EOL . 'Voila' . PHP_EOL;
     }
+
+
 }
