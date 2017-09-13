@@ -61,7 +61,7 @@ if ($model->patentCaseStatus == '有效') {
             if ($this->context->isMicroMessage) {
                 echo '<a class="btn btn-success btn-xs" id="pay-btn" data-id="' . $fee->patentAjxxbID . '">缴费('. $fee->fee_type . ':' . $fee->amount .'元)</a><div id="wxJS"></div>'; // TODO 如何给客户展示：颜色以及显示内容等等
             } else {
-                echo '<a href="#" class="btn btn-success btn-xs" id="pay-btn" data-toggle="tooltip" data-html="true" data-placement="bottom" data-title="<img src=\''.\yii\helpers\Url::to(["pay/wx-qrcode", "id"=>$fee->patentAjxxbID]).'\' />">缴费('. $fee->fee_type . ':' . $fee->amount .'元)</a>';
+                echo '<a  class="btn btn-success btn-xs" id="pay-btn" data-toggle="tooltip" data-html="true"  data-placement="right" title="微信扫码支付" data-content="<img src=\''.\yii\helpers\Url::to(["pay/wx-qrcode", "id"=>$fee->patentAjxxbID]).'\' />">缴费('. $fee->fee_type . ':' . $fee->amount .'元)</a>';
             }
         }
         ?>

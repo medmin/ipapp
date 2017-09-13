@@ -16,7 +16,7 @@ use EasyWeChat\Foundation\Application;
 use EasyWeChat\Payment\Order;
 use yii\web\NotFoundHttpException;
 use yii\helpers\Url;
-use dosamigos\qrcode\QrCode;
+use Endroid\QrCode\QrCode;
 
 class PayController extends BaseController
 {
@@ -140,8 +140,11 @@ class PayController extends BaseController
 
         if ($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS'){
             $prepayId = $result->prepay_id;
-            $codeUrl = $result->code_url;
-            return QrCode::png($codeUrl);
+            $qrCode = new QrCode($result->code_url);
+            $qrCode->setSize(200);
+            header('Content-Type: '.$qrCode->getContentType());
+            echo $qrCode->writeString();
+            exit;
         } else {
             echo '<pre>';
             print_r($result);

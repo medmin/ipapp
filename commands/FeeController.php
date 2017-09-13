@@ -96,6 +96,7 @@ class FeeController extends Controller
                         {
                             if($i == 0) {
                                 preg_match('/\d{1,}/', $titles[$i], $matches);
+                                $year = $matches[1]; // TODO error?
                                 $unpaid_annual_fee_row->fee_type = '专利的第' . $matches[1] . '年年费';
                             }
                             if ($i == 1){
@@ -104,8 +105,12 @@ class FeeController extends Controller
 
                         }
 
-                        $unpaid_annual_fee_row->due_date = ''; //TODO for Mr. Mao
-
+                        $application_date = Patents::findOne(['patentApplicationNo' => $patentApplicationNumber])->patentApplicationDate;
+                        if (!$application_date) {
+                            $unpaid_annual_fee_row->due_date = '';
+                        } else {
+                            $unpaid_annual_fee_row->due_date = ((int)substr($application_date,0,4) + (int)$year - 1) . substr($application_date,4,4);
+                        }
                         $unpaid_annual_fee_row->save();
                     }
                     else
@@ -128,7 +133,7 @@ class FeeController extends Controller
 
                         }
 
-                        $unpaid_annual_fee_obj->due_date = ''; //TODO for Mr. Mao
+                        $unpaid_annual_fee_obj->due_date = ''; // TODO 同上
 
                         $unpaid_annual_fee_obj->save();
 
