@@ -26,7 +26,7 @@ if ($model->patentCaseStatus == '有效') {
     // TODO 非有效期
 }
 ?>
-<div class="box box-solid <?= $box_type ?>">
+<div class="box box-solid <?= $box_type ?> ">
     <div class="box-header">
         <a href="javascript:void(0)" onclick="collapseToggle(<?= $idx ?>)" style="display: block">
 <!--            <i class="fa fa-file-o"></i>-->
@@ -56,16 +56,21 @@ if ($model->patentCaseStatus == '有效') {
             <dt>申请日</dt>
             <dd><?= $model->patentApplicationDate ?: '<span class="text-red" style="text-decoration: underline">暂未设置</span>' ?></dd>
         </dl>
-        <?php
-        if ($fee) {
-            if ($this->context->isMicroMessage) {
-                echo '<a class="btn btn-success btn-xs" id="pay-btn" data-id="' . $fee->patentAjxxbID . '">缴费('. $fee->fee_type . ':' . $fee->amount .'元)</a><div id="wxJS"></div>'; // TODO 如何给客户展示：颜色以及显示内容等等
-            } else {
-                echo '<a href="#" class="btn btn-success btn-xs" id="pay-btn" data-toggle="tooltip" data-html="true"  data-placement="right" title="<img src=\''.\yii\helpers\Url::to(["pay/wx-qrcode", "id"=>$fee->patentAjxxbID]).'\' />">缴费('. $fee->fee_type . ':' . $fee->amount .'元)</a>';
-            }
-        }
-        ?>
+
     </div>
+
+    <?php
+    if ($fee) {
+        echo '<div class="box-footer" style="display: block">';
+        if ($this->context->isMicroMessage) {
+            echo '<a class="btn btn-success btn-xs" id="pay-btn" data-id="' . $fee->patentAjxxbID . '">缴费('. $fee->fee_type . ':' . $fee->amount .'元)</a><div id="wxJS"></div>'; // TODO 如何给客户展示：颜色以及显示内容等等
+        } else {
+            echo '<a href="#" class="btn btn-success btn-xs" id="pay-btn" data-toggle="tooltip" data-html="true"  data-placement="right" title="<img src=\''.\yii\helpers\Url::to(["pay/wx-qrcode", "id"=>$fee->patentAjxxbID]).'\' />">缴费('. $fee->fee_type . ':' . $fee->amount .'元)</a>';
+        }
+        echo '</div>';
+    }
+    ?>
+
 </div>
 <?php
 if ($this->context->isMicroMessage) {
