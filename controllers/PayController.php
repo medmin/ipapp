@@ -51,7 +51,7 @@ class PayController extends BaseController
                 'key' => Yii::$app->params['wechat']['key'],
                 'cert_path' => Yii::$app->params['wechat']['cert_path'],
                 'key_path' => Yii::$app->params['wechat']['key_path'],
-                'notify_url' => 'http://kf.shineip.com/pay/wxpay-notify',
+                'notify_url' => 'https://kf.shineip.com/pay/wxpay-notify',
             ]
         ];
     }
@@ -93,7 +93,7 @@ class PayController extends BaseController
             'detail'           => '专利号：'.$patent->patentApplicationNo.PHP_EOL.'专利名称：'.$patent->patentTitle.PHP_EOL.'费用描述：'.$fee->fee_type,
             'out_trade_no'     => static::generateTradeNumber(),
             'total_fee'        => 1, //$fee->amount * 100, // 单位：分
-            //'notify_url'       => '', // 支付结果通知网址，如果不设置则会使用配置里的默认地址
+            'notify_url'       => 'https://kf.shineip.com/pay/wxpay-notify', // 支付结果通知网址，如果不设置则会使用配置里的默认地址
             'openid'           => Yii::$app->user->identity->wxUser->fakeid, // trade_type=JSAPI，此参数必传，用户在商户appid下的唯一标识，
             // ...
         ];
@@ -106,13 +106,20 @@ class PayController extends BaseController
             $html = $this->renderPartial('/weui/_wxpay',['wx_json' => $jsConfig]);
             return Json::encode(['done' => true, 'data' => $html]);
         } else {
-            echo '<pre>';
+            Yii::info($result);
             print_r($result);
-            echo '</pre>';
             exit;
         }
     }
 
+    /**
+     * 微信支付二维码生成
+     *
+     * @param $id
+     * @return string
+     * @throws BadRequestHttpException
+     * @throws NotFoundHttpException
+     */
     public function actionWxQrcode($id)
     {
         $patent = Patents::findOne(['patentAjxxbID' => $id]);
@@ -143,18 +150,16 @@ class PayController extends BaseController
             $qrCode = new QrCode($result->code_url);
             $qrCode->setSize(200);
             header('Content-Type: '.$qrCode->getContentType());
-            echo $qrCode->writeString();
-            exit;
+            return $qrCode->writeString();
         } else {
-            echo '<pre>';
+            Yii::info($result);
             print_r($result);
-            echo '</pre>';
             exit;
         }
     }
 
     /**
-     * 微信回调函数
+     * 微信JS支付回调函数
      */
     public function actionWxpayNotify()
     {
@@ -162,16 +167,16 @@ class PayController extends BaseController
         $payment = $wxApp->payment;
         $response = $payment->handleNotify(function ($notify, $successful) {
             if ($successful) {
-                // TODO 成功之后生成一个日志
+                // TODO 成功之后生成一个日志，更改年费转态
             }
         });
         $response->send();
     }
 
     /**
-     * 微信二维码回调
+     * 微信二维码支付回调函数
      */
-    public function actionWxNotifyQrcode()
+    public function actionWxpayNotifyQrcode()
     {
         $wxApp = new Application($this->options());
         $payment = $wxApp->payment;
@@ -179,7 +184,7 @@ class PayController extends BaseController
             if ($successful) {
                 $order_arr = json_decode($notify, true);
                 $transactionId = $order_arr['transaction_id']; // 微信订单号
-                // TODO 成功之后生成一个日志
+                // TODO 成功之后生成一个日志，更改年费状态
             }
         });
         $response->send();
