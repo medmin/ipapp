@@ -28,7 +28,7 @@ if ($model->patentCaseStatus == '有效') {
 ?>
 <div class="box box-solid <?= $box_type ?>">
     <div class="box-header">
-        <a href="javascript:void(0)" onclick="collapseToggle(<?= $idx ?>)" style="display: block">
+        <a href="javascript:void(0)" onclick="collapseToggle(<?= $idx ?>)" style="display: none">
 <!--            <i class="fa fa-file-o"></i>-->
             <?= $idx ?> .
             <h3 class="box-title">
