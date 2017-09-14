@@ -66,7 +66,8 @@ class PayController extends BaseController
         $pay_type = Yii::$app->request->post('pay_type'); // 留坑
 
         if ($pay_type == 'WXPAY') {
-            $this->wxPay(Yii::$app->request->post('id'));
+        Yii::info(Yii::$app->request->post('id'));    
+	$this->wxPay(Yii::$app->request->post('id'));
         } else {
             throw new BadRequestHttpException('支付方式有误');
         }
@@ -104,7 +105,8 @@ class PayController extends BaseController
             $prepayId = $result->prepay_id;
             $jsConfig = $payment->configForPayment($prepayId);
             $html = $this->renderPartial('/weui/_wxpay',['wx_json' => $jsConfig]);
-            return Json::encode(['done' => true, 'data' => $html]);
+	    Yii::info($jsConfig);           
+	    return Json::encode(['done' => true, 'data' => $html]);
         } else {
             Yii::info($result);
             print_r($result);

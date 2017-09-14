@@ -71,8 +71,9 @@ if ($model->patentCaseStatus == '有效') {
 if ($this->context->isMicroMessage) {
     $this->registerJs('
 $(\'#pay-btn\').click(function(){
-        var url = "'. \yii\helpers\Url::to(["pay/payment"]).'";
+	var url = "'. \yii\helpers\Url::to(["pay/payment"]).'";
         $.post(url, {pay_type:\'WXPAY\',id:$(this).data(\'id\')}, function(d) {
+	    alert(1);
             if(d.done == true) {
                 $(\'#wxJS\').html(d.data)
                 callpay();
