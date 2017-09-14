@@ -6,8 +6,10 @@
  */
 namespace app\controllers;
 
+use app\models\Orders;
 use app\models\Patents;
 use app\models\UnpaidAnnualFee;
+use yii\base\Exception;
 use yii\filters\AccessControl;
 use Yii;
 use yii\helpers\Json;
@@ -17,6 +19,7 @@ use EasyWeChat\Payment\Order;
 use yii\web\NotFoundHttpException;
 use yii\helpers\Url;
 use Endroid\QrCode\QrCode;
+use yii\web\ServerErrorHttpException;
 
 class PayController extends BaseController
 {
@@ -78,6 +81,7 @@ class PayController extends BaseController
      * @param $id
      * @return string
      * @throws BadRequestHttpException
+     * @throws Exception
      * @throws NotFoundHttpException
      */
     private function wxPay($id)
@@ -101,13 +105,35 @@ class PayController extends BaseController
             'detail'           => '专利号：'.$patent->patentApplicationNo.PHP_EOL.'专利名称：'.$patent->patentTitle.PHP_EOL.'费用描述：'.$fee->fee_type,
             'out_trade_no'     => static::generateTradeNumber(),
             'total_fee'        => 1, //$fee->amount * 100, // 单位：分
-            'notify_url'       => 'https://kf.shineip.com/pay/wxpay-notify', // 支付结果通知网址，如果不设置则会使用配置里的默认地址
+            'notify_url'       => Yii::$app->request->getHostInfo() . Url::to(['/pay/wxpay-notify']), // 支付结果通知网址，如果不设置则会使用配置里的默认地址
             'openid'           => Yii::$app->user->identity->wxUser->fakeid, // trade_type=JSAPI，此参数必传，用户在商户appid下的唯一标识，
         ];
         $order = new Order($attributes);
         $result = $payment->prepare($order);
 
         if ($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS'){
+            // 生成订单
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                $system_order = new Orders();
+                $system_order->trade_no = $attributes['out_trade_no'];
+                $system_order->payment_type = Orders::TYPE_WXPAY;
+                $system_order->user_id = Yii::$app->user->id;
+                $system_order->goods_id = json_encode([$id]); // json_encode
+                $system_order->purpose = Orders::USE_PATENT;
+                $system_order->amount = $attributes['total_fee'] / 100;
+                $system_order->created_at = time();
+                $system_order->updated_at = time();
+                $system_order->status = Orders::STATUS_PENDING;
+                if (!$system_order->save()) {
+                    throw new Exception('系统内部订单出错');
+                }
+                $transaction->commit();
+            } catch (Exception $e) {
+                $transaction->rollBack();
+                throw $e;
+            }
+
             $prepayId = $result->prepay_id;
             $jsConfig = $payment->configForPayment($prepayId);
             $html = $this->renderPartial('/weui/_wxpay',['wx_json' => $jsConfig]);
@@ -125,6 +151,7 @@ class PayController extends BaseController
      * @param $id
      * @return string
      * @throws BadRequestHttpException
+     * @throws Exception
      * @throws NotFoundHttpException
      */
     public function actionWxQrcode($id)
@@ -153,7 +180,28 @@ class PayController extends BaseController
         $result = $payment->prepare($o);
 
         if ($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS'){
-            $prepayId = $result->prepay_id;
+            // 生成订单
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                $system_order = new Orders();
+                $system_order->trade_no = $attributes['out_trade_no'];
+                $system_order->payment_type = Orders::TYPE_WXPAY;
+                $system_order->user_id = Yii::$app->user->id;
+                $system_order->goods_id = json_encode([$id]); // json_encode
+                $system_order->purpose = Orders::USE_PATENT;
+                $system_order->amount = $attributes['total_fee'] / 100;
+                $system_order->created_at = time();
+                $system_order->updated_at = time();
+                $system_order->status = Orders::STATUS_PENDING;
+                if (!$system_order->save()) {
+                    throw new Exception('系统内部订单出错');
+                }
+                $transaction->commit();
+            } catch (Exception $e) {
+                $transaction->rollBack();
+                throw $e;
+            }
+
             $qrCode = new QrCode($result->code_url);
             $qrCode->setSize(200);
             header('Content-Type: '.$qrCode->getContentType());
@@ -174,7 +222,9 @@ class PayController extends BaseController
         $payment = $wxApp->payment;
         $response = $payment->handleNotify(function ($notify, $successful) {
             if ($successful) {
-                // TODO 成功之后生成一个日志，更改年费转态
+                $this->paySuccess($notify);
+            } else {
+                $this->payFail($notify);
             }
         });
         $response->send();
@@ -189,12 +239,70 @@ class PayController extends BaseController
         $payment = $wxApp->payment;
         $response = $payment->handleNotify(function ($notify, $successful) {
             if ($successful) {
-                $order_arr = json_decode($notify, true);
-                $transactionId = $order_arr['transaction_id']; // 微信订单号
-                // TODO 成功之后生成一个日志，更改年费状态
+                $this->paySuccess($notify);
+            } else {
+                $this->payFail($notify);
             }
         });
         $response->send();
+    }
+
+    /**
+     * 支付成功之后
+     *
+     * @param $notify
+     * @throws Exception
+     */
+    private function paySuccess($notify)
+    {
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $system_order = Orders::findOne(['trade_no' => $notify->out_trade_no]);
+            if ($system_order->created_at + Yii::$app->params['order_expired_time'] < time()) {
+                throw new Exception('订单已过期');
+            }
+            $system_order->out_trade_no = $notify->transaction_id;
+            // $system_order->amount = $notify->total_fee; //TODO 有没有必要重新记录实际付款金额
+            $system_order->updated_at = time();
+            $system_order->status = Orders::STATUS_PAID;
+            if (!$system_order->save()) {
+                throw new ServerErrorHttpException('系统内部订单更新出错');
+            }
+            if (!$system_order->successProcess()) {
+                throw new ServerErrorHttpException('专利状态更新出错');
+            }
+            $transaction->commit();
+        } catch (Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * 支付失败之后
+     *
+     * @param $notify
+     * @throws Exception
+     */
+    private function payFail($notify)
+    {
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $system_order = Orders::findOne(['trade_no' => $notify->out_trade_no]);
+            if ($system_order->created_at + Yii::$app->params['order_expired_time'] > time()) {
+                throw new Exception('订单已过期');
+            }
+            $system_order->out_trade_no = $notify->transaction_id;
+            $system_order->updated_at = time();
+            $system_order->status = Orders::STATUS_UNPAID;
+            if (!$system_order->save()) {
+                throw new ServerErrorHttpException('系统内部订单更新出错');
+            }
+            $transaction->commit();
+        } catch (Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
     }
 
     /**

@@ -4,9 +4,11 @@ use app\models\UnpaidAnnualFee;
 /* @var $idx integer */
 
 /* @var $box_type string */
+/* @var $show_fee boolean 是否展示费用信息按钮 */
 /* @var $fee app\models\UnpaidAnnualFee 缴费信息 */
 
 $box_type = 'box-default';
+$show_fee = true;
 $fee = UnpaidAnnualFee::findOne(['patentAjxxbID' => $model->patentAjxxbID, 'due_date' => $model->patentFeeDueDate]);
 if ($model->patentCaseStatus == '有效') {
     // 15天之内红色 90天之内黄色 其他绿色
@@ -21,12 +23,13 @@ if ($model->patentCaseStatus == '有效') {
         $box_type = 'box-warning';
     } else {
         $box_type = 'box-success';
+        $show_fee = false; // 大于90天不展示续费按钮
     }
 } else {
     // TODO 非有效期
 }
 ?>
-<div class="box box-solid <?= $box_type ?> ">
+<div class="box box-solid <?= $box_type ?> collapsed-box">
     <div class="box-header">
         <a href="javascript:void(0)" onclick="collapseToggle(<?= $idx ?>)" style="display: block">
 <!--            <i class="fa fa-file-o"></i>-->
@@ -37,13 +40,13 @@ if ($model->patentCaseStatus == '有效') {
         </a>
 
         <div class="box-tools pull-right">
-            <button id="<?= $idx ?>"  type="button" class="btn btn-default btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
+            <button id="<?= $idx ?>"  type="button" class="btn btn-default btn-sm" data-widget="collapse"><i class="fa fa-plus"></i>
             </button>
             <a type="button" class="btn btn-default btn-sm" title="点击查看专利进度" href="<?= \yii\helpers\Url::to(['patents/main', 'id' => $model->patentAjxxbID]) ?>"><i class="fa fa-paper-plane"></i>
             </a>
         </div>
     </div>
-    <div class="box-body" style="display: block">
+    <div class="box-body" style="display: none">
         <dl>
             <dt>专利类型</dt>
             <dd><?= $model->patentType ?></dd>
@@ -60,7 +63,7 @@ if ($model->patentCaseStatus == '有效') {
     </div>
 
     <?php
-    if ($fee) {
+    if ($fee && $show_fee) {
         echo '<div class="box-footer" style="display: block">';
         if ($this->context->isMicroMessage) {
             echo '<a class="btn btn-success btn-xs" id="pay-btn" data-id="' . $fee->patentAjxxbID . '">缴费('. $fee->fee_type . ':' . $fee->amount .'元)</a><div id="wxJS"></div>'; // TODO 如何给客户展示：颜色以及显示内容等等

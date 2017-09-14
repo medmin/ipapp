@@ -12,7 +12,7 @@ var collapseToggle = function(idx){
 ', \yii\web\View::POS_END);
 $this->registerCss('
 .box.box-solid>.box-header a:hover {
-    background: rgb(210, 214, 222);
+    background: none;
 }
 ');
 ?>
