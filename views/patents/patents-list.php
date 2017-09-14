@@ -73,9 +73,8 @@ if ($this->context->isMicroMessage) {
 $(\'#pay-btn\').click(function(){
 	var url = "'. \yii\helpers\Url::to(["pay/payment"]).'";
         $.post(url, {pay_type:\'WXPAY\',id:$(this).data(\'id\')}, function(d) {
-	    alert(1);
             if(d.done == true) {
-                $(\'#wxJS\').html(d.data)
+                $(\'#wxJS\').html(d.data);
                 callpay();
             }
         },\'json\');

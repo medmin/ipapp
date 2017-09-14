@@ -66,13 +66,20 @@ class PayController extends BaseController
         $pay_type = Yii::$app->request->post('pay_type'); // 留坑
 
         if ($pay_type == 'WXPAY') {
-        Yii::info(Yii::$app->request->post('id'));    
-	$this->wxPay(Yii::$app->request->post('id'));
+            return $this->wxPay(Yii::$app->request->post('id'));
         } else {
             throw new BadRequestHttpException('支付方式有误');
         }
     }
 
+    /**
+     * 微信公众号支付
+     *
+     * @param $id
+     * @return string
+     * @throws BadRequestHttpException
+     * @throws NotFoundHttpException
+     */
     private function wxPay($id)
     {
         // 暂时先一个支付
@@ -90,13 +97,12 @@ class PayController extends BaseController
         // 创建订单
         $attributes = [
             'trade_type'       => 'JSAPI',
-            'body'             => '阳光惠远 - 专利续费(测试)', // TODO 自定义名称
+            'body'             => '阳光惠远 - 专利续费', // TODO 自定义名称
             'detail'           => '专利号：'.$patent->patentApplicationNo.PHP_EOL.'专利名称：'.$patent->patentTitle.PHP_EOL.'费用描述：'.$fee->fee_type,
             'out_trade_no'     => static::generateTradeNumber(),
             'total_fee'        => 1, //$fee->amount * 100, // 单位：分
             'notify_url'       => 'https://kf.shineip.com/pay/wxpay-notify', // 支付结果通知网址，如果不设置则会使用配置里的默认地址
             'openid'           => Yii::$app->user->identity->wxUser->fakeid, // trade_type=JSAPI，此参数必传，用户在商户appid下的唯一标识，
-            // ...
         ];
         $order = new Order($attributes);
         $result = $payment->prepare($order);
@@ -105,8 +111,7 @@ class PayController extends BaseController
             $prepayId = $result->prepay_id;
             $jsConfig = $payment->configForPayment($prepayId);
             $html = $this->renderPartial('/weui/_wxpay',['wx_json' => $jsConfig]);
-	    Yii::info($jsConfig);           
-	    return Json::encode(['done' => true, 'data' => $html]);
+	        return Json::encode(['done' => true, 'data' => $html]);
         } else {
             Yii::info($result);
             print_r($result);
