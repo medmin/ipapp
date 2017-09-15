@@ -20,6 +20,7 @@ use yii\web\NotFoundHttpException;
 use yii\helpers\Url;
 use Endroid\QrCode\QrCode;
 use yii\web\ServerErrorHttpException;
+use yii\db\Transaction;
 
 class PayController extends BaseController
 {
@@ -113,7 +114,8 @@ class PayController extends BaseController
 
         if ($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS'){
             // 生成订单
-            $transaction = Yii::$app->db->beginTransaction();
+            $isolationLevel = Transaction::SERIALIZABLE;
+            $transaction = Yii::$app->db->beginTransaction($isolationLevel);
             try {
                 $system_order = new Orders();
                 $system_order->trade_no = $attributes['out_trade_no'];
@@ -181,7 +183,8 @@ class PayController extends BaseController
 
         if ($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS'){
             // 生成订单
-            $transaction = Yii::$app->db->beginTransaction();
+            $isolationLevel = Transaction::SERIALIZABLE;
+            $transaction = Yii::$app->db->beginTransaction($isolationLevel);
             try {
                 $system_order = new Orders();
                 $system_order->trade_no = $attributes['out_trade_no'];
@@ -255,7 +258,8 @@ class PayController extends BaseController
      */
     private function paySuccess($notify)
     {
-        $transaction = Yii::$app->db->beginTransaction();
+        $isolationLevel = Transaction::SERIALIZABLE;
+        $transaction = Yii::$app->db->beginTransaction($isolationLevel);
         try {
             $system_order = Orders::findOne(['trade_no' => $notify->out_trade_no]);
             if ($system_order->created_at + Yii::$app->params['order_expired_time'] < time()) {
@@ -286,7 +290,8 @@ class PayController extends BaseController
      */
     private function payFail($notify)
     {
-        $transaction = Yii::$app->db->beginTransaction();
+        $isolationLevel = Transaction::SERIALIZABLE;
+        $transaction = Yii::$app->db->beginTransaction($isolationLevel);
         try {
             $system_order = Orders::findOne(['trade_no' => $notify->out_trade_no]);
             if ($system_order->created_at + Yii::$app->params['order_expired_time'] > time()) {

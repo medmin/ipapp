@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\web\ServerErrorHttpException;
+use yii\db\Transaction;
 
 /**
  * This is the model class for table "orders".
@@ -103,7 +104,8 @@ class Orders extends \yii\db\ActiveRecord
     {
         $ids = json_decode($this->goods_id);
         foreach ($ids as $id) {
-            $innerTransaction = Yii::$app->db->beginTransaction();
+            $isolationLevel = Transaction::SERIALIZABLE;
+            $innerTransaction = Yii::$app->db->beginTransaction($isolationLevel);
             try {
                 $patent = Patents::findOne(['patentAjxxbID' => $id]);
                 // 更新unpaid表
