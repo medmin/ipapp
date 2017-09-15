@@ -31,6 +31,7 @@ class PayController extends BaseController
         return [
             'access' => [
                 'class' => AccessControl::className(),
+                'except' => ['wxpay-notify', 'wxpay-notify-qrcode'],
                 'rules' => [
                     [
                         'allow' => true,
@@ -55,7 +56,7 @@ class PayController extends BaseController
                 'key' => Yii::$app->params['wechat']['key'],
                 'cert_path' => Yii::$app->params['wechat']['cert_path'],
                 'key_path' => Yii::$app->params['wechat']['key_path'],
-                'notify_url' => 'https://kf.shineip.com/pay/wxpay-notify',
+                'notify_url' => 'https://kf.shineip.com/pay/wxpay-notify/',
             ]
         ];
     }
@@ -242,8 +243,10 @@ class PayController extends BaseController
         $payment = $wxApp->payment;
         $response = $payment->handleNotify(function ($notify, $successful) {
             if ($successful) {
+                Yii::info('SUCCESS');
                 $this->paySuccess($notify);
             } else {
+                Yii::info('FAIL');
                 $this->payFail($notify);
             }
         });
@@ -262,9 +265,12 @@ class PayController extends BaseController
         $transaction = Yii::$app->db->beginTransaction($isolationLevel);
         try {
             $system_order = Orders::findOne(['trade_no' => $notify->out_trade_no]);
-            if ($system_order->created_at + Yii::$app->params['order_expired_time'] < time()) {
-                throw new Exception('订单已过期');
-            }
+//            if ($system_order->created_at + Yii::$app->params['order_expired_time'] < time()) {
+//                throw new Exception('订单已过期');
+//            }
+//            if ($system_order->status == Orders::STATUS_PAID || $system_order->status == Orders::STATUS_FINISHED) {
+//                throw new Exception('请勿重复支付');
+//            }
             $system_order->out_trade_no = $notify->transaction_id;
             // $system_order->amount = $notify->total_fee; //TODO 有没有必要重新记录实际付款金额
             $system_order->updated_at = time();
@@ -294,9 +300,9 @@ class PayController extends BaseController
         $transaction = Yii::$app->db->beginTransaction($isolationLevel);
         try {
             $system_order = Orders::findOne(['trade_no' => $notify->out_trade_no]);
-            if ($system_order->created_at + Yii::$app->params['order_expired_time'] > time()) {
-                throw new Exception('订单已过期');
-            }
+//            if ($system_order->created_at + Yii::$app->params['order_expired_time'] > time()) {
+//                throw new Exception('订单已过期');
+//            }
             $system_order->out_trade_no = $notify->transaction_id;
             $system_order->updated_at = time();
             $system_order->status = Orders::STATUS_UNPAID;
