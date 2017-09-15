@@ -120,7 +120,7 @@ class PayController extends BaseController
                 $system_order->payment_type = Orders::TYPE_WXPAY;
                 $system_order->user_id = Yii::$app->user->id;
                 $system_order->goods_id = json_encode([$id]); // json_encode
-                $system_order->purpose = Orders::USE_PATENT;
+                $system_order->goods_type = Orders::USE_PATENT;
                 $system_order->amount = $attributes['total_fee'] / 100;
                 $system_order->created_at = time();
                 $system_order->updated_at = time();
@@ -188,7 +188,7 @@ class PayController extends BaseController
                 $system_order->payment_type = Orders::TYPE_WXPAY;
                 $system_order->user_id = Yii::$app->user->id;
                 $system_order->goods_id = json_encode([$id]); // json_encode
-                $system_order->purpose = Orders::USE_PATENT;
+                $system_order->goods_type = Orders::USE_PATENT;
                 $system_order->amount = $attributes['total_fee'] / 100;
                 $system_order->created_at = time();
                 $system_order->updated_at = time();
