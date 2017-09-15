@@ -109,7 +109,7 @@ class Orders extends \yii\db\ActiveRecord
                 // 更新unpaid表
                 $unpaid = UnpaidAnnualFee::findOne(['patentAjxxbID' => $id, 'due_date' => $patent->patentFeeDueDate]);
                 $unpaid->status = UnpaidAnnualFee::PAID;
-                $unpaid->payment_time = time();
+                $unpaid->paid_at = time();
                 if (!$unpaid->save()) {
                     throw new ServerErrorHttpException('专利费用更新出错');
                 }
