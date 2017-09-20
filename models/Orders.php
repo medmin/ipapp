@@ -57,6 +57,10 @@ class Orders extends \yii\db\ActiveRecord
      */
     const STATUS_UNPAID = 2;
 
+    /**
+     * 已完成(我方已缴费)
+     */
+    const STATUS_FINISHED = 3;
 
     /**
      * @inheritdoc
@@ -102,7 +106,7 @@ class Orders extends \yii\db\ActiveRecord
     //订单处理成功之后更新专利信息
     public function successProcess()
     {
-        $ids = json_decode($this->goods_id);
+        $ids = json_decode($this->goods_id,true);
         foreach ($ids as $id) {
             $isolationLevel = Transaction::SERIALIZABLE;
             $innerTransaction = Yii::$app->db->beginTransaction($isolationLevel);

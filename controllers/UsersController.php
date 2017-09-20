@@ -2,11 +2,13 @@
 
 namespace app\controllers;
 
+use app\models\AnnualFeeMonitors;
 use app\models\Notification;
 use app\models\Patents;
 use Yii;
 use app\models\Users;
 use app\models\UsersSearch;
+use yii\db\Query;
 use yii\helpers\Json;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
@@ -32,6 +34,7 @@ class UsersController extends BaseController
                 'actions' => [
                     'delete' => ['POST'],
                     'check-exist' => ['POST'],
+                    'unfollow-patent' => ['POST'],
                 ],
             ],
             'access' => [
@@ -54,7 +57,7 @@ class UsersController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['personal-settings', 'reset-password', 'my-patents'],
+                        'actions' => ['personal-settings', 'reset-password', 'my-patents', 'patents', 'follow-patents', 'unfollow-patent'],
                         'roles' => ['@']
                     ],
                     [
@@ -326,6 +329,93 @@ class UsersController extends BaseController
         ]);
 
         return $this->render('my-patents', ['dataProvider' => $dataProvider]);
+    }
+
+    /**
+     * 年费监管页
+     *
+     * @param integer $id userID
+     * @return string
+     */
+    public function actionPatents($id = null)
+    {
+        if ($id == null) {
+            $id = Yii::$app->user->id;
+        }
+        if (Yii::$app->user->identity->userRole === Users::ROLE_CLIENT) {
+            $id = Yii::$app->user->id;
+        }
+        $dateProvider = new ActiveDataProvider([
+            'query' => Patents::find()->where(['in', 'patentID', (new Query())->select('patent_id')->from('annual_fee_monitors')->where(['user_id' => $id])]),
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+            'sort' => [
+                'defaultOrder' => [
+                    'patentFeeDueDate' => SORT_ASC,
+                ]
+            ]
+        ]);
+
+        return $this->render('patents', ['dataProvider' => $dateProvider]);
+    }
+
+    /**
+     * 添加监管
+     *
+     * @return bool|string
+     */
+    public function actionFollowPatents()
+    {
+        if (Yii::$app->request->isPost) {
+            $patent_id = Yii::$app->request->post('id');
+            if (!Patents::findOne($patent_id) || AnnualFeeMonitors::findOne(['user_id' => Yii::$app->user->id, 'patent_id' => $patent_id])) {
+                return false;
+            } else {
+                $model = new AnnualFeeMonitors();
+                $model->patent_id = $patent_id;
+                $model->user_id = Yii::$app->user->id;
+                if (!$model->save()) {
+                    echo '<pre>';
+                    print_r($model->errors);
+                    echo '</pre>';
+                    exit;
+                }
+                return $model->save();
+            }
+        } else {
+            $applicationNo = trim(Yii::$app->request->getQueryParam('No'));
+            $inventor = trim(Yii::$app->request->getQueryParam('inventor'));
+            if (!$applicationNo && !$inventor) {
+                return $this->render('follow-patents');
+            }
+            $query = Patents::find();
+            if ($applicationNo) {
+                $query->andWhere(['patentApplicationNo' => $applicationNo]);
+            }
+            if ($inventor) {
+                $query->andWhere(['like', 'patentInventors', $inventor]);
+            }
+            $dataProvider = new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => [
+                    'pageSize' => 10,
+                ],
+            ]);
+
+            return $this->render('follow-patents', ['dataProvider' => $dataProvider]);
+        }
+    }
+
+    /**
+     * 取消监管
+     *
+     * @param integer $id patentID
+     * @return false|int
+     */
+    public function actionUnfollowPatent($id)
+    {
+        return AnnualFeeMonitors::findOne(['user_id' => Yii::$app->user->id, 'patent_id' => $id])->delete();
     }
 
     /**

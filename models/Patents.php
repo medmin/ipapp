@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\helpers\Json;
 
 /**
  * This is the model class for table "patents".
@@ -132,6 +133,16 @@ class Patents extends \yii\db\ActiveRecord
     }
 
     /**
+     * 获取年费监管用户
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFeeManagers()
+    {
+        return $this->hasMany(Users::className(), ['userID' => 'user_id'])->viaTable('annual_fee_monitors', ['patent_id' => 'patentID']);
+    }
+
+    /**
      * 更改专利顺带更待专利事件
      *
      * @param bool $insert
@@ -165,5 +176,28 @@ class Patents extends \yii\db\ActiveRecord
         } else {
             return false;
         }
+    }
+
+    /**
+     * 生成下一年待缴年费,返回JSON数据
+     *
+     * @return string
+     */
+    public function generateUnpaidAnnualFee()
+    {
+        $date = substr(trim($this->patentApplicationDate),-4);
+        if ($date) {
+            $fee_due_date = (string)((int)$date > date('md') ? date('Y') : (date('Y') + 1)) . $date;
+            $fee_due_info = UnpaidAnnualFee::findOne(['patentAjxxbID' => $this->patentAjxxbID, 'due_date' => $fee_due_date]);
+            if (!$fee_due_info) {
+                return Json::encode(['status' => false, 'msg' => 'FAIL']);
+            }
+            if ($fee_due_info->status === UnpaidAnnualFee::PAID) {
+                return Json::encode(['status' => false, 'msg' => 'PAID']);
+            }
+            return Json::encode(['status' => true, 'data' => ['amount' => $fee_due_info->amount, 'fee_type' => $fee_due_info->fee_type, 'due_date' => $fee_due_date]]);
+        }
+        return Json::encode(['status' => false, 'msg' => 'FAIL']);
+
     }
 }

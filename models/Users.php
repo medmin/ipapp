@@ -347,6 +347,16 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
+     * 获取用户所有监管的专利
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPatents()
+    {
+        return $this->hasMany(Patents::className(), ['patentID' => 'patent_id'])->viaTable('annual_fee_monitors', ['user_id' => 'userID']);
+    }
+
+    /**
      * 修改用户之后更改权限以及更改相关专利
      * 
      * @param bool $insert
