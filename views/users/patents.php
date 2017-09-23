@@ -8,15 +8,18 @@
 use yii\widgets\LinkPager;
 
 $this->title = '阳光惠远 | 年费监管';
-$this->params['breadcrumbs'][] = $this->title;
+// $this->params['breadcrumbs'][] = $this->title;
+$this->title = false;
 
 $this->registerJs('
 function unfollow(w){
-  $.post("'. \yii\helpers\Url::to(['/users/unfollow-patent']) .'"+"?id="+$(w).data("id"),function(d){
-    if(d){
-      $(w).parents(".patent-info").hide(1000);
-    }
-  });
+  if(window.confirm("确定取消监管?")){
+    $.post("'. \yii\helpers\Url::to(['/users/unfollow-patent']) .'"+"?id="+$(w).data("id"),function(d){
+      if(d){
+        $(w).parents(".patent-info").hide(1000);
+      }
+    });
+  }
 }
 ', \yii\web\View::POS_END);
 
