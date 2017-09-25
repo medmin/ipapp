@@ -9,10 +9,13 @@ namespace app\commands;
 
 use app\models\AnnualFeeMonitors;
 use app\models\Patents;
+use app\models\UnpaidAnnualFee;
 use app\models\Users;
 use yii\console\Controller;
 use Yii;
 use GuzzleHttp\Client;
+use GuzzleHttp\Pool;
+use GuzzleHttp\Psr7\Request;
 use Symfony\Component\DomCrawler\Crawler;
 
 class RemindController extends Controller
@@ -50,7 +53,64 @@ class RemindController extends Controller
         $redis->del('remind'); // 删除redis
     }
 
-    public function actionClawUnpaid($applicationNo = '2015210884742')
+    /**
+     * 爬取数据库所有专利的缴费信息
+     */
+    public function actionClaw()
+    {
+//        UnpaidAnnualFee::deleteAll();
+        $start = $_SERVER['REQUEST_TIME'];  // 开始时间
+        
+        $patents_list = Patents::find()->select(['patentAjxxbID','patentApplicationNo','patentApplicationDate'])->where(['<>', 'patentApplicationNo', ''])->asArray()->all();
+        do {
+            $patentsArray = [];
+            for ($i = 0; $i < 5 ; $i++) {
+                $patentsArray[] = array_shift($patents_list);
+            }
+            $this->spider($patentsArray);
+        } while (!empty($patents_list));
+        
+        $this->stdout('Time Consuming:' . (time() - $start) . ' seconds' . PHP_EOL);
+    }
+
+    /**
+     *
+     * @param array $patents
+     * @param string $base_uri
+     */
+    public function spider(array $patents, $base_uri = 'http://cpquery.sipo.gov.cn/txnQueryFeeData.do')
+    {
+        $concurrency = count($patents);
+        $client = new Client([
+            'headers' => ['User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36'],
+//            'proxy' => '183.187.159.202:80'
+        ]);
+        $requests = function ($total) use ($base_uri, $patents, $client) {
+            foreach ($patents as $patent) {
+                yield function() use ($patent, $base_uri, $client) {
+                    return $client->getAsync($base_uri . '?select-key:shenqingh=' . $patent['patentApplicationNo']);
+                };
+            }
+        };
+        $patent_list = array_values($patents);
+        $pool = new Pool($client, $requests($concurrency), [
+            'concurrency' => $concurrency,
+            'fulfilled' => function ($response, $index) use ($patent_list) {
+                if ($response->getStatusCode() == 200 && ($html = $response->getBody()->getContents()) !== '') {
+                    $result = $this->parseUnpaidInfo($html);
+                    $this->saveUnpaidFee($result, $patent_list[$index]['patentAjxxbID'], $patent_list[$index]['patentApplicationDate']);
+                }
+            },
+            'rejected' => function ($reason, $index) use ($patent_list) {
+                $this->stdout('Error:' . $patent_list[$index]['patentApplicationNo'] . ' Reason:' . $reason);
+                // this is delivered each failed request
+            },
+        ]);
+        $promise = $pool->promise();
+        $promise->wait();
+    }
+
+    public function clawUnpaid($applicationNo)
     {
         $base_uri = 'http://cpquery.sipo.gov.cn/txnQueryFeeData.do';
 
@@ -107,8 +167,10 @@ class RemindController extends Controller
                 }
             }
 
-            print_r($result);
+            return $result;
 
+        } else {
+            echo $response->getStatusCode();
         }
     }
 
@@ -428,5 +490,103 @@ class RemindController extends Controller
 </html>
 HTML;
         return $html;
+    }
+
+    public function queue()
+    {
+        $redis = Yii::$app->redis;
+        $redis->del('patent_l');
+        $patents_list = Patents::find()->select(['patentAjxxbID'])->where(['<>', 'patentApplicationNo', ''])->asArray()->all();
+        foreach ($patents_list as $patent) {
+            $redis->rpush('patent_l',$patent['patentAjxxbID']);
+        }
+    }
+
+    public function actionQueue()
+    {
+//        $patents_list = Patents::find()->select(['patentAjxxbID','patentApplicationNo','patentApplicationDate'])->where(['<>', 'patentApplicationNo', ''])->indexBy('patentApplicationNo')->asArray()->all();
+//        var_dump($patents_list);exit;
+
+        $this->queue();
+        $this->stdout('OK');
+    }
+
+    /**
+     * 解析页面,获取未付款信息
+     *
+     * @param string $html
+     * @return array
+     */
+    public function parseUnpaidInfo(string $html)
+    {
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($html);
+        $key = $crawler->filter('body > span')->last()->attr('id');
+        $useful_id = array_flip($this->decrypt($key));
+
+        $trHtml = $crawler->filter('table[class="imfor_table_grid"]')->eq(0)->filter('tr')->each(function (Crawler $node) {
+            return $node->html();
+        });
+        $result = [];
+        foreach ($trHtml as $idx => $tr) {
+            if ($idx !== 0) {
+                $trCrawler = new Crawler();
+                $trCrawler->addHtmlContent($tr);
+                $type = $trCrawler->filter('span[name="record_yingjiaof:yingjiaofydm"] span')->each(function (Crawler $node) use ($useful_id) {
+                    if (isset($useful_id[$node->attr("id")])) {
+                        return $node->text();
+                    }
+                });
+
+                $trCrawler = new Crawler();
+                $trCrawler->addHtmlContent($tr);
+                $amount = $trCrawler->filter('span[name="record_yingjiaof:shijiyjje"] span')->each(function (Crawler $node) use ($useful_id) {
+                    if (isset($useful_id[$node->attr("id")])) {
+                        return $node->text();
+                    }
+                });
+
+                $trCrawler = new Crawler();
+                $trCrawler->addHtmlContent($tr);
+                $date = $trCrawler->filter('span[name="record_yingjiaof:jiaofeijzr"] span')->each(function (Crawler $node) use ($useful_id) {
+                    if (isset($useful_id[$node->attr("id")])) {
+                        return $node->text();
+                    }
+                });
+
+                $result[] = [implode('',$type), implode('',$amount), implode('',$date)];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * 保存未缴费用信息
+     *
+     * @param array $result
+     * @param $ajxxb_id
+     * @param $application_date
+     */
+    public function saveUnpaidFee(array $result, $ajxxb_id, $application_date)
+    {
+        if (!empty($result)) {
+            foreach ($result as $item) {
+                preg_match('/\d+/',$item[0],$matches);
+                $fee = new UnpaidAnnualFee();
+                $fee->patentAjxxbID = $ajxxb_id;
+                $fee->amount = $item[1];
+                $fee->fee_type = $item[0];
+                if (!isset($matches[0])) {
+                    $fee->due_date = str_replace('-','',$item[2]);
+                } else {
+                    $fee->due_date = ($matches[0] + (int)substr(trim($application_date),0,4) - 1) . substr(trim($application_date),-4);
+                }
+                if (!$fee->save()) {
+                    print_r($fee->errors);
+                    exit;
+                }
+            }
+        }
     }
 }
