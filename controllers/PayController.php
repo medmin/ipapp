@@ -317,6 +317,20 @@ class PayController extends BaseController
     }
 
     /**
+     * 支付宝二维码生成(暂不可用)
+     *
+     * @param $id
+     * @return string
+     */
+    public function actionAliQrcode($id)
+    {
+        $qrCode = new QrCode("https://kf.shineip.com");
+        $qrCode->setSize(200);
+        header('Content-Type: '.$qrCode->getContentType());
+        return $qrCode->writeString();
+    }
+
+    /**
      * 生成订单号
      * @return string
      */

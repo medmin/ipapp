@@ -9,6 +9,7 @@ namespace app\commands;
 
 use app\models\AnnualFeeMonitors;
 use app\models\Patents;
+use app\models\Users;
 use yii\console\Controller;
 use Yii;
 use GuzzleHttp\Client;
@@ -18,15 +19,10 @@ class RemindController extends Controller
 {
     public function actionIndex(int $days = 30)
     {
-//        $users = AnnualFeeMonitors::find()->select('user_id')->where(['patent_id' => 3002])->asArray()->all();
-//        $users = array_column($users, 'user_id');
-//        $redis = Yii::$app->redis;
-//        print_r($redis->keys("*"));
-//        foreach($users as $id) {
-//
-//        }
-//        exit;
         $patentModels = Patents::find()->where(['patentFeeDueDate' => date('Ymd', strtotime('+'.$days.' days')), 'patentCaseStatus' => '有效'])->all();
+
+        $redis = Yii::$app->redis;
+        $redis->del('remind');
 
         /* @var $patent Patents */
         foreach ($patentModels as $patent) {
@@ -34,11 +30,24 @@ class RemindController extends Controller
             if ($unpaidAnnualFee['status'] == true) {
                 $users = AnnualFeeMonitors::find()->select('user_id')->where(['patent_id' => $patent->patentID])->asArray()->all();
                 $users = array_column($users, 'user_id');
-                // TODO 先留着，明天搞
-                $redis = Yii::$app->redis;
-
+                foreach($users as $id) {
+                    $redis->hset('remind', $id, $redis->hget('remind', $id) . $patent->patentID . ',');
+                }
             }
         }
+
+        // 提醒
+        $users = $redis->hkeys('remind');
+        foreach ($users as $user_id) {
+            // 到期专利总数
+            $sum = substr_count($redis->hget('remind', $user_id), ',');
+            // 提醒用户
+            $username = Users::findOne($user_id)->userFullname;
+            $openid = Users::findOne($user_id)->wxUser->fakeid;
+            // TODO 发送模板消息
+        }
+
+        $redis->del('remind'); // 删除redis
     }
 
     public function actionClawUnpaid($applicationNo = '2015210884742')
@@ -54,9 +63,9 @@ class RemindController extends Controller
             $crawler = new Crawler();
             $crawler->addHtmlContent($html);
             $key = $crawler->filter('body > span')->last()->attr('id');
+
             $useful_id = $this->decrypt($key);
             $idIsKey = array_flip($useful_id);
-
 
             $trHtml = $crawler->filter('table[class="imfor_table_grid"]')->eq(0)->filter('tr')->each(function (Crawler $node) {
                 return $node->html();
@@ -66,24 +75,30 @@ class RemindController extends Controller
                 if ($idx !== 0) {
                     $trCrawler = new Crawler();
                     $trCrawler->addHtmlContent($tr);
+
                     $type = $trCrawler->filter('span[name="record_yingjiaof:yingjiaofydm"] span')->each(function (Crawler $node) use ($idIsKey) {
                         if (isset($idIsKey[$node->attr("id")])){
+
                             return $node->text();
                         }
                     });
 
                     $trCrawler = new Crawler();
                     $trCrawler->addHtmlContent($tr);
+
                     $amount = $trCrawler->filter('span[name="record_yingjiaof:shijiyjje"] span')->each(function (Crawler $node) use ($idIsKey) {
                         if (isset($idIsKey[$node->attr("id")])) {
+
                             return $node->text();
                         }
                     });
 
                     $trCrawler = new Crawler();
                     $trCrawler->addHtmlContent($tr);
+
                     $date = $trCrawler->filter('span[name="record_yingjiaof:jiaofeijzr"] span')->each(function (Crawler $node) use ($idIsKey) {
                         if (isset($idIsKey[$node->attr("id")])) {
+
                             return $node->text();
                         }
                     });
@@ -115,6 +130,11 @@ class RemindController extends Controller
         }
     }
 
+    /**
+     * 测试使用的HTML
+     *
+     * @return string
+     */
     public function html()
     {
         $html = <<<HTML
