@@ -10,13 +10,16 @@ namespace app\commands;
 
 use app\models\Patents;
 use app\models\UnpaidAnnualFee;
+use Codeception\Module\Cli;
 use Symfony\Component\CssSelector;
 use Symfony\Component\DomCrawler\Crawler;
 use yii\console\Controller;
 use Yii;
 use Facebook\WebDriver\Chrome\ChromeDriver;
 use Facebook\WebDriver\Chrome\ChromeOptions;
+use yii\db\Exception;
 use yii\db\Transaction;
+use GuzzleHttp\Client;
 
 class FeeController extends Controller
 {
@@ -26,8 +29,275 @@ class FeeController extends Controller
 
     }
 
+    public function getApplicationNoFromMysql()
+    {
+        $patentApplicationNumbers_in_patents_table =
+            Yii::$app->db->createCommand('SELECT patentApplicationNo FROM patents')->queryColumn();
+        $existingAjxxbID_in_fee_table =
+            Yii::$app->db->createCommand('SELECT patentAjxxbID from unpaid_annual_fee')->queryColumn();
+    }
 
-    public function actionFee()
+    public function actionPatentinfo($applicationNo = '2015210884742')
+    {
+        $base_uri = 'http://cpquery.sipo.gov.cn/txnQueryBibliographicData.do';
+        $client = new Client();
+        $response = $client->request('GET', $base_uri, ['query' => ['select-key:shenqingh' => $applicationNo]]);
+
+        if ($response->getStatusCode() == 200) {
+            $html = $response->getBody()->getContents();
+
+            $crawler = new Crawler();
+            $crawler->addHtmlContent($html);
+            $key = $crawler->filter('body > span')->last()->attr('id');
+            $useful_id = $this->decrypt($key);
+            $idIsKey = array_flip($useful_id);
+
+            //获取申请日
+            $crawlerInfo = new Crawler();
+            $crawlerInfo->addHtmlContent($html);
+            $applicationDateInfoSpan = $crawlerInfo->filter('#zlxid span[name="record_zlx:shenqingr"] span')->each(
+                function (Crawler $node) use ($idIsKey){
+                    if (isset($idIsKey[$node->attr('id')])){
+                        return $node->text();
+                    }
+                }
+            );
+
+            $applicationDateInfoSpan = array_filter($applicationDateInfoSpan);
+            $applicationDate = '';
+            foreach ($applicationDateInfoSpan as $info)
+            {
+                $applicationDate .= $info;
+            }
+//            echo $applicationDate;
+//            echo PHP_EOL;
+
+            //获取案件状态
+            $crawlerStatus = new Crawler();
+            $crawlerStatus->addHtmlContent($html);
+            $statusInfoSpan = $crawlerStatus->filter('#zlxid span[name="record_zlx:anjianywzt"] span')->each(
+                function (Crawler $node) use ($idIsKey){
+                    if (isset($idIsKey[$node->attr('id')])){
+                        return $node->text();
+                    }
+                }
+            );
+
+            $statusInfoSpan = array_filter($statusInfoSpan);
+            $caseStatus = '';
+            foreach ($statusInfoSpan as $info)
+            {
+                $caseStatus .= $info;
+            }
+//            echo $caseStatus;
+//            echo PHP_EOL;
+
+            //获取申请人
+            $crawlerInstitution = new Crawler();
+            $crawlerInstitution->addHtmlContent($html);
+            $patentApplicationInstitutionInfoSpan = $crawlerInstitution->filter('#sqrid span[name="record_sqr:shenqingrxm"] span')->each(
+                function (Crawler $node) use ($idIsKey){
+                    if (isset($idIsKey[$node->attr('id')])){
+                        return $node->text();
+                    }
+                }
+            );
+
+            $patentApplicationInstitutionInfoSpan = array_filter($patentApplicationInstitutionInfoSpan);
+            $patentApplicationInstitution = '';
+            foreach ($patentApplicationInstitutionInfoSpan as $info)
+            {
+                $patentApplicationInstitution .= $info;
+            }
+//            echo $patentApplicationInstitution;
+//            echo PHP_EOL;
+
+            //获取发明人
+            $crawlerInventors = new Crawler();
+            $crawlerInventors->addHtmlContent($html);
+            $patentApplicationInventorsInfoSpan = $crawlerInventors->filter('#fmrid span[name="record_fmr:famingrxm"] span')->each(
+                function (Crawler $node) use ($idIsKey){
+                    if (isset($idIsKey[$node->attr('id')])){
+                        return $node->text();
+                    }
+                }
+            );
+
+            $patentApplicationInventorsInfoSpan = array_filter($patentApplicationInventorsInfoSpan);
+            $patentApplicationInventors = '';
+            foreach ($patentApplicationInventorsInfoSpan as $info)
+            {
+                $patentApplicationInventors .= $info;
+            }
+//            echo $patentApplicationInventors;
+//            echo PHP_EOL;
+
+            //获取代理机构
+            $crawlerAgency = new Crawler();
+            $crawlerAgency->addHtmlContent($html);
+            $patentApplicationAgencyInfoSpan = $crawlerAgency->filter('#zldlid span[name="record_zldl:dailijgmc"] span')->each(
+                function (Crawler $node) use ($idIsKey){
+                    if (isset($idIsKey[$node->attr('id')])){
+                        return $node->text();
+                    }
+                }
+            );
+
+            $patentApplicationAgencyInfoSpan = array_filter($patentApplicationAgencyInfoSpan);
+            $patentApplicationAgency = '';
+            foreach ($patentApplicationAgencyInfoSpan as $info)
+            {
+                $patentApplicationAgency .= $info;
+            }
+//            echo $patentApplicationAgency;
+//            echo PHP_EOL;
+
+            //获取第一代理人
+            $crawlerAgencyAgent = new Crawler();
+            $crawlerAgencyAgent->addHtmlContent($html);
+            $patentApplicationAgencyAgentInfoSpan = $crawlerAgencyAgent->filter('#zldlid span[name="record_zldl:diyidlrxm"] span')->each(
+                function (Crawler $node) use ($idIsKey){
+                    if (isset($idIsKey[$node->attr('id')])){
+                        return $node->text();
+                    }
+                }
+            );
+
+            $patentApplicationAgencyAgentInfoSpan = array_filter($patentApplicationAgencyAgentInfoSpan);
+            $patentApplicationAgencyAgent = '';
+            foreach ($patentApplicationAgencyAgentInfoSpan as $info)
+            {
+                $patentApplicationAgencyAgent .= $info;
+            }
+//            echo $patentApplicationAgencyAgent;
+//            echo PHP_EOL;
+
+            $isolationLevel = Transaction::SERIALIZABLE;
+            $transaction = Yii::$app->db->beginTransaction($isolationLevel);
+            try
+            {
+                $thisOnePatent = Patents::findOne(['patentApplicationNo' => '$applicationNo']);
+
+                $thisOnePatent->patentApplicationDate = $applicationDate;
+                $thisOnePatent->patentCaseStatus = $caseStatus;
+                $thisOnePatent->patentApplicationInstitution = $patentApplicationInstitution;
+                $thisOnePatent->patentInventors = $patentApplicationInventors;
+                $thisOnePatent->patentAgency = $patentApplicationAgency;
+                $thisOnePatent->patentAgencyAgent = $patentApplicationAgencyAgent;
+
+                $thisOnePatent->save();
+
+                $transaction->commit();
+            }
+            catch (\Exception $e)
+            {
+                $transaction->rollBack();
+                throw $e;
+            }
+
+        }
+
+    }
+
+
+    public function actionFee($applicationNo = '2015210884742')
+    {
+        $base_uri = 'http://cpquery.sipo.gov.cn/txnQueryFeeData.do';
+        $client = new Client();
+        $response = $client->request('GET', $base_uri, ['query' => ['select-key:shenqingh' => $applicationNo]]);
+
+        if ($response->getStatusCode() == 200) {
+            $html = $response->getBody()->getContents();
+
+            $crawler = new Crawler();
+            $crawler->addHtmlContent($html);
+            $key = $crawler->filter('body > span')->last()->attr('id');
+            $useful_id = $this->decrypt($key);
+            $idIsKey = array_flip($useful_id);
+
+
+            $trHtml = $crawler->filter('table[class="imfor_table_grid"]')->eq(0)->filter('tr')->each(function (Crawler $node) {
+                return $node->html();
+            });
+
+            foreach ($trHtml as $idx => $tr) {
+                if ($idx !== 0) {
+                    $trCrawler = new Crawler();
+                    $trCrawler->addHtmlContent($tr);
+                    $type = $trCrawler->filter('span[name="record_yingjiaof:yingjiaofydm"] span')->each(function (Crawler $node) use ($idIsKey) {
+                        if (isset($idIsKey[$node->attr("id")])){
+                            return $node->text();
+                        }
+                    });
+
+                    $trCrawler = new Crawler();
+                    $trCrawler->addHtmlContent($tr);
+                    $amount = $trCrawler->filter('span[name="record_yingjiaof:shijiyjje"] span')->each(function (Crawler $node) use ($idIsKey) {
+                        if (isset($idIsKey[$node->attr("id")])) {
+                            return $node->text();
+                        }
+                    });
+
+                    $trCrawler = new Crawler();
+                    $trCrawler->addHtmlContent($tr);
+                    $date = $trCrawler->filter('span[name="record_yingjiaof:jiaofeijzr"] span')->each(function (Crawler $node) use ($idIsKey) {
+                        if (isset($idIsKey[$node->attr("id")])) {
+                            return $node->text();
+                        }
+                    });
+
+                    $isolationLevel = Transaction::SERIALIZABLE;
+                    $transaction = Yii::$app->db->beginTransaction($isolationLevel);
+                    try
+                    {
+                        $thisOnePatent = Patents::findOne(['patentApplicationNo' => '$applicationNo']);
+
+                        $unpaid_annual_fee_row = new UnpaidAnnualFee();
+
+                        $unpaid_annual_fee_row->patentAjxxbID = $thisOnePatent->patentAjxxbID;
+                        $unpaid_annual_fee_row->amount = (int)implode('',$amount);
+                        $unpaid_annual_fee_row->fee_type = implode('',$type);
+//                        $unpaid_annual_fee_row->due_date = implode('',$date);
+                        preg_match('/\d{1,}/', $unpaid_annual_fee_row->fee_type, $matches);
+                        $year = $matches[1];
+                        $application_date = $thisOnePatent->patentApplicationDate;
+                        $unpaid_annual_fee_row->due_date = ((int)substr($application_date,0,4) + (int)$year - 1) . substr($application_date,4,4);
+
+                        $unpaid_annual_fee_row->save();
+
+
+                        $transaction->commit();
+                    }
+                    catch (\Exception $e)
+                    {
+                        $transaction->rollBack();
+                        throw $e;
+                    }
+                }
+            }
+
+        }
+    }
+
+    public function decrypt($key)
+    {
+        $b2 = '';
+        $b4 = 0;
+        for ($b3 = 0; $b3 < strlen($key); $b3 += 2) {
+            if ($b4 > 255) {
+                $b4 = 0;
+            }
+            $b1 = (int)(hexdec(substr($key, $b3, 2)) ^ $b4++);
+            $b2 .= chr($b1);
+        }
+        if ($b2) {
+            return array_filter(explode(',', $b2));
+        } else {
+            return [];
+        }
+    }
+
+    public function actionFee2()
     {
 //        $basicFeeURL = 'http://cpquery.sipo.gov.cn/txnQueryFeeData.do?select-key:shenqingh=';
 //        $basicInfoURL = 'http://cpquery.sipo.gov.cn/txnQueryBibliographicData.do?select-key:shenqingh=';
