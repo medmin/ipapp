@@ -20,6 +20,7 @@ use Facebook\WebDriver\Chrome\ChromeOptions;
 use yii\db\Exception;
 use yii\db\Transaction;
 use GuzzleHttp\Client;
+use Symfony\Component\Process\Process;
 
 class FeeController extends Controller
 {
@@ -29,19 +30,36 @@ class FeeController extends Controller
 
     }
 
-    public function getApplicationNoFromMysql()
+    public function actionMultiproc()
     {
-        $patentApplicationNumbers_in_patents_table =
-            Yii::$app->db->createCommand('SELECT patentApplicationNo FROM patents')->queryColumn();
-        $existingAjxxbID_in_fee_table =
-            Yii::$app->db->createCommand('SELECT patentAjxxbID from unpaid_annual_fee')->queryColumn();
+        $process = new Process('php yii fee/patentinfo');
+        $process->setTimeout(60);
+        $process->mustRun();
+        echo $process->getOutput();
+
+//        $patentApplicationNumbers_in_patents_table =
+//            Yii::$app->db->createCommand('SELECT patentApplicationNo FROM patents')->queryColumn();
+//        $existingAjxxbID_in_fee_table =
+//            Yii::$app->db->createCommand('SELECT patentAjxxbID from unpaid_annual_fee')->queryColumn();
     }
 
     public function actionPatentinfo($applicationNo = '2015210884742')
     {
         $base_uri = 'http://cpquery.sipo.gov.cn/txnQueryBibliographicData.do';
         $client = new Client();
-        $response = $client->request('GET', $base_uri, ['query' => ['select-key:shenqingh' => $applicationNo]]);
+        $requestOptions = [
+            'allow_redirects' => false,
+            'connect_timeout' => 60,
+            'debug' => true,
+            'headers' => [
+                'User-Agent' => "Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.0; Trident/4.0; WOW64; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; .NET CLR 1.0.3705; .NET CLR 1.1.4322)",
+            ],
+            'verify' => false,
+//            'proxy' => Yii::$app->params['proxy'],
+            'query' => ['select-key:shenqingh' => $applicationNo],
+            'timeout' => 60,
+        ];
+        $response = $client->request('GET', $base_uri, $requestOptions);
 
         if ($response->getStatusCode() == 200) {
             $html = $response->getBody()->getContents();
@@ -69,8 +87,8 @@ class FeeController extends Controller
             {
                 $applicationDate .= $info;
             }
-//            echo $applicationDate;
-//            echo PHP_EOL;
+            echo $applicationDate;
+            echo PHP_EOL;
 
             //获取案件状态
             $crawlerStatus = new Crawler();
@@ -172,28 +190,28 @@ class FeeController extends Controller
 //            echo $patentApplicationAgencyAgent;
 //            echo PHP_EOL;
 
-            $isolationLevel = Transaction::SERIALIZABLE;
-            $transaction = Yii::$app->db->beginTransaction($isolationLevel);
-            try
-            {
-                $thisOnePatent = Patents::findOne(['patentApplicationNo' => '$applicationNo']);
-
-                $thisOnePatent->patentApplicationDate = $applicationDate;
-                $thisOnePatent->patentCaseStatus = $caseStatus;
-                $thisOnePatent->patentApplicationInstitution = $patentApplicationInstitution;
-                $thisOnePatent->patentInventors = $patentApplicationInventors;
-                $thisOnePatent->patentAgency = $patentApplicationAgency;
-                $thisOnePatent->patentAgencyAgent = $patentApplicationAgencyAgent;
-
-                $thisOnePatent->save();
-
-                $transaction->commit();
-            }
-            catch (\Exception $e)
-            {
-                $transaction->rollBack();
-                throw $e;
-            }
+//            $isolationLevel = Transaction::SERIALIZABLE;
+//            $transaction = Yii::$app->db->beginTransaction($isolationLevel);
+//            try
+//            {
+//                $thisOnePatent = Patents::findOne(['patentApplicationNo' => '$applicationNo']);
+//
+//                $thisOnePatent->patentApplicationDate = $applicationDate;
+//                $thisOnePatent->patentCaseStatus = $caseStatus;
+//                $thisOnePatent->patentApplicationInstitution = $patentApplicationInstitution;
+//                $thisOnePatent->patentInventors = $patentApplicationInventors;
+//                $thisOnePatent->patentAgency = $patentApplicationAgency;
+//                $thisOnePatent->patentAgencyAgent = $patentApplicationAgencyAgent;
+//
+//                $thisOnePatent->save();
+//
+//                $transaction->commit();
+//            }
+//            catch (\Exception $e)
+//            {
+//                $transaction->rollBack();
+//                throw $e;
+//            }
 
         }
 
@@ -204,7 +222,19 @@ class FeeController extends Controller
     {
         $base_uri = 'http://cpquery.sipo.gov.cn/txnQueryFeeData.do';
         $client = new Client();
-        $response = $client->request('GET', $base_uri, ['query' => ['select-key:shenqingh' => $applicationNo]]);
+        $requestOptions = [
+            'allow_redirects' => false,
+            'connect_timeout' => 60,
+            'debug' => true,
+            'headers' => [
+                'User-Agent' => "Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.0; Trident/4.0; WOW64; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; .NET CLR 1.0.3705; .NET CLR 1.1.4322)",
+            ],
+            'verify' => false,
+//            'proxy' => Yii::$app->params['proxy'],
+            'query' => ['select-key:shenqingh' => $applicationNo],
+            'timeout' => 60,
+        ];
+        $response = $client->request('GET', $base_uri, $requestOptions);
 
         if ($response->getStatusCode() == 200) {
             $html = $response->getBody()->getContents();
