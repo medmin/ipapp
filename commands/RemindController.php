@@ -55,6 +55,8 @@ class RemindController extends Controller
             $crawler->addHtmlContent($html);
             $key = $crawler->filter('body > span')->last()->attr('id');
             $useful_id = $this->decrypt($key);
+            $idIsKey = array_flip($useful_id);
+
 
             $trHtml = $crawler->filter('table[class="imfor_table_grid"]')->eq(0)->filter('tr')->each(function (Crawler $node) {
                 return $node->html();
@@ -64,24 +66,24 @@ class RemindController extends Controller
                 if ($idx !== 0) {
                     $trCrawler = new Crawler();
                     $trCrawler->addHtmlContent($tr);
-                    $type = $trCrawler->filter('span[name="record_yingjiaof:yingjiaofydm"] span')->each(function (Crawler $node) use ($useful_id) {
-                        if (in_array($node->attr("id"), $useful_id)) {
+                    $type = $trCrawler->filter('span[name="record_yingjiaof:yingjiaofydm"] span')->each(function (Crawler $node) use ($idIsKey) {
+                        if (isset($idIsKey[$node->attr("id")])){
                             return $node->text();
                         }
                     });
 
                     $trCrawler = new Crawler();
                     $trCrawler->addHtmlContent($tr);
-                    $amount = $trCrawler->filter('span[name="record_yingjiaof:shijiyjje"] span')->each(function (Crawler $node) use ($useful_id) {
-                        if (in_array($node->attr("id"), $useful_id)) {
+                    $amount = $trCrawler->filter('span[name="record_yingjiaof:shijiyjje"] span')->each(function (Crawler $node) use ($idIsKey) {
+                        if (isset($idIsKey[$node->attr("id")])) {
                             return $node->text();
                         }
                     });
 
                     $trCrawler = new Crawler();
                     $trCrawler->addHtmlContent($tr);
-                    $date = $trCrawler->filter('span[name="record_yingjiaof:jiaofeijzr"] span')->each(function (Crawler $node) use ($useful_id) {
-                        if (in_array($node->attr("id"), $useful_id)) {
+                    $date = $trCrawler->filter('span[name="record_yingjiaof:jiaofeijzr"] span')->each(function (Crawler $node) use ($idIsKey) {
+                        if (isset($idIsKey[$node->attr("id")])) {
                             return $node->text();
                         }
                     });

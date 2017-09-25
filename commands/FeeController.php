@@ -10,13 +10,16 @@ namespace app\commands;
 
 use app\models\Patents;
 use app\models\UnpaidAnnualFee;
+use Codeception\Module\Cli;
 use Symfony\Component\CssSelector;
 use Symfony\Component\DomCrawler\Crawler;
 use yii\console\Controller;
 use Yii;
 use Facebook\WebDriver\Chrome\ChromeDriver;
 use Facebook\WebDriver\Chrome\ChromeOptions;
+use yii\db\Exception;
 use yii\db\Transaction;
+use GuzzleHttp\Client;
 
 class FeeController extends Controller
 {
@@ -26,8 +29,106 @@ class FeeController extends Controller
 
     }
 
+    public function getApplicationNoFromMysql()
+    {
+        $patentApplicationNumbers_in_patents_table =
+            Yii::$app->db->createCommand('SELECT patentApplicationNo FROM patents')->queryColumn();
+        $existingAjxxbID_in_fee_table =
+            Yii::$app->db->createCommand('SELECT patentAjxxbID from unpaid_annual_fee')->queryColumn();
+    }
 
-    public function actionFee()
+
+
+    public function actionFee($applicationNo = '2015210884742')
+    {
+        $base_uri = 'http://cpquery.sipo.gov.cn/txnQueryFeeData.do';
+        $client = new Client();
+        $response = $client->request('GET', $base_uri, ['query' => ['select-key:shenqingh' => $applicationNo]]);
+
+        if ($response->getStatusCode() == 200) {
+            $html = $response->getBody()->getContents();
+
+            $crawler = new Crawler();
+            $crawler->addHtmlContent($html);
+            $key = $crawler->filter('body > span')->last()->attr('id');
+            $useful_id = $this->decrypt($key);
+            $idIsKey = array_flip($useful_id);
+
+
+            $trHtml = $crawler->filter('table[class="imfor_table_grid"]')->eq(0)->filter('tr')->each(function (Crawler $node) {
+                return $node->html();
+            });
+            $result = [];
+            foreach ($trHtml as $idx => $tr) {
+                if ($idx !== 0) {
+                    $trCrawler = new Crawler();
+                    $trCrawler->addHtmlContent($tr);
+                    $type = $trCrawler->filter('span[name="record_yingjiaof:yingjiaofydm"] span')->each(function (Crawler $node) use ($idIsKey) {
+                        if (isset($idIsKey[$node->attr("id")])){
+                            return $node->text();
+                        }
+                    });
+
+                    $trCrawler = new Crawler();
+                    $trCrawler->addHtmlContent($tr);
+                    $amount = $trCrawler->filter('span[name="record_yingjiaof:shijiyjje"] span')->each(function (Crawler $node) use ($idIsKey) {
+                        if (isset($idIsKey[$node->attr("id")])) {
+                            return $node->text();
+                        }
+                    });
+
+                    $trCrawler = new Crawler();
+                    $trCrawler->addHtmlContent($tr);
+                    $date = $trCrawler->filter('span[name="record_yingjiaof:jiaofeijzr"] span')->each(function (Crawler $node) use ($idIsKey) {
+                        if (isset($idIsKey[$node->attr("id")])) {
+                            return $node->text();
+                        }
+                    });
+
+                    $isolationLevel = Transaction::SERIALIZABLE;
+                    $transaction = Yii::$app->db->beginTransaction($isolationLevel);
+                    try
+                    {
+                        $unpaid_annual_fee_row = new UnpaidAnnualFee();
+                        $unpaid_annual_fee_row->patentAjxxbID = "AJ172339_2339";
+                        $unpaid_annual_fee_row->amount = (int)implode('',$amount);
+                        $unpaid_annual_fee_row->fee_type = implode('',$type);
+                        $unpaid_annual_fee_row->due_date = implode('',$date);
+                        $unpaid_annual_fee_row->save();
+
+
+                        $transaction->commit();
+                    }
+                    catch (\Exception $e)
+                    {
+                        $transaction->rollBack();
+                        throw $e;
+                    }
+                }
+            }
+
+        }
+    }
+
+    public function decrypt($key)
+    {
+        $b2 = '';
+        $b4 = 0;
+        for ($b3 = 0; $b3 < strlen($key); $b3 += 2) {
+            if ($b4 > 255) {
+                $b4 = 0;
+            }
+            $b1 = (int)(hexdec(substr($key, $b3, 2)) ^ $b4++);
+            $b2 .= chr($b1);
+        }
+        if ($b2) {
+            return array_filter(explode(',', $b2));
+        } else {
+            return [];
+        }
+    }
+
+    public function actionFee2()
     {
 //        $basicFeeURL = 'http://cpquery.sipo.gov.cn/txnQueryFeeData.do?select-key:shenqingh=';
 //        $basicInfoURL = 'http://cpquery.sipo.gov.cn/txnQueryBibliographicData.do?select-key:shenqingh=';
