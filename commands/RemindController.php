@@ -15,7 +15,6 @@ use yii\console\Controller;
 use Yii;
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
-use GuzzleHttp\Psr7\Request;
 use Symfony\Component\DomCrawler\Crawler;
 
 class RemindController extends Controller
@@ -58,16 +57,28 @@ class RemindController extends Controller
      */
     public function actionClaw()
     {
-//        UnpaidAnnualFee::deleteAll();
+        UnpaidAnnualFee::deleteAll();
         $start = $_SERVER['REQUEST_TIME'];  // 开始时间
-        
-        $patents_list = Patents::find()->select(['patentAjxxbID','patentApplicationNo','patentApplicationDate'])->where(['<>', 'patentApplicationNo', ''])->asArray()->all();
+        $this->stdout('Start time:' . date('H:i:s',$start) . PHP_EOL);
+
+        $redis = Yii::$app->redis;
+        if ($redis->exists('patent_l') == 0) {
+            $this->queue();
+        }
+        $patents_queue = $redis->lrange('patent_l',0,-1);
+
+        $patents_list = Patents::find()->select(['patentAjxxbID','patentApplicationNo','patentApplicationDate'])->where(['in', 'patentApplicationNo', $patents_queue])->asArray()->all();
         do {
             $patentsArray = [];
-            for ($i = 0; $i < 5 ; $i++) {
+            $tmp_i = mt_rand(2,5);  // 随机2到5条
+            for ($i = 0; $i < $tmp_i ; $i++) {
                 $patentsArray[] = array_shift($patents_list);
             }
             $this->spider(array_filter($patentsArray));
+
+            $tmp_time = mt_rand(8,30);  // 随机8-30秒
+            sleep($tmp_time);
+
         } while (!empty($patents_list));
         
         $this->stdout('Time Consuming:' . (time() - $start) . ' seconds' . PHP_EOL);
@@ -94,8 +105,12 @@ class RemindController extends Controller
     {
         $concurrency = count($patents);
         $client = new Client([
-            'headers' => ['User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36'],
-            'proxy' => $this->getIp(),
+            'headers' => [
+                'User-Agent' => $this->getUa(),
+                'Proxy-Authorization' => 'Basic ' . base64_encode('H18X85J4I7X5727D:35C23C0BC635ADD0')
+            ],
+            'proxy' => 'http-dyn.abuyun.com:9020',
+            'cookies' => true,
         ]);
         $requests = function ($total) use ($base_uri, $patents, $client) {
             foreach ($patents as $patent) {
@@ -108,13 +123,23 @@ class RemindController extends Controller
         $pool = new Pool($client, $requests($concurrency), [
             'concurrency' => $concurrency,
             'fulfilled' => function ($response, $index) use ($patent_list) {
-                if ($response->getStatusCode() == 200 && ($html = $response->getBody()->getContents()) !== '') {
-                    $result = $this->parseUnpaidInfo($html);
-                    $this->saveUnpaidFee($result, $patent_list[$index]['patentAjxxbID'], $patent_list[$index]['patentApplicationDate']);
+                if ($response->getStatusCode() == 200) {
+                    $html = $response->getBody()->getContents();
+                    if ($html === '') {
+                        $this->stdout($patent_list[$index]['patentApplicationNo'] . 'is null' .PHP_EOL);
+                    } else {
+                        $result = $this->parseUnpaidInfo($html);
+                        $this->saveUnpaidFee($result, $patent_list[$index]['patentAjxxbID'], $patent_list[$index]['patentApplicationDate']);
+                        $this->stdout($patent_list[$index]['patentApplicationNo'] . ' OK'.PHP_EOL);
+                        Yii::$app->redis->lrem('patent_l',1,$patent_list[$index]['patentApplicationNo']); // 删除redis中的值
+                    }
                 }
             },
             'rejected' => function ($reason, $index) use ($patent_list) {
-                $this->stdout('Error:' . $patent_list[$index] . ' Reason:' . $reason);
+
+                $this->stdout('Error occurred time:' . date('H:i:s',time()) . PHP_EOL);
+                $this->stdout('Error:' . $patent_list[$index]['patentApplicationNo'] . ' Reason:' . $reason);
+
                 // this is delivered each failed request
             },
         ]);
@@ -508,10 +533,11 @@ HTML;
     {
         $redis = Yii::$app->redis;
         $redis->del('patent_l');
-        $patents_list = Patents::find()->select(['patentAjxxbID'])->where(['<>', 'patentApplicationNo', ''])->asArray()->all();
+        $patents_list = Patents::find()->select(['patentApplicationNo'])->where(['<>', 'patentApplicationNo', ''])->asArray()->all();
         foreach ($patents_list as $patent) {
-            $redis->rpush('patent_l',$patent['patentAjxxbID']);
+            $redis->rpush('patent_l',$patent['patentApplicationNo']);
         }
+//        print_r($redis->lrange('patent_l',0,-1));
     }
 
     public function actionQueue()
@@ -520,6 +546,7 @@ HTML;
 //        var_dump($patents_list);exit;
 
         $this->queue();
+//        print_r(Yii::$app->redis->lrange('patent_l',0,-1));
         $this->stdout('OK');
     }
 
@@ -600,5 +627,34 @@ HTML;
                 }
             }
         }
+    }
+
+    public function getUa()
+    {
+        $ua = [
+            'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:23.0) Gecko/20100101 Firefox/23.0',
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36',
+            'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)',
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36',
+            'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36',
+            'Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20140205 Firefox/24.0 Iceweasel/24.3.0',
+            'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:28.0) Gecko/20100101 Firefox/28.0',
+            'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:28.0) AppleWebKit/534.57.2 (KHTML, like Gecko) Version/5.1.7 Safari/534.57.2',
+            "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; AcooBrowser; .NET CLR 1.1.4322; .NET CLR 2.0.50727)",
+            "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Acoo Browser; SLCC1; .NET CLR 2.0.50727; Media Center PC 5.0; .NET CLR 3.0.04506)",
+            "Mozilla/4.0 (compatible; MSIE 7.0; AOL 9.5; AOLBuild 4337.35; Windows NT 5.1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)",
+            "Mozilla/5.0 (Windows; U; MSIE 9.0; Windows NT 9.0; en-US)",
+            "Mozilla/4.0 (compatible; MSIE 7.0b; Windows NT 5.2; .NET CLR 1.1.4322; .NET CLR 2.0.50727; InfoPath.2; .NET CLR 3.0.04506.30)",
+            "Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN) AppleWebKit/523.15 (KHTML, like Gecko, Safari/419.3) Arora/0.3 (Change: 287 c9dfb30)",
+            "Mozilla/5.0 (X11; U; Linux; en-US) AppleWebKit/527+ (KHTML, like Gecko, Safari/419.3) Arora/0.6",
+            "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.2pre) Gecko/20070215 K-Ninja/2.1.1",
+            "Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.9) Gecko/20080705 Firefox/3.0 Kapiko/3.0",
+            "Mozilla/5.0 (X11; Linux i686; U;) Gecko/20070322 Kazehakase/0.4.5",
+            "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.8) Gecko Fedora/1.9.0.8-1.fc10 Kazehakase/0.5.6",
+            "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.56 Safari/535.11",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/535.20 (KHTML, like Gecko) Chrome/19.0.1036.7 Safari/535.20",
+            "Opera/9.80 (Macintosh; Intel Mac OS X 10.6.8; U; fr) Presto/2.9.168 Version/11.52",
+        ];
+        return $ua[mt_rand(0, count($ua) - 1)];
     }
 }
