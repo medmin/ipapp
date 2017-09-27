@@ -10,7 +10,6 @@ namespace app\commands;
 
 use app\models\Patents;
 use app\models\UnpaidAnnualFee;
-use Codeception\Module\Cli;
 use Symfony\Component\CssSelector;
 use Symfony\Component\DomCrawler\Crawler;
 use yii\console\Controller;
@@ -20,28 +19,10 @@ use Facebook\WebDriver\Chrome\ChromeOptions;
 use yii\db\Exception;
 use yii\db\Transaction;
 use GuzzleHttp\Client;
-use Symfony\Component\Process\Process;
+use GuzzleHttp\Pool;
 
 class FeeController extends Controller
 {
-
-    public function actionHlipo()
-    {
-
-    }
-
-    public function actionMultiproc()
-    {
-        $process = new Process('php yii fee/patentinfo');
-        $process->setTimeout(60);
-        $process->mustRun();
-        echo $process->getOutput();
-
-//        $patentApplicationNumbers_in_patents_table =
-//            Yii::$app->db->createCommand('SELECT patentApplicationNo FROM patents')->queryColumn();
-//        $existingAjxxbID_in_fee_table =
-//            Yii::$app->db->createCommand('SELECT patentAjxxbID from unpaid_annual_fee')->queryColumn();
-    }
 
     public function actionPatentinfo($applicationNo = '2015210884742')
     {
@@ -55,7 +36,7 @@ class FeeController extends Controller
                 'User-Agent' => "Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.0; Trident/4.0; WOW64; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; .NET CLR 1.0.3705; .NET CLR 1.1.4322)",
             ],
             'verify' => false,
-//            'proxy' => Yii::$app->params['proxy'],
+            'proxy' => $this->getIp(),
             'query' => ['select-key:shenqingh' => $applicationNo],
             'timeout' => 60,
         ];
@@ -87,8 +68,8 @@ class FeeController extends Controller
             {
                 $applicationDate .= $info;
             }
-            echo $applicationDate;
-            echo PHP_EOL;
+//            echo $applicationDate;
+//            echo PHP_EOL;
 
             //获取案件状态
             $crawlerStatus = new Crawler();
@@ -190,38 +171,66 @@ class FeeController extends Controller
 //            echo $patentApplicationAgencyAgent;
 //            echo PHP_EOL;
 
-//            $isolationLevel = Transaction::SERIALIZABLE;
-//            $transaction = Yii::$app->db->beginTransaction($isolationLevel);
-//            try
-//            {
-//                $thisOnePatent = Patents::findOne(['patentApplicationNo' => '$applicationNo']);
-//
-//                $thisOnePatent->patentApplicationDate = $applicationDate;
-//                $thisOnePatent->patentCaseStatus = $caseStatus;
-//                $thisOnePatent->patentApplicationInstitution = $patentApplicationInstitution;
-//                $thisOnePatent->patentInventors = $patentApplicationInventors;
-//                $thisOnePatent->patentAgency = $patentApplicationAgency;
-//                $thisOnePatent->patentAgencyAgent = $patentApplicationAgencyAgent;
-//
-//                $thisOnePatent->save();
-//
-//                $transaction->commit();
-//            }
-//            catch (\Exception $e)
-//            {
-//                $transaction->rollBack();
-//                throw $e;
-//            }
+            $isolationLevel = Transaction::SERIALIZABLE;
+            $transaction = Yii::$app->db->beginTransaction($isolationLevel);
+            try
+            {
+                $thisOnePatent = Patents::findOne(['patentApplicationNo' => '$applicationNo']);
+
+                $thisOnePatent->patentApplicationDate = $applicationDate;
+                $thisOnePatent->patentCaseStatus = $caseStatus;
+                $thisOnePatent->patentApplicationInstitution = $patentApplicationInstitution;
+                $thisOnePatent->patentInventors = $patentApplicationInventors;
+                $thisOnePatent->patentAgency = $patentApplicationAgency;
+                $thisOnePatent->patentAgencyAgent = $patentApplicationAgencyAgent;
+
+                $thisOnePatent->save();
+
+                $transaction->commit();
+            }
+            catch (\Exception $e)
+            {
+                $transaction->rollBack();
+                throw $e;
+            }
 
         }
 
     }
 
+    //费用信息--爬虫入口函数
+    public function actionFeee()
+    {
+        $start = $_SERVER['REQUEST_TIME'];  // 开始时间
 
-    public function actionFee($applicationNo = '2015210884742')
+        //所有不为空的专利申请号，包括正在申请中，和已经授权成功的
+        $all_patentApplicationNo_array = Patents::find()->select(['patentApplicationNo'])->where(['<>', 'patentApplicationNo', ''])->asArray()->all();
+        $patentApplicationNoS = [];
+        foreach ($all_patentApplicationNo_array as $patentAppNo)
+        {
+            $patentApplicationNoS[] = $patentAppNo['patentApplicationNo'];
+        }
+
+        //获取5个专利申请号，一次性传递5个spider，就是5个并发
+        do {
+            $patentApplicationNoSArrayForSpider = [];
+            for ($i = 0; $i < 5 ; $i++) {
+                $patentsArray[] = array_shift($patentApplicationNoS);
+            }
+            $this->feeSpider(array_filter($patentApplicationNoSArrayForSpider));
+        } while (!empty($patentApplicationNoS));
+
+        $this->stdout('Time Consuming:' . (time() - $start) . ' seconds' . PHP_EOL);
+    }
+
+    //费用信息--具体执行爬虫的函数
+    public function feeSpider(array $patentApplicationNoSArrayForSpider)
     {
         $base_uri = 'http://cpquery.sipo.gov.cn/txnQueryFeeData.do';
-        $client = new Client();
+//        $applicationNo = '2015210884742';
+
+        $concurrencyNumber = count($patentApplicationNoSArrayForSpider);
+
         $requestOptions = [
             'allow_redirects' => false,
             'connect_timeout' => 60,
@@ -230,83 +239,36 @@ class FeeController extends Controller
                 'User-Agent' => "Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.0; Trident/4.0; WOW64; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; .NET CLR 1.0.3705; .NET CLR 1.1.4322)",
             ],
             'verify' => false,
-//            'proxy' => Yii::$app->params['proxy'],
-            'query' => ['select-key:shenqingh' => $applicationNo],
+            'proxy' => $this->getIp(),
+//            'query' => ['select-key:shenqingh' => $applicationNo],
             'timeout' => 60,
         ];
-        $response = $client->request('GET', $base_uri, $requestOptions);
+        $client = new Client($requestOptions);
 
-        if ($response->getStatusCode() == 200) {
-            $html = $response->getBody()->getContents();
-
-            $crawler = new Crawler();
-            $crawler->addHtmlContent($html);
-            $key = $crawler->filter('body > span')->last()->attr('id');
-            $useful_id = $this->decrypt($key);
-            $idIsKey = array_flip($useful_id);
-
-
-            $trHtml = $crawler->filter('table[class="imfor_table_grid"]')->eq(0)->filter('tr')->each(function (Crawler $node) {
-                return $node->html();
-            });
-
-            foreach ($trHtml as $idx => $tr) {
-                if ($idx !== 0) {
-                    $trCrawler = new Crawler();
-                    $trCrawler->addHtmlContent($tr);
-                    $type = $trCrawler->filter('span[name="record_yingjiaof:yingjiaofydm"] span')->each(function (Crawler $node) use ($idIsKey) {
-                        if (isset($idIsKey[$node->attr("id")])){
-                            return $node->text();
-                        }
-                    });
-
-                    $trCrawler = new Crawler();
-                    $trCrawler->addHtmlContent($tr);
-                    $amount = $trCrawler->filter('span[name="record_yingjiaof:shijiyjje"] span')->each(function (Crawler $node) use ($idIsKey) {
-                        if (isset($idIsKey[$node->attr("id")])) {
-                            return $node->text();
-                        }
-                    });
-
-                    $trCrawler = new Crawler();
-                    $trCrawler->addHtmlContent($tr);
-                    $date = $trCrawler->filter('span[name="record_yingjiaof:jiaofeijzr"] span')->each(function (Crawler $node) use ($idIsKey) {
-                        if (isset($idIsKey[$node->attr("id")])) {
-                            return $node->text();
-                        }
-                    });
-
-                    $isolationLevel = Transaction::SERIALIZABLE;
-                    $transaction = Yii::$app->db->beginTransaction($isolationLevel);
-                    try
-                    {
-                        $thisOnePatent = Patents::findOne(['patentApplicationNo' => '$applicationNo']);
-
-                        $unpaid_annual_fee_row = new UnpaidAnnualFee();
-
-                        $unpaid_annual_fee_row->patentAjxxbID = $thisOnePatent->patentAjxxbID;
-                        $unpaid_annual_fee_row->amount = (int)implode('',$amount);
-                        $unpaid_annual_fee_row->fee_type = implode('',$type);
-//                        $unpaid_annual_fee_row->due_date = implode('',$date);
-                        preg_match('/\d{1,}/', $unpaid_annual_fee_row->fee_type, $matches);
-                        $year = $matches[1];
-                        $application_date = $thisOnePatent->patentApplicationDate;
-                        $unpaid_annual_fee_row->due_date = ((int)substr($application_date,0,4) + (int)$year - 1) . substr($application_date,4,4);
-
-                        $unpaid_annual_fee_row->save();
-
-
-                        $transaction->commit();
-                    }
-                    catch (\Exception $e)
-                    {
-                        $transaction->rollBack();
-                        throw $e;
-                    }
-                }
+        $requests = function ($concurrencyNumber) use ($base_uri, $patentApplicationNoSArrayForSpider, $client) {
+            foreach ($patentApplicationNoSArrayForSpider as $patentApplicationNo)
+            {
+                yield function() use ($patentApplicationNo, $base_uri, $client) {
+                    return $client->getAsync($base_uri . '?select-key:shenqingh=' . $patentApplicationNo);
+                };
             }
+        };
 
-        }
+        $pool = new Pool($client, $requests($concurrencyNumber), [
+            'concurrency' => $concurrencyNumber,
+            'fulfilled' => function ($response) use ($patentApplicationNoSArrayForSpider) {
+                if ($response->getStatusCode() == 200 && ($html = $response->getBody()->getContents()) !== '')
+                {
+                    $this->parseFeeHtmlAndSaveIntoDB($html);
+                }
+            },
+            'rejected' => function ($reason) use ($patentApplicationNoSArrayForSpider) {
+                $this->stdout('Error:' . $patentApplicationNoSArrayForSpider . ' Reason:' . $reason);
+                // this is delivered each failed request
+            },
+        ]);
+        $promise = $pool->promise();
+        $promise->wait();
     }
 
     public function decrypt($key)
@@ -324,6 +286,88 @@ class FeeController extends Controller
             return array_filter(explode(',', $b2));
         } else {
             return [];
+        }
+    }
+
+    public function getIp(): string
+    {
+        // 代理服务器
+        $proxyServer = "http-dyn.abuyun.com:9020";
+
+        // 隧道身份信息
+        $proxyUser   = "H18X85J4I7X5727D";
+        $proxyPass   = "35C23C0BC635ADD0";
+
+        return 'http://' . $proxyUser . ':' . $proxyPass . '@' . $proxyServer;
+    }
+
+    //解析HTML页面并且存到数据库里
+    public function parseFeeHtmlAndSaveIntoDB($html)
+    {
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($html);
+        $key = $crawler->filter('body > span')->last()->attr('id');
+        $useful_id = $this->decrypt($key);
+        $idIsKey = array_flip($useful_id);
+
+
+        $trHtml = $crawler->filter('table[class="imfor_table_grid"]')->eq(0)->filter('tr')->each(function (Crawler $node) {
+            return $node->html();
+        });
+
+        foreach ($trHtml as $idx => $tr) {
+            if ($idx !== 0) {
+                $trCrawler = new Crawler();
+                $trCrawler->addHtmlContent($tr);
+                $type = $trCrawler->filter('span[name="record_yingjiaof:yingjiaofydm"] span')->each(function (Crawler $node) use ($idIsKey) {
+                    if (isset($idIsKey[$node->attr("id")])){
+                        return $node->text();
+                    }
+                });
+
+                $trCrawler = new Crawler();
+                $trCrawler->addHtmlContent($tr);
+                $amount = $trCrawler->filter('span[name="record_yingjiaof:shijiyjje"] span')->each(function (Crawler $node) use ($idIsKey) {
+                    if (isset($idIsKey[$node->attr("id")])) {
+                        return $node->text();
+                    }
+                });
+                //不需要date这个字段，不准确，需要用info里的字段来计算
+//                    $trCrawler = new Crawler();
+//                    $trCrawler->addHtmlContent($tr);
+//                    $date = $trCrawler->filter('span[name="record_yingjiaof:jiaofeijzr"] span')->each(function (Crawler $node) use ($idIsKey) {
+//                        if (isset($idIsKey[$node->attr("id")])) {
+//                            return $node->text();
+//                        }
+//                    });
+
+                $isolationLevel = Transaction::SERIALIZABLE;
+                $transaction = Yii::$app->db->beginTransaction($isolationLevel);
+                try
+                {
+                    $thisOnePatent = Patents::findOne(['patentApplicationNo' => '$applicationNo']);
+
+                    $unpaid_annual_fee_row = new UnpaidAnnualFee();
+
+                    $unpaid_annual_fee_row->patentAjxxbID = $thisOnePatent->patentAjxxbID;
+                    $unpaid_annual_fee_row->amount = (int)implode('',$amount);
+                    $unpaid_annual_fee_row->fee_type = implode('',$type);
+                    preg_match('/\d{1,}/', $unpaid_annual_fee_row->fee_type, $matches);
+                    $year = $matches[1];
+                    $application_date = $thisOnePatent->patentApplicationDate;
+                    $unpaid_annual_fee_row->due_date = ((int)substr($application_date,0,4) + (int)$year - 1) . substr($application_date,4,4);
+
+                    $unpaid_annual_fee_row->save();
+
+
+                    $transaction->commit();
+                }
+                catch (\Exception $e)
+                {
+                    $transaction->rollBack();
+                    throw $e;
+                }
+            }
         }
     }
 

@@ -67,10 +67,22 @@ class RemindController extends Controller
             for ($i = 0; $i < 5 ; $i++) {
                 $patentsArray[] = array_shift($patents_list);
             }
-            $this->spider($patentsArray);
+            $this->spider(array_filter($patentsArray));
         } while (!empty($patents_list));
         
         $this->stdout('Time Consuming:' . (time() - $start) . ' seconds' . PHP_EOL);
+    }
+
+    public function getIp(): string
+    {
+        // 代理服务器
+        $proxyServer = "http-dyn.abuyun.com:9020";
+
+        // 隧道身份信息
+        $proxyUser   = "H18X85J4I7X5727D";
+        $proxyPass   = "35C23C0BC635ADD0";
+
+        return 'http://' . $proxyUser . ':' . $proxyPass . '@' . $proxyServer;
     }
 
     /**
@@ -83,7 +95,7 @@ class RemindController extends Controller
         $concurrency = count($patents);
         $client = new Client([
             'headers' => ['User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36'],
-//            'proxy' => '183.187.159.202:80'
+            'proxy' => $this->getIp(),
         ]);
         $requests = function ($total) use ($base_uri, $patents, $client) {
             foreach ($patents as $patent) {
@@ -102,7 +114,7 @@ class RemindController extends Controller
                 }
             },
             'rejected' => function ($reason, $index) use ($patent_list) {
-                $this->stdout('Error:' . $patent_list[$index]['patentApplicationNo'] . ' Reason:' . $reason);
+                $this->stdout('Error:' . $patent_list[$index] . ' Reason:' . $reason);
                 // this is delivered each failed request
             },
         ]);
