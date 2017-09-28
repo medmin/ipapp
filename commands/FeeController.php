@@ -113,6 +113,7 @@ class FeeController extends Controller
     }
 
     //将专利信息html解析并存入DB
+    //0 == ‘’ == ‘0’ == false == null，但是 '0' != null
     public function parseInfoHtmlAndSaveIntoDB($html, $applicationNo)
     {
         $crawler = new Crawler();
@@ -131,7 +132,7 @@ class FeeController extends Controller
                 }
             }
         );
-        var_dump($applicationDateInfoSpan);
+
         $applicationDate = str_replace('-','', implode('',$applicationDateInfoSpan));
 
 //        echo $applicationDate;
@@ -148,7 +149,6 @@ class FeeController extends Controller
             }
         );
 
-        $statusInfoSpan = array_filter($statusInfoSpan);
         $caseStatus = implode('',$statusInfoSpan);
 //            echo $caseStatus;
 //            echo PHP_EOL;
@@ -164,7 +164,6 @@ class FeeController extends Controller
             }
         );
 
-        $patentApplicationInstitutionInfoSpan = array_filter($patentApplicationInstitutionInfoSpan);
         $patentApplicationInstitution = implode('',$patentApplicationInstitutionInfoSpan);
 //            echo $patentApplicationInstitution;
 //            echo PHP_EOL;
@@ -180,7 +179,6 @@ class FeeController extends Controller
             }
         );
 
-        $patentApplicationInventorsInfoSpan = array_filter($patentApplicationInventorsInfoSpan);
         $patentApplicationInventors = implode('',$patentApplicationInventorsInfoSpan);
 //            echo $patentApplicationInventors;
 //            echo PHP_EOL;
@@ -196,7 +194,6 @@ class FeeController extends Controller
             }
         );
 
-        $patentApplicationAgencyInfoSpan = array_filter($patentApplicationAgencyInfoSpan);
         $patentApplicationAgency = implode('', $patentApplicationAgencyInfoSpan);
 //            echo $patentApplicationAgency;
 //            echo PHP_EOL;
@@ -212,7 +209,6 @@ class FeeController extends Controller
             }
         );
 
-        $patentApplicationAgencyAgentInfoSpan = array_filter($patentApplicationAgencyAgentInfoSpan);
         $patentApplicationAgencyAgent = implode('', $patentApplicationAgencyAgentInfoSpan);
 //            echo $patentApplicationAgencyAgent;
 //            echo PHP_EOL;
