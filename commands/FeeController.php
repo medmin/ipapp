@@ -23,18 +23,17 @@ use GuzzleHttp\Pool;
 
 class FeeController extends Controller
 {
+    //必须先执行专利信息爬虫
+
     //专利信息详情--爬虫入口函数
     public function actionInfoo()
     {
         $start = $_SERVER['REQUEST_TIME'];  // 开始时间
 
-        //所有不为空的专利申请号，包括正在申请中，和已经授权成功的
-        $all_patentApplicationNo_array = Patents::find()->select(['patentApplicationNo'])->where(['<>', 'patentApplicationNo', ''])->asArray()->all();
-        $patentApplicationNoS = [];
-        foreach ($all_patentApplicationNo_array as $patentAppNo)
-        {
-            $patentApplicationNoS[] = $patentAppNo['patentApplicationNo'];
-        }
+        //所有不为空的专利申请号，包括正在申请中，和已经授权成功的；并且AjxxbID不在unpaid_annual_fee里面，保证每次重启此函数，都是增量爬取
+        $patentApplicationNoS = Yii::$app->db->createCommand(
+            "SELECT patentApplicationNo FROM patents WHERE patentApplicationNo<>'' AND patentAjxxbID not in (SELECT distinct patentAjxxbID from unpaid_annual_fee)"
+        )->queryColumn();
 
         //获取5个专利申请号，一次性传递5个spider，就是5个并发
         do {
@@ -84,8 +83,19 @@ class FeeController extends Controller
         $pool = new Pool($client, $requests($concurrencyNumber), [
             'concurrency' => $concurrencyNumber,
             'fulfilled' => function ($response, $index) use ($patentApplicationNoSArrayForSpider) {
-                if ($response->getStatusCode() == 200 && ($html = $response->getBody()->getContents()) !== '') {
-                    $this->parseInfoHtmlAndSaveIntoDB($html, $patentApplicationNoSArrayForSpider[$index]);
+                if ($response->getStatusCode() == 200 )
+                {
+                    $html = $response->getBody()->getContents();
+
+                    if ($html == '')
+                    {
+                        $this->stdout('Something is wrong about ths patent ' . $patentApplicationNoSArrayForSpider[$index]);
+                    }
+                    else
+                    {
+                        $this->parseInfoHtmlAndSaveIntoDB($html, $patentApplicationNoSArrayForSpider[$index]);
+                    }
+
                 }
             },
             'rejected' => function ($reason, $index) use ($patentApplicationNoSArrayForSpider) {
@@ -98,7 +108,7 @@ class FeeController extends Controller
 
     }
 
-    //将专利信息解析并存入DB
+    //将专利信息html解析并存入DB
     public function parseInfoHtmlAndSaveIntoDB($html, $applicationNo)
     {
         $crawler = new Crawler();
@@ -258,12 +268,9 @@ class FeeController extends Controller
         $start = $_SERVER['REQUEST_TIME'];  // 开始时间
 
         //所有不为空的专利申请号，包括正在申请中，和已经授权成功的
-        $all_patentApplicationNo_array = Patents::find()->select(['patentApplicationNo'])->where(['<>', 'patentApplicationNo', ''])->asArray()->all();
-        $patentApplicationNoS = [];
-        foreach ($all_patentApplicationNo_array as $patentAppNo)
-        {
-            $patentApplicationNoS[] = $patentAppNo['patentApplicationNo'];
-        }
+        $patentApplicationNoS = Yii::$app->db->createCommand(
+            "SELECT patentApplicationNo FROM patents WHERE patentApplicationNo<>'' AND patentAjxxbID not in (SELECT distinct patentAjxxbID from unpaid_annual_fee)"
+        )->queryColumn();
 
         //获取5个专利申请号，一次性传递5个spider，就是5个并发
         do {
@@ -314,9 +321,20 @@ class FeeController extends Controller
         $pool = new Pool($client, $requests($concurrencyNumber), [
             'concurrency' => $concurrencyNumber,
             'fulfilled' => function ($response, $index) use ($patentApplicationNoSArrayForSpider) {
-                if ($response->getStatusCode() == 200 && ($html = $response->getBody()->getContents()) !== '')
+
+                if ($response->getStatusCode() == 200 )
                 {
-                    $this->parseFeeHtmlAndSaveIntoDB($html, $patentApplicationNoSArrayForSpider[$index]);
+                    $html = $response->getBody()->getContents();
+
+                    if ($html == '')
+                    {
+                        $this->stdout('Something is wrong about ths patent ' . $patentApplicationNoSArrayForSpider[$index]);
+                    }
+                    else
+                    {
+                        $this->parseFeeHtmlAndSaveIntoDB($html, $patentApplicationNoSArrayForSpider[$index]);
+                    }
+
                 }
             },
             'rejected' => function ($reason, $index) use ($patentApplicationNoSArrayForSpider) {
@@ -413,12 +431,12 @@ class FeeController extends Controller
                     if(isset($matches[0]))
                     {
                         $year = $matches[0];
-                        $application_date = $thisOnePatent->patentApplicationDate;
+                        $application_date = str_replace('-', '', $thisOnePatent->patentApplicationDate);
                         $unpaid_annual_fee_row->due_date = ((int)substr($application_date,0,4) + (int)$year - 1) . substr($application_date,4,4);
                     }
                     else
                     {
-                        $unpaid_annual_fee_row->due_date = $date;
+                        $unpaid_annual_fee_row->due_date = str_replace('-', '',implode('',$date));
                     }
 
                     $unpaid_annual_fee_row->save();
