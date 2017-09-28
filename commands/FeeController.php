@@ -31,8 +31,12 @@ class FeeController extends Controller
         $start = $_SERVER['REQUEST_TIME'];  // 开始时间
 
         //所有不为空的专利申请号，包括正在申请中，和已经授权成功的；并且AjxxbID不在unpaid_annual_fee里面，保证每次重启此函数，都是增量爬取
+//        $patentApplicationNoS = Yii::$app->db->createCommand(
+//            "SELECT patentApplicationNo FROM patents WHERE patentApplicationNo<>'' AND patentAjxxbID not in (SELECT distinct patentAjxxbID from unpaid_annual_fee)"
+//        )->queryColumn();
+
         $patentApplicationNoS = Yii::$app->db->createCommand(
-            "SELECT patentApplicationNo FROM patents WHERE patentApplicationNo<>'' AND patentAjxxbID not in (SELECT distinct patentAjxxbID from unpaid_annual_fee)"
+            "SELECT patentApplicationNo FROM patents WHERE patentApplicationNo<>''"
         )->queryColumn();
 
         //获取5个专利申请号，一次性传递5个spider，就是5个并发
@@ -127,15 +131,11 @@ class FeeController extends Controller
                 }
             }
         );
+        var_dump($applicationDateInfoSpan);
+        $applicationDate = str_replace('-','', implode('',$applicationDateInfoSpan));
 
-        $applicationDateInfoSpan = array_filter($applicationDateInfoSpan);
-        $applicationDate = '';
-        foreach ($applicationDateInfoSpan as $info)
-        {
-            $applicationDate .= $info;
-        }
-//            echo $applicationDate;
-//            echo PHP_EOL;
+//        echo $applicationDate;
+//        echo PHP_EOL;
 
         //获取案件状态
         $crawlerStatus = new Crawler();
@@ -149,11 +149,7 @@ class FeeController extends Controller
         );
 
         $statusInfoSpan = array_filter($statusInfoSpan);
-        $caseStatus = '';
-        foreach ($statusInfoSpan as $info)
-        {
-            $caseStatus .= $info;
-        }
+        $caseStatus = implode('',$statusInfoSpan);
 //            echo $caseStatus;
 //            echo PHP_EOL;
 
@@ -169,11 +165,7 @@ class FeeController extends Controller
         );
 
         $patentApplicationInstitutionInfoSpan = array_filter($patentApplicationInstitutionInfoSpan);
-        $patentApplicationInstitution = '';
-        foreach ($patentApplicationInstitutionInfoSpan as $info)
-        {
-            $patentApplicationInstitution .= $info;
-        }
+        $patentApplicationInstitution = implode('',$patentApplicationInstitutionInfoSpan);
 //            echo $patentApplicationInstitution;
 //            echo PHP_EOL;
 
@@ -189,11 +181,7 @@ class FeeController extends Controller
         );
 
         $patentApplicationInventorsInfoSpan = array_filter($patentApplicationInventorsInfoSpan);
-        $patentApplicationInventors = '';
-        foreach ($patentApplicationInventorsInfoSpan as $info)
-        {
-            $patentApplicationInventors .= $info;
-        }
+        $patentApplicationInventors = implode('',$patentApplicationInventorsInfoSpan);
 //            echo $patentApplicationInventors;
 //            echo PHP_EOL;
 
@@ -209,11 +197,7 @@ class FeeController extends Controller
         );
 
         $patentApplicationAgencyInfoSpan = array_filter($patentApplicationAgencyInfoSpan);
-        $patentApplicationAgency = '';
-        foreach ($patentApplicationAgencyInfoSpan as $info)
-        {
-            $patentApplicationAgency .= $info;
-        }
+        $patentApplicationAgency = implode('', $patentApplicationAgencyInfoSpan);
 //            echo $patentApplicationAgency;
 //            echo PHP_EOL;
 
@@ -229,11 +213,7 @@ class FeeController extends Controller
         );
 
         $patentApplicationAgencyAgentInfoSpan = array_filter($patentApplicationAgencyAgentInfoSpan);
-        $patentApplicationAgencyAgent = '';
-        foreach ($patentApplicationAgencyAgentInfoSpan as $info)
-        {
-            $patentApplicationAgencyAgent .= $info;
-        }
+        $patentApplicationAgencyAgent = implode('', $patentApplicationAgencyAgentInfoSpan);
 //            echo $patentApplicationAgencyAgent;
 //            echo PHP_EOL;
 
