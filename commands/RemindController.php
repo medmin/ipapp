@@ -77,9 +77,22 @@ class RemindController extends Controller
             $this->spider(array_filter($patentsArray));
             $tmp_time = mt_rand(1,8);  // 随机1-8秒
             sleep($tmp_time);
+
         } while (!empty($patents_list));
 
         $this->stdout('Time Consuming:' . (time() - $start) . ' seconds' . PHP_EOL);
+    }
+
+    public function getIp(): string
+    {
+        // 代理服务器
+        $proxyServer = "http-dyn.abuyun.com:9020";
+
+        // 隧道身份信息
+        $proxyUser   = "H18X85J4I7X5727D";
+        $proxyPass   = "35C23C0BC635ADD0";
+
+        return 'http://' . $proxyUser . ':' . $proxyPass . '@' . $proxyServer;
     }
 
     /**
@@ -122,8 +135,9 @@ class RemindController extends Controller
                 }
             },
             'rejected' => function ($reason, $index) use ($patent_list) {
+
                 $this->stdout('Error occurred time:' . date('H:i:s',time()) . PHP_EOL);
-                $this->stdout('Error:' . $patent_list[$index]['patentApplicationNo'] . ' Reason:' . $reason . PHP_EOL);
+                $this->stdout('Error No:' . $patent_list[$index]['patentApplicationNo'] . ' Reason:' . $reason . PHP_EOL);
                 // this is delivered each failed request
             },
         ]);
