@@ -39,7 +39,7 @@ class FeeController extends Controller
             "SELECT patentApplicationNo FROM patents WHERE patentApplicationNo<>''"
         )->queryColumn();
 
-        //获取5个专利申请号，一次性传递5个spider，就是5个并发
+        //获取5个专利申请号，一次性传递5个到spider，就是5个并发
         do {
             $patentApplicationNoSArrayForSpider = [];
             for ($i = 0; $i < 5 ; $i++) {
@@ -56,7 +56,7 @@ class FeeController extends Controller
         $this->stdout('Time Consuming:' . (time() - $start) . ' seconds' . PHP_EOL);
     }
 
-    //费用信息--具体执行爬取的函数
+    //专利相关信息--具体执行爬取的函数
     public function infoSpider(array $patentApplicationNoSArrayForSpider)
     {
         $base_uri = 'http://cpquery.sipo.gov.cn/txnQueryBibliographicData.do';
@@ -113,7 +113,7 @@ class FeeController extends Controller
     }
 
     //将专利信息html解析并存入DB
-    //0 == ‘’ == ‘0’ == false == null，但是 '0' != null
+    //0 == '' == '0' == false == null，但是 '0' != null
     public function parseInfoHtmlAndSaveIntoDB($html, $applicationNo)
     {
         $crawler = new Crawler();
