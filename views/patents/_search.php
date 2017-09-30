@@ -41,7 +41,10 @@ use yii\widgets\ActiveForm;
 
     <?php  echo $form->field($model, 'patentApplicationNo', ['options' => ['class' => 'col-md-3']]) ?>
 
-<!--    --><?php // echo $form->field($model, 'patentPatentNo',['options' => ['class' => 'col-md-3']]) ?>
+    <?php  echo $form->field($model, 'patentCaseStatus',['options' => ['class' => 'col-md-3']]) ?>
+    <?php  echo $form->field($model, 'patentApplicationInstitution',['options' => ['class' => 'col-md-3']]) ?>
+    <?php  echo $form->field($model, 'patentInventors',['options' => ['class' => 'col-md-3']]) ?>
+    <?php  echo $form->field($model, 'patentAgency',['options' => ['class' => 'col-md-3']]) ?>
 
     <?php // echo $form->field($model, 'patentNote') ?>
 
