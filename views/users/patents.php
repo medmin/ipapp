@@ -42,6 +42,7 @@ if ($this->context->isMicroMessage) {
     if (!$dataProvider->models) {
         echo '<div class="callout callout-warning"><p><i class="icon fa fa-warning"></i> 暂无监管专利，<a href="'. \yii\helpers\Url::to(['follow-patents']) .'">点击此处进行添加</a></p></div>';
     } else {
+        echo '<p><a class="btn btn-primary btn-sm btn-flat" href="'. \yii\helpers\Url::to(['follow-patents']) .'">添加监管</a></p>';
         foreach ($dataProvider->models as $idx => $model) {
             echo $this->render('/common/follow-patent', ['model' => $model]);
         }

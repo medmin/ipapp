@@ -200,4 +200,28 @@ class Patents extends \yii\db\ActiveRecord
         return Json::encode(['status' => false, 'msg' => 'FAIL']);
 
     }
+
+    /**
+     * 获取即将到期的缴费信息
+     *
+     * @param int $days
+     * @return array
+     */
+    public function generateExpiredItems(int $days = 30)
+    {
+        $target_date = date('Ymd',strtotime('+' . $days . ' day'));
+        $items = UnpaidAnnualFee::find()->where(['patentAjxxbID' => $this->patentAjxxbID, 'status' => UnpaidAnnualFee::UNPAID])->andWhere(['<=','due_date',$target_date])->asArray()->all();
+        return $items;
+    }
+
+    /**
+     * 获取过期缴费信息
+     *
+     * @return array
+     */
+    public function generateOverdueItems()
+    {
+        $items = UnpaidAnnualFee::find()->where(['patentAjxxbID' => $this->patentAjxxbID, 'status' => UnpaidAnnualFee::UNPAID])->andWhere(['<','due_date',date('Ymd')])->asArray()->all();
+        return $items;
+    }
 }
