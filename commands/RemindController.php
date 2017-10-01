@@ -547,6 +547,10 @@ HTML;
 //        $this->queue();
 //        print_r(Yii::$app->redis->lrange('patent_l',0,-1));
         echo Yii::$app->redis->llen('patent_l').PHP_EOL;
+
+//        $a = Patents::find()->where(['not in', 'patentAjxxbID', (Yii::$app->db->createCommand('SELECT distinct patentAjxxbID from unpaid_annual_fee')->queryAll())])->asArray()->all();
+//        print_r($a);
+
 //        Yii::$app->redis->del('patent_l');
         $this->stdout('OK');
     }
@@ -588,7 +592,7 @@ HTML;
                 $trCrawler->addHtmlContent($tr);
                 $amount = $trCrawler->filter('span[name="record_yingjiaof:shijiyjje"] span')->each(function (Crawler $node) use ($useful_id) {
                     if (isset($useful_id[$node->attr("id")])) {
-                        return $node->text();
+                        return $node->text(); // 默认的else{return NULL}
                     }
                 });
 

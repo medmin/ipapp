@@ -375,12 +375,6 @@ class UsersController extends BaseController
                 $model = new AnnualFeeMonitors();
                 $model->patent_id = $patent_id;
                 $model->user_id = Yii::$app->user->id;
-                if (!$model->save()) {
-                    echo '<pre>';
-                    print_r($model->errors);
-                    echo '</pre>';
-                    exit;
-                }
                 return $model->save();
             }
         } else {
@@ -389,7 +383,7 @@ class UsersController extends BaseController
             if (!$applicationNo && !$inventor) {
                 return $this->render('follow-patents');
             }
-            $query = Patents::find();
+            $query = Patents::find()->where(['patentCaseStatus' => '有效']);
             if ($applicationNo) {
                 $query->andWhere(['patentApplicationNo' => $applicationNo]);
             }
