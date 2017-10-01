@@ -181,6 +181,8 @@ class Patents extends \yii\db\ActiveRecord
     /**
      * 生成下一年待缴年费,返回JSON数据
      *
+     * 【 已弃用 】
+     *
      * @return string
      */
     public function generateUnpaidAnnualFee()
@@ -202,15 +204,28 @@ class Patents extends \yii\db\ActiveRecord
     }
 
     /**
-     * 获取即将到期的缴费信息
+     * 获取即将到期的缴费信息(包含过期),默认90天
      *
      * @param int $days
+     * @param boolean $paid  是否查找已支付（不表示已完成）的信息,默认查（方便给用户展示我们正在处理）
      * @return array
      */
-    public function generateExpiredItems(int $days = 30)
+    public function generateExpiredItems(int $days = 90, bool $paid = true)
     {
         $target_date = date('Ymd',strtotime('+' . $days . ' day'));
-        $items = UnpaidAnnualFee::find()->where(['patentAjxxbID' => $this->patentAjxxbID, 'status' => UnpaidAnnualFee::UNPAID])->andWhere(['<=','due_date',$target_date])->asArray()->all();
+        if ($paid === true) {
+            $pay_condition = ['in','status',[UnpaidAnnualFee::UNPAID,UnpaidAnnualFee::PAID]];
+        } else {
+            $pay_condition = ['status' => UnpaidAnnualFee::UNPAID];
+        }
+        // where条件过滤了滞纳金，这样暂时不处理滞纳金的条目
+        $items = UnpaidAnnualFee::find()
+            ->where(['patentAjxxbID' => $this->patentAjxxbID])
+            ->andWhere($pay_condition)
+            ->andWhere(['<=','due_date',$target_date])
+            ->andWhere(['<>','fee_category',UnpaidAnnualFee::OVERDUE_FINE])
+            ->asArray()
+            ->all();
         return $items;
     }
 

@@ -5,12 +5,13 @@
  * Time: 16:24
  */
 
+/* 页面重做至 follow-patent_2 */
 /* @var $model \app\models\Patents */
 
 $fee = json_decode($model->generateUnpaidAnnualFee(), true);
 ?>
 <div class="patent-info well well-sm no-shadow">
-    <i class="fa fa-trash-o pull-right" data-id="' . $model->patentID . '" onclick="unfollow(this)" style="cursor: pointer;" title="取消监管"></i>
+    <i class="fa fa-trash-o pull-right" data-id="<?= $model->patentID ?>" onclick="unfollow(this)" style="cursor: pointer;" title="取消监管"></i>
     <p>申请号：<?= $model->patentApplicationNo ?></p>
     <p>标题：<?= $model->patentTitle ?></p>
     <p>发明人：<?= $model->patentInventors ?></p>

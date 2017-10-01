@@ -51,6 +51,7 @@ function unfollow(which){
                 </div>
                 <div class="form-group col-sm-2">
                     <button type="submit" class="btn btn-info">查找</button>
+                    <a href="<?= \yii\helpers\Url::to(['patents'])?>" class="btn btn-info pull-right">我的监管</a>
                 </div>
             </div>
         </form>

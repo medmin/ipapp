@@ -93,7 +93,7 @@ class PayController extends BaseController
         if ($patent == null) {
             throw new NotFoundHttpException('专利不存在');
         }
-        $fee = UnpaidAnnualFee::findOne(['patentAjxxbID' => $id, 'due_date' => $patent->patentFeeDueDate]);
+        $fee = $patent->generateExpiredItems(90,false); // 天数跟前端展示的查询天数一样,这儿只查未支付的
         if ($fee == null) {
             throw new BadRequestHttpException('该专利暂时没有待缴年费');
         }
@@ -104,9 +104,9 @@ class PayController extends BaseController
         $attributes = [
             'trade_type'       => 'JSAPI',
             'body'             => '阳光惠远 - 专利续费', // TODO 自定义名称
-            'detail'           => '专利号：'.$patent->patentApplicationNo.PHP_EOL.'专利名称：'.$patent->patentTitle.PHP_EOL.'费用描述：'.$fee->fee_type,
+            'detail'           => '专利号：'.$patent->patentApplicationNo.PHP_EOL.'专利名称：'.$patent->patentTitle.PHP_EOL.'费用描述：'.implode(',',array_column($fee,'fee_type')),
             'out_trade_no'     => static::generateTradeNumber(),
-            'total_fee'        => 1, //$fee->amount * 100, // 单位：分
+            'total_fee'        => array_sum(array_column($fee,'amount')) * 100, // 单位：分
             'notify_url'       => Yii::$app->request->getHostInfo() . Url::to(['/pay/wxpay-notify']), // 支付结果通知网址，如果不设置则会使用配置里的默认地址
             'openid'           => Yii::$app->user->identity->wxUser->fakeid, // trade_type=JSAPI，此参数必传，用户在商户appid下的唯一标识，
         ];
@@ -163,7 +163,7 @@ class PayController extends BaseController
         if ($patent == null) {
             throw new NotFoundHttpException('专利不存在');
         }
-        $fee = UnpaidAnnualFee::findOne(['patentAjxxbID' => $id, 'due_date' => $patent->patentFeeDueDate]);
+        $fee = $patent->generateExpiredItems(90,false); // 天数跟前端展示的查询天数一样,这儿只查未支付的
         if ($fee == null) {
             throw new BadRequestHttpException('该专利暂时没有待缴年费');
         }
@@ -174,9 +174,9 @@ class PayController extends BaseController
         $attributes = [
             'trade_type'       => 'NATIVE',
             'body'             => '阳光惠远 - 专利续费', // TODO 自定义名称
-            'detail'           => '专利号：'.$patent->patentApplicationNo.PHP_EOL.'专利名称：'.$patent->patentTitle.PHP_EOL.'费用描述：'.$fee->fee_type,
+            'detail'           => '专利号：'.$patent->patentApplicationNo.PHP_EOL.'专利名称：'.$patent->patentTitle.PHP_EOL.'费用描述：'.implode(',',array_column($fee,'fee_type')),
             'out_trade_no'     => static::generateTradeNumber(),
-            'total_fee'        => $fee->amount * 100, // 单位：分
+            'total_fee'        => array_sum(array_column($fee,'amount')) * 100, // 单位：分
             'notify_url'       => $notifyUrl, // 支付结果通知网址，如果不设置则会使用配置里的默认地址
         ];
         $o = new Order($attributes);

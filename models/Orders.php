@@ -112,11 +112,10 @@ class Orders extends \yii\db\ActiveRecord
             $innerTransaction = Yii::$app->db->beginTransaction($isolationLevel);
             try {
                 $patent = Patents::findOne(['patentAjxxbID' => $id]);
-                // 更新unpaid表
-                $unpaid = UnpaidAnnualFee::findOne(['patentAjxxbID' => $id, 'due_date' => $patent->patentFeeDueDate]);
-                $unpaid->status = UnpaidAnnualFee::PAID;
-                $unpaid->paid_at = time();
-                if (!$unpaid->save()) {
+                // 更新unpaid表,注意参数
+                $unpaid = $patent->generateExpiredItems(90,false);
+                $count = UnpaidAnnualFee::updateAll(['status' => UnpaidAnnualFee::PAID, 'paid_at' => $_SERVER['REQUEST_TIME']],['in', 'id', array_column($unpaid,'id')]); // 这个返回值是更改的行数
+                if (!$count) {
                     throw new ServerErrorHttpException('专利费用更新出错');
                 }
                 // 更新patent
