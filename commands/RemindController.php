@@ -24,6 +24,7 @@ class RemindController extends Controller
         $patentModels = Patents::find()->where(['patentFeeDueDate' => date('Ymd', strtotime('+'.$days.' days')), 'patentCaseStatus' => '有效'])->all();
 
         $redis = Yii::$app->redis;
+
         $redis->del('remind');
 
         /* @var $patent Patents */

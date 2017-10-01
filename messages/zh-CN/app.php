@@ -106,7 +106,7 @@ return [
     'Patent Inventors' => '发明人',
     'Patent Agency' => '代理机构',
     'Patent Agency Agent' => '第一代理人',
-//    'Patent Fee Due Date' => '下次缴费日期',
+    'Patent Fee Due Date' => '缴费截止日',
 
 
     //Patentevents
