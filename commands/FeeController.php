@@ -10,6 +10,7 @@ namespace app\commands;
 
 use app\models\Patents;
 use app\models\UnpaidAnnualFee;
+use app\models\WxUser;
 use Symfony\Component\CssSelector;
 use Symfony\Component\DomCrawler\Crawler;
 use yii\console\Controller;
@@ -23,6 +24,45 @@ use GuzzleHttp\Pool;
 
 class FeeController extends Controller
 {
+    //首先要每天更新一下Patents表里的缴费截止日这个字段，patentFeeDueDate
+
+    public function actionWarning(string $days)
+    {
+        /**
+         * @var $patent Patents
+         *
+         * 查询具体缴费截止日还有 +90, +30, +15, +7, +0, -1天时的专利
+         */
+        $patentModels = Patents::find()
+            ->where([
+                'patentFeeDueDate' => date('Ymd', strtotime($days.' days')),
+                'patentCaseStatus' => '有效'
+                    ])
+            ->all();
+
+        foreach ($patentModels as $patent)
+        {
+            $patentUserID = Yii::$app->db
+                ->createCommand(
+                    'SELECT DISTINCT patentUserID From patents WHERE patentAjxxbID=\''.$patent->patentAjxxbID.'\''
+                )
+                ->queryColumn();
+
+            if (isset($patentUserID))
+            {
+                foreach ($patentUserID as $userID)
+                {
+                    $fakeid = WxUser::findOne(['userid' => $userID])->fakeid;
+                    if(isset($fakeid))
+                    {
+                        //TODO 发送微信模板消息
+                    }
+                }
+            }
+        }
+
+    }
+
     //必须先执行专利信息爬虫
 
     //专利信息详情--爬虫入口函数
