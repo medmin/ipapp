@@ -23,6 +23,22 @@ function unfollow(w){
 }
 ', \yii\web\View::POS_END);
 
+$this->registerCss('
+.pay-link {
+    color: #00a1ff;
+    font-size: 12px;
+}
+.pay-link:hover, .pay-link:active, .pay-link:focus{
+    color: #00a1ff;
+}
+a[class="pay-link-disabled"] {
+    color: #dd4b39;
+    text-decoration: underline;
+    pointer-events：none;
+    font-size: 12px;
+}
+');
+
 if ($this->context->isMicroMessage) {
     $js = '
     $(\'#pay-btn\').click(function(){
@@ -44,7 +60,8 @@ if ($this->context->isMicroMessage) {
     } else {
         echo '<p><a class="btn btn-primary btn-sm btn-flat" href="'. \yii\helpers\Url::to(['follow-patents']) .'">添加监管</a></p>';
         foreach ($dataProvider->models as $idx => $model) {
-            echo $this->render('/common/follow-patent', ['model' => $model]);
+//            echo $this->render('/common/follow-patent', ['model' => $model]);
+            echo $this->render('/common/follow-patent_2', ['model' => $model]);
         }
         echo LinkPager::widget([
             'pagination'=>$dataProvider->pagination,

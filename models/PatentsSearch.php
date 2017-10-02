@@ -22,10 +22,7 @@ class PatentsSearch extends Patents
     {
         return [
             [['patentID', 'patentUserID', 'patentUserLiaisonID', 'UnixTimestamp'], 'integer'],
-            [['patentAjxxbID', 'patentEacCaseNo', 'patentType', 'patentUsername',
-                'patentUserLiaison', 'patentAgent', 'patentProcessManager', 'patentTitle', 'patentApplicationNo',
-                'patentPatentNo', 'patentNote', 'organization', 'patentApplicationDate',
-                'patentCaseStatus','patentApplicationInstitution','patentInventors','patentAgency'], 'safe'],
+            [['patentAjxxbID', 'patentEacCaseNo', 'patentType', 'patentUsername', 'patentUserLiaison', 'patentAgent', 'patentProcessManager', 'patentTitle', 'patentApplicationNo', 'patentPatentNo', 'patentNote', 'organization', 'patentApplicationDate', 'patentCaseStatus', 'patentApplicationInstitution', 'patentInventors', 'patentAgency'], 'safe'],
         ];
     }
 

@@ -643,6 +643,7 @@ HTML;
                     $fee->due_date = str_replace('-','',$item[2]);
                 } else {
                     $fee->due_date = ($matches[0] + (int)substr(trim($application_date),0,4) - 1) . substr(trim($application_date),-4);
+                    $fee->fee_category = UnpaidAnnualFee::ANNUAL_FEE;  // 设置分类为年费
                 }
                 if (!$fee->save()) {
                     print_r($fee->errors);
@@ -679,5 +680,17 @@ HTML;
             "Opera/9.80 (Macintosh; Intel Mac OS X 10.6.8; U; fr) Presto/2.9.168 Version/11.52",
         ];
         return $ua[mt_rand(0, count($ua) - 1)];
+    }
+
+    /**
+     * 各种测试使用
+     */
+    public function actionTest()
+    {
+//        $patent = Patents::findOne(['patentAjxxbID' => 'AJ161361_1361']);
+//        $unpaid = $patent->generateExpiredItems(90,false);
+//        print_r($unpaid);
+//        $count = UnpaidAnnualFee::updateAll(['status' => UnpaidAnnualFee::PAID, 'paid_at' => $_SERVER['REQUEST_TIME']],['in', 'id', array_column($unpaid,'id')]);
+//        echo $count;
     }
 }
