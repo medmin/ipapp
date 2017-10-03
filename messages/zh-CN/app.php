@@ -43,6 +43,7 @@ return [
     'Verification Code' => '验证码',
     'Content' => '内容',
     'Created At' => '创建时间',
+    'Updated At' => '更新时间',
     'Status' => '状态',
 
     //users index
@@ -158,4 +159,14 @@ return [
     'File Updated At' => '更新时间',
     'File Note' => '备注',
     'Files Uploaded' => '文件上传成功',
+
+    // orders 订单表
+    'Orders' => '订单管理',
+    'Trade No' => '订单号',
+    'Out Trade No' => '外部订单号',
+    'Payment Type' => '支付方式',
+    'User ID' => '用户ID',
+    'Goods ID' => '商品ID',
+    'Goods Type' => '商品类型',
+    'Amount' => '金额',
 ];
