@@ -10,6 +10,7 @@ namespace app\commands;
 
 use app\models\Patents;
 use app\models\UnpaidAnnualFee;
+use app\models\WxUser;
 use Symfony\Component\CssSelector;
 use Symfony\Component\DomCrawler\Crawler;
 use yii\console\Controller;
@@ -20,9 +21,78 @@ use yii\db\Exception;
 use yii\db\Transaction;
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
+use EasyWeChat\Foundation\Application;
 
 class FeeController extends Controller
 {
+    //首先要每天更新一下Patents表里的缴费截止日这个字段，patentFeeDueDate
+
+    public function actionWarning(string $days)
+    {
+        /**
+         * @var $patent Patents
+         *
+         * 查询具体缴费截止日还有 +90, +30, +15, +7, +0, -1天时的专利
+         */
+        $patentModels = Patents::find()
+            ->where([
+                'patentFeeDueDate' => date('Ymd', strtotime($days.' days')),
+                'patentCaseStatus' => '有效'
+                    ])
+            ->all();
+
+        foreach ($patentModels as $patent)
+        {
+            $patentUserID = Yii::$app->db
+                ->createCommand(
+                    'SELECT DISTINCT patentUserID From patents WHERE patentAjxxbID=\''.$patent->patentAjxxbID.'\''
+                )
+                ->queryColumn();
+
+            if (isset($patentUserID))
+            {
+                foreach ($patentUserID as $userID)
+                {
+                    $fakeid = WxUser::findOne(['userid' => $userID])->fakeid;
+                    if(isset($fakeid))
+                    {
+                        $options = [
+                            'debug'  => YII_DEBUG,
+                            'app_id' => Yii::$app->params['wechat']['id'],
+                            'secret' => Yii::$app->params['wechat']['secret'],
+                            'token'  => Yii::$app->params['wechat']['token'],
+                            'aes_key' => Yii::$app->params['wechat']['aes_key'],
+                            'log' => [
+                                'level' => 'debug',
+                                'file'  => Yii::$app->params['wechat_log_path'], // XXX: 绝对路径！！！！
+                            ]
+                        ];
+                        $app = new Application($options);
+                        $notice = $app->notice;
+
+                        $data = [
+                            'first' => '缴费测试',
+                            'keyword1' => '缴费测试',
+                            'keyword2' => '缴费测试',
+                            'keyword3' => 100,
+                            'keyword4' => '2015.10.10',
+                            'keyword5' => 30,
+                            'remark' => '缴费测试',
+                        ];
+
+                        $messageID = $notice->send([
+                            'touser' => $fakeid,
+                            'template_id' => 'cGvdscYjjF4DZy7xSRTczQuyGCCQZAF0L9KxBnr8V7k', //公众号里的模板序号7
+                            'url' => 'http://kf.shineip.com',
+                            'data' => $data,
+                        ]);
+                    }
+                }
+            }
+        }
+
+    }
+
     //必须先执行专利信息爬虫
 
     //专利信息详情--爬虫入口函数
@@ -648,5 +718,39 @@ class FeeController extends Controller
         echo PHP_EOL . 'Voila' . PHP_EOL;
     }
 
+    public function actionWxtest()
+    {
+        $fakeid = WxUser::findOne(['userID' => 2])->fakeid;
+        $options = [
+            'debug'  => true,
+            'app_id' => Yii::$app->params['wechat']['id'],
+            'secret' => Yii::$app->params['wechat']['secret'],
+            'token'  => Yii::$app->params['wechat']['token'],
+            'aes_key' => Yii::$app->params['wechat']['aes_key'],
+            'log' => [
+                'level' => 'debug',
+                'file'  => Yii::$app->params['wechat_log_path'], // XXX: 绝对路径！！！！
+            ]
+        ];
+        $app = new Application($options);
+        $notice = $app->notice;
+
+        $data = [
+            'first' => '缴费测试',
+            'keyword1' => '缴费测试',
+            'keyword2' => '缴费测试',
+            'keyword3' => 100,
+            'keyword4' => '2015.10.10',
+            'keyword5' => 30,
+            'remark' => '缴费测试',
+        ];
+
+        $messageID = $notice->send([
+            'touser' => $fakeid,
+            'template_id' => 'cGvdscYjjF4DZy7xSRTczQuyGCCQZAF0L9KxBnr8V7k', //公众号里的模板序号7
+            'url' => 'http://kf.shineip.com',
+            'data' => $data,
+        ]);
+    }
 
 }

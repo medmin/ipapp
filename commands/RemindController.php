@@ -21,19 +21,29 @@ class RemindController extends Controller
 {
     public function actionIndex(int $days = 30)
     {
-        $patentModels = Patents::find()->where(['patentFeeDueDate' => date('Ymd', strtotime('+'.$days.' days')), 'patentCaseStatus' => '有效'])->all();
+        $patentModels = Patents::find()->where([
+            'patentFeeDueDate' => date('Ymd', strtotime('+'.$days.' days')),
+            'patentCaseStatus' => '有效'
+        ])->all();
 
         $redis = Yii::$app->redis;
 
         $redis->del('remind');
 
         /* @var $patent Patents */
-        foreach ($patentModels as $patent) {
+        foreach ($patentModels as $patent)
+        {
             $unpaidAnnualFee = json_decode($patent->generateUnpaidAnnualFee(), true);
-            if ($unpaidAnnualFee['status'] == true) {
-                $users = AnnualFeeMonitors::find()->select('user_id')->where(['patent_id' => $patent->patentID])->asArray()->all();
+
+            if ($unpaidAnnualFee['status'] == true)
+            {
+                $users = AnnualFeeMonitors::find()->select('user_id')
+                    ->where(['patent_id' => $patent->patentID])->asArray()->all();
+
                 $users = array_column($users, 'user_id');
-                foreach($users as $id) {
+
+                foreach($users as $id)
+                {
                     $redis->hset('remind', $id, $redis->hget('remind', $id) . $patent->patentID . ',');
                 }
             }
@@ -41,7 +51,9 @@ class RemindController extends Controller
 
         // 提醒
         $users = $redis->hkeys('remind');
-        foreach ($users as $user_id) {
+
+        foreach ($users as $user_id)
+        {
             // 到期专利总数
             $sum = substr_count($redis->hget('remind', $user_id), ',');
             // 提醒用户
