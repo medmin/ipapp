@@ -54,19 +54,35 @@ if ($this->context->isMicroMessage) {
 }
 ?>
 <div class="patents">
-    <?php
-    if (!$dataProvider->models) {
-        echo '<div class="callout callout-warning"><p><i class="icon fa fa-warning"></i> 暂无监管专利，<a href="'. \yii\helpers\Url::to(['follow-patents']) .'">点击此处进行添加</a></p></div>';
-    } else {
-        echo '<p><a class="btn btn-primary btn-sm btn-flat" href="'. \yii\helpers\Url::to(['follow-patents']) .'">添加监管</a></p>';
-        foreach ($dataProvider->models as $idx => $model) {
+    <div class="nav-tabs-custom">
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a href="#" data-toggle="tab" aria-expanded="true">我的监管</a>
+            </li>
+            <li class="">
+                <a href="<?= \yii\helpers\Url::to('/users/follow-patents')?>">添加监管</a>
+            </li>
+            <li class="">
+                <a href="<?= \yii\helpers\Url::to('/users/records')?>">缴费记录</a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active" id="patents">
+                <?php
+                if (!$dataProvider->models) {
+                    echo '<div class="callout callout-warning"><p><i class="icon fa fa-warning"></i> 暂无监管专利，<a href="'. \yii\helpers\Url::to(['follow-patents']) .'">点击此处进行添加</a></p></div>';
+                } else {
+                    foreach ($dataProvider->models as $idx => $model) {
 //            echo $this->render('/common/follow-patent', ['model' => $model]);
-            echo $this->render('/common/follow-patent_2', ['model' => $model]);
-        }
-        echo LinkPager::widget([
-            'pagination'=>$dataProvider->pagination,
-            'options' => ['style' => 'margin: 0;', 'class' => 'pagination']
-        ]);
-    }
-    ?>
+                        echo $this->render('/common/follow-patent_2', ['model' => $model]);
+                    }
+                    echo LinkPager::widget([
+                        'pagination'=>$dataProvider->pagination,
+                        'options' => ['style' => 'margin: 0;', 'class' => 'pagination']
+                    ]);
+                }
+                ?>
+            </div>
+        </div>
+    </div>
 </div>

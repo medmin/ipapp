@@ -21,27 +21,38 @@
     } else {
         $tmp_array = ['description' => '即将到期', 'amount' => 0, 'color' => 'warning', 'status' => true];
         $detail_show = '<table>';
-        foreach ($fee_info as $fee) {
-            if ($fee['due_date'] < date('Ymd')) {
-                $tmp_array['color'] = 'danger';
-                $tmp_array['description'] = '已逾期</p>';
+        $paid_set = array_filter($fee_info, function ($var) {
+            return $var['status'] == \app\models\UnpaidAnnualFee::PAID;
+        }); // 已支付的集合
+        @$unpaid_set = array_diff_assoc($fee_info, $paid_set); // 未支付的集合, TODO 使用 array_diff_key 不会弹出notice，两者结果是一样的
+//        var_dump($fee_info);var_dump($paid_set);var_dump($unpaid_set);exit;
+        if (!empty($unpaid_set)) {
+            foreach ($unpaid_set as $unpaid_fee) {
+                if ($unpaid_fee['due_date'] < (date('Ymd', strtotime('-25 day')))) {
+                    // 只要判断到有一条信息超过25天，就不展示支付按钮
+                    $tmp_array['color'] = 'danger';
+                    $tmp_array['status'] = false;
+                    $detail_show .= '<tr><td>'. $unpaid_fee['fee_type'] .'</td><td style=\'padding-left: 8px\'>已逾期</td></tr>';
+                } else {
+                    $detail_show .= '<tr><td>'. $unpaid_fee['fee_type'] .'</td><td style=\'padding-left: 8px\'>'. $unpaid_fee['amount'] .'</td></tr>';
+                    $tmp_array['amount'] += $unpaid_fee['amount']; // 计算出总金额
+                }
+                if ($unpaid_fee['due_date'] < date('Ymd')) {
+                    // 只要有一条信息逾期了，就变红
+                    $tmp_array['color'] = 'danger';
+                    $tmp_array['description'] = '已逾期';
+                }
             }
-            if ($fee['due_date'] < (date('Ymd', strtotime('-25 day')))) {
-                $tmp_array['color'] = 'danger';
-                $detail_show .= '<tr><td>'. $fee['fee_type'] .'</td><td style=\'padding-left: 8px\'>已逾期</td></tr>';
-                $tmp_array['status'] = false;
-            } else {
-                $detail_show .= '<tr><td>'. $fee['fee_type'] .'</td><td style=\'padding-left: 8px\'>'. $fee['amount'] .'</td></tr>';
+        } else {
+            // 如果没有未支付的，说明全是正在处理。只要有了未支付，不管有没有逾期，都不会显示这个正在处理的
+            foreach ($paid_set as $paid_fee) {
+                $detail_show .= '<tr><td>'. $paid_fee['fee_type'] .'</td><td style=\'padding-left: 8px\'>'. $paid_fee['amount'] .'</td></tr>'; // 显示正在处理的具体条目
             }
-            if ($fee['status'] == \app\models\UnpaidAnnualFee::PAID) {
-                $tmp_array['description'] = '正在处理';
-                $tmp_array['color'] = 'info';
-                $tmp_array['status'] = false;
-            }
-            $tmp_array['amount'] += $fee['amount']; //总金额
+            $tmp_array['description'] = '正在处理';
+            $tmp_array['color'] = 'info';
+            $tmp_array['status'] = false;
         }
         $detail_show .= '</table>';
-
         $html .= '<p>年费状态：<span class="label label-'. $tmp_array['color'] .'" data-toggle="tooltip" data-placement="bottom" title="" data-html="true" data-original-title="'. $detail_show .'" >'. $tmp_array['description'] .'</span></p>';
         $html .= '<div>';
         if ($tmp_array['status']) {

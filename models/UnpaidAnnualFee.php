@@ -31,7 +31,7 @@ class UnpaidAnnualFee extends \yii\db\ActiveRecord
     /**
      * 已完成
      */
-    const FINISHED = 3;
+    const FINISHED = 2;
 
     // category 1=年费 2=滞纳金 10=其他 新增分类可以依次排号
     const ANNUAL_FEE = 1;
@@ -75,5 +75,15 @@ class UnpaidAnnualFee extends \yii\db\ActiveRecord
             'status' => Yii::t('app', 'Status'),
             'paid_at' => Yii::t('app', 'Paid At'),
         ];
+    }
+
+    /**
+     * 获取相关专利
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPatent()
+    {
+        return $this->hasOne(Patents::className(), ['patentAjxxbID' => 'patentAjxxbID']);
     }
 }
