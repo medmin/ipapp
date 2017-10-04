@@ -71,20 +71,21 @@ class FeeController extends Controller
                         $notice = $app->notice;
 
                         $data = [
-                            'first' => '缴费',
-                            'remark' => '缴费',
-                            'keyword1' => '缴费',
-                            'keyword2' => '缴费'
+                            'first' => '缴费测试',
+                            'keyword1' => '缴费测试',
+                            'keyword2' => '缴费测试',
+                            'keyword3' => 100,
+                            'keyword4' => '2015.10.10',
+                            'keyword5' => 30,
+                            'remark' => '缴费测试',
                         ];
 
                         $messageID = $notice->send([
                             'touser' => $fakeid,
-                            'template_id' => 'j0VDfgYFGY9BJSjdyI8PjwuNMYHwgHpvKOIOMlX732w', //待办事项模板
+                            'template_id' => 'cGvdscYjjF4DZy7xSRTczQuyGCCQZAF0L9KxBnr8V7k', //公众号里的模板序号7
                             'url' => 'http://kf.shineip.com',
                             'data' => $data,
                         ]);
-                        var_dump($fakeid);
-                        var_dump($messageID);
                     }
                 }
             }
@@ -717,5 +718,39 @@ class FeeController extends Controller
         echo PHP_EOL . 'Voila' . PHP_EOL;
     }
 
+    public function actionWxtest()
+    {
+        $fakeid = WxUser::findOne(['userID' => 2])->fakeid;
+        $options = [
+            'debug'  => YII_DEBUG,
+            'app_id' => Yii::$app->params['wechat']['id'],
+            'secret' => Yii::$app->params['wechat']['secret'],
+            'token'  => Yii::$app->params['wechat']['token'],
+            'aes_key' => Yii::$app->params['wechat']['aes_key'],
+            'log' => [
+                'level' => 'debug',
+                'file'  => Yii::$app->params['wechat_log_path'], // XXX: 绝对路径！！！！
+            ]
+        ];
+        $app = new Application($options);
+        $notice = $app->notice;
+
+        $data = [
+            'first' => '缴费测试',
+            'keyword1' => '缴费测试',
+            'keyword2' => '缴费测试',
+            'keyword3' => 100,
+            'keyword4' => '2015.10.10',
+            'keyword5' => 30,
+            'remark' => '缴费测试',
+        ];
+
+        $messageID = $notice->send([
+            'touser' => $fakeid,
+            'template_id' => 'cGvdscYjjF4DZy7xSRTczQuyGCCQZAF0L9KxBnr8V7k', //公众号里的模板序号7
+            'url' => 'http://kf.shineip.com',
+            'data' => $data,
+        ]);
+    }
 
 }
