@@ -2,11 +2,12 @@
 
 namespace app\controllers;
 
+use app\models\Patents;
 use Yii;
 use app\models\Orders;
 use app\models\OrdersSearch;
 use yii\filters\AccessControl;
-use yii\web\Controller;
+use app\models\UnpaidAnnualFee;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
@@ -25,6 +26,7 @@ class OrdersController extends BaseController
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
+                    'finish' => ['POST'],
                 ],
             ],
             'access' => [
@@ -37,8 +39,12 @@ class OrdersController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['update'],
+                        'actions' => ['update', 'finish'],
                         'roles' => ['admin']
+                    ],
+                    [
+                        'allow' => false,
+                        'actions' => ['delete']
                     ]
                 ],
             ],
@@ -120,6 +126,43 @@ class OrdersController extends BaseController
         $this->findModel($id)->delete();
 
         return $this->redirect(['index']);
+    }
+
+    /**
+     * 完成交易
+     *
+     * @param $id
+     * @return bool
+     * @throws \Exception
+     */
+    public function actionFinish($id)
+    {
+        $model = self::findModel($id);
+        if ($model && $model->status === Orders::STATUS_PAID) {
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                $ajxxb_ids = json_decode($model->goods_id);
+                $days_diff = date_diff(date_create('@'.$model->created_at),date_create())->format('%a'); // 算出订单创建当天和今天的时间差，防止出现意外情况
+                foreach ($ajxxb_ids as $ajxxb_id) {
+                    $items = Patents::findOne(['patentAjxxbID' => $ajxxb_id])->generateExpiredItems(90-$days_diff, true,true); // 一样要注意参数,主要是天数
+                    $count = UnpaidAnnualFee::updateAll(['status' => UnpaidAnnualFee::FINISHED],['in', 'id', array_column($items,'id')]);
+                    if (!$count) {
+                        throw new \Exception('没有已支付的费用');
+                    }
+                }
+                $model->status = Orders::STATUS_FINISHED;
+                $model->updated_at = time();
+                if (!$model->save()) {
+                    throw new \Exception('订单更新失败');
+                }
+                $transaction->commit();
+                return true;
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+                Yii::info($e->getMessage(),'orders');
+            }
+        }
+        return false;
     }
 
     /**

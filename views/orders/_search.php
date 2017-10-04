@@ -13,6 +13,11 @@ use yii\widgets\ActiveForm;
     <?php $form = ActiveForm::begin([
         'action' => ['index'],
         'method' => 'get',
+        'fieldConfig' => [
+            'options' => [
+                'class' => 'col-md-3'
+            ]
+        ],
     ]); ?>
 
     <?= $form->field($model, 'trade_no') ?>
@@ -35,7 +40,7 @@ use yii\widgets\ActiveForm;
 
     <?php // echo $form->field($model, 'status') ?>
 
-    <div class="form-group">
+    <div class="form-group col-md-12">
         <?= Html::submitButton(Yii::t('app', 'Search'), ['class' => 'btn btn-primary']) ?>
         <?= Html::resetButton(Yii::t('app', 'Reset'), ['class' => 'btn btn-default']) ?>
     </div>

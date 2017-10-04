@@ -103,6 +103,16 @@ class Orders extends \yii\db\ActiveRecord
         ];
     }
 
+    public static function status()
+    {
+        return [
+            self::STATUS_PENDING => '未付款',
+            self::STATUS_PAID => '已支付',
+            self::STATUS_UNPAID => '已过期',
+            self::STATUS_FINISHED =>'已完成',
+        ];
+    }
+
     //订单处理成功之后更新专利信息
     public function successProcess()
     {

@@ -208,13 +208,14 @@ class Patents extends \yii\db\ActiveRecord
      *
      * @param int $days
      * @param boolean $paid  是否查找已支付（不表示已完成）的信息,默认查（方便给用户展示我们正在处理）
+     * @param boolean $only_paid 是否只查找已支付的信息（这个参数是后来加上的,很鸡肋）
      * @return array
      */
-    public function generateExpiredItems(int $days = 90, bool $paid = true)
+    public function generateExpiredItems(int $days = 90, bool $paid = true, bool $only_paid = false)
     {
         $target_date = date('Ymd',strtotime('+' . $days . ' day'));
         if ($paid === true) {
-            $pay_condition = ['in','status',[UnpaidAnnualFee::UNPAID,UnpaidAnnualFee::PAID]];
+            $pay_condition = $only_paid ? ['status' => UnpaidAnnualFee::PAID] : ['in','status',[UnpaidAnnualFee::UNPAID,UnpaidAnnualFee::PAID]];
         } else {
             $pay_condition = ['status' => UnpaidAnnualFee::UNPAID];
         }

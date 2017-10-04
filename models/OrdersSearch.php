@@ -48,6 +48,10 @@ class OrdersSearch extends Orders
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => [
+                'defaultOrder' => ['created_at' => SORT_DESC],
+                'attributes' => ['payment_type', 'goods_type', 'amount', 'created_at', 'updated_at', 'status'],
+            ]
         ]);
 
         $this->load($params);
