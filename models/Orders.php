@@ -143,8 +143,42 @@ class Orders extends \yii\db\ActiveRecord
         return true;
     }
 
+    /**
+     * 关联用户
+     * 
+     * @return \yii\db\ActiveQuery
+     */
     public function getUser()
     {
         return $this->hasOne(Users::className(), ['userID' => 'user_id']);
+    }
+
+    /**
+     * 获取该订单相关的所有费用信息
+     *
+     * @return array
+     */
+    public function getFees()
+    {
+        $goods_id = json_decode($this->goods_id);
+        $days_diff = (int)date_diff(date_create('@'.$this->created_at),date_create())->format('%a');
+        $target_date = date('Ymd',strtotime(((90-$days_diff)) . ' day'));
+        $today_date = date('Ymd');
+        if ($target_date < $today_date) {
+            $between_condition = ['between', 'due_date', $target_date, $today_date];
+        } else {
+            $between_condition = ['between', 'due_date', $today_date, $target_date];
+        }
+        $fees = [];
+        foreach ($goods_id as $ajxxb_id) {
+            $patent = Patents::findOne(['patentAjxxbID' => $ajxxb_id]);
+            $fees[$ajxxb_id][] = UnpaidAnnualFee::find()
+                ->where(['patentAjxxbID' => $patent->patentAjxxbID])
+                ->andWhere($between_condition)
+                ->andWhere(['<>','fee_category',UnpaidAnnualFee::OVERDUE_FINE])
+                ->asArray()
+                ->all();
+        }
+        return $fees;
     }
 }
