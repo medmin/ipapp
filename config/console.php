@@ -60,6 +60,7 @@ $config = [
         ],
     ],
     */
+    'params' => $rootParams,
 ];
 
 if (YII_ENV_DEV) {
