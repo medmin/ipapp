@@ -6,7 +6,7 @@ use Yii;
 use yii\base\Object;
 use \yii\queue\Job;
 
-class GetApplicationNoJob extends Object implements Job
+class SendWxWarning extends Object implements Job
 {
 
     public $mailViewFileNameString;

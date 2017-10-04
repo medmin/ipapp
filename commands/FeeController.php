@@ -21,6 +21,7 @@ use yii\db\Exception;
 use yii\db\Transaction;
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
+use EasyWeChat\Foundation\Application;
 
 class FeeController extends Controller
 {
@@ -55,7 +56,33 @@ class FeeController extends Controller
                     $fakeid = WxUser::findOne(['userid' => $userID])->fakeid;
                     if(isset($fakeid))
                     {
-                        //TODO 发送微信模板消息
+                        $options = [
+                            'debug'  => YII_DEBUG,
+                            'app_id' => Yii::$app->params['wechat']['id'],
+                            'secret' => Yii::$app->params['wechat']['secret'],
+                            'token'  => Yii::$app->params['wechat']['token'],
+                            'aes_key' => Yii::$app->params['wechat']['aes_key'],
+                            'log' => [
+                                'level' => 'debug',
+                                'file'  => Yii::$app->params['wechat_log_path'], // XXX: 绝对路径！！！！
+                            ]
+                        ];
+                        $app = new Application($options);
+                        $notice = $app->notice;
+
+                        $data = [
+                            'first' => '缴费',
+                            'remark' => '缴费',
+                            'keyword1' => '缴费',
+                            'keyword2' => '缴费'
+                        ];
+
+                        $messageID = $notice->send([
+                            'touser' => $fakeid,
+                            'template_id' => 'j0VDfgYFGY9BJSjdyI8PjwuNMYHwgHpvKOIOMlX732w', //待办事项模板
+                            'url' => 'http://kf.shineip.com',
+                            'data' => $data,
+                        ]);
                     }
                 }
             }
