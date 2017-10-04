@@ -42,6 +42,8 @@ $this->params['breadcrumbs'][] = Yii::t('app', 'Update');
 
                 <?= $form->field($model, 'patentApplicationDate')->textInput(['maxlength' => true, 'disabled' => true]) ?>
 
+                <?= $form->field($model, 'patentCaseStatus')->textInput(['maxlength' => true, 'disabled' => true]) ?>
+
                 <?= $form->field($model, 'patentNote')->textarea(['rows' => 6]) ?>
 
                 <?//= $form->field($model, 'UnixTimestamp')->textInput() ?>
