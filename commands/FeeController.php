@@ -83,6 +83,8 @@ class FeeController extends Controller
                             'url' => 'http://kf.shineip.com',
                             'data' => $data,
                         ]);
+                        var_dump($fakeid);
+                        var_dump($messageID);
                     }
                 }
             }
