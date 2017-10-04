@@ -722,7 +722,7 @@ class FeeController extends Controller
     {
         $fakeid = WxUser::findOne(['userID' => 2])->fakeid;
         $options = [
-            'debug'  => YII_DEBUG,
+            'debug'  => true,
             'app_id' => Yii::$app->params['wechat']['id'],
             'secret' => Yii::$app->params['wechat']['secret'],
             'token'  => Yii::$app->params['wechat']['token'],
