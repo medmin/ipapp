@@ -39,12 +39,13 @@ class OrdersController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['update', 'finish'],
+                        'actions' => ['update', 'finish', 'fee-detail'],
                         'roles' => ['admin']
                     ],
                     [
-                        'allow' => false,
-                        'actions' => ['delete']
+                        'allow' => true,
+                        'actions' => ['delete'],
+                        'roles' => ['admin']
                     ]
                 ],
             ],
@@ -123,7 +124,11 @@ class OrdersController extends BaseController
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+        if ($model->out_trade_no == null && (date('ymd') != date('ymd',$model->created_at))) {
+            // 外部编号为空并且不是今天创建的订单可以删除
+            $model->delete();
+        }
 
         return $this->redirect(['index']);
     }
@@ -137,11 +142,11 @@ class OrdersController extends BaseController
      */
     public function actionFinish($id)
     {
-        $model = self::findModel($id);
+        $model = $this->findModel($id);
         if ($model && $model->status === Orders::STATUS_PAID) {
             $transaction = Yii::$app->db->beginTransaction();
             try {
-                $ajxxb_ids = json_decode($model->goods_id);
+                $ajxxb_ids = json_decode($model->goods_id, true)['patents']; // 注意格式
                 $days_diff = date_diff(date_create('@'.$model->created_at),date_create())->format('%a'); // 算出订单创建当天和今天的时间差，防止出现意外情况
                 foreach ($ajxxb_ids as $ajxxb_id) {
                     $items = Patents::findOne(['patentAjxxbID' => $ajxxb_id])->generateExpiredItems(90-$days_diff, true,true); // 一样要注意参数,主要是天数
@@ -163,6 +168,18 @@ class OrdersController extends BaseController
             }
         }
         return false;
+    }
+
+    /**
+     * 获取订单相关联的费用信息
+     *
+     * @param $id
+     * @return string
+     */
+    public function actionFeeDetail($id)
+    {
+        $model = $this->findModel($id);
+        return $this->renderPartial('/common/order-fee-detail', ['fees' => $model->getFees()]);
     }
 
     /**

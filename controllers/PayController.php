@@ -122,7 +122,7 @@ class PayController extends BaseController
                 $system_order->trade_no = $attributes['out_trade_no'];
                 $system_order->payment_type = Orders::TYPE_WXPAY;
                 $system_order->user_id = Yii::$app->user->id;
-                $system_order->goods_id = json_encode([$id]); // json_encode
+                $system_order->goods_id = json_encode(['patents' => [$id], 'fees' => array_column($fee,'id')], JSON_FORCE_OBJECT); // TODO 多个合并的时候注意patents为数组
                 $system_order->goods_type = Orders::USE_PATENT;
                 $system_order->amount = $attributes['total_fee'] / 100;
                 $system_order->created_at = time();
@@ -159,6 +159,15 @@ class PayController extends BaseController
      */
     public function actionWxQrcode($id)
     {
+        $redis = Yii::$app->redis;
+        // 先查缓存,如果存在该二维码链接直接返回
+        if ($r_url = $redis->get('qrcode:'.$id)) {
+            $qrCode = new QrCode($r_url);
+            $qrCode->setSize(200);
+            header('Content-Type: '.$qrCode->getContentType());
+            return $qrCode->writeString();
+        }
+
         $patent = Patents::findOne(['patentAjxxbID' => $id]);
         if ($patent == null) {
             throw new NotFoundHttpException('专利不存在');
@@ -191,7 +200,7 @@ class PayController extends BaseController
                 $system_order->trade_no = $attributes['out_trade_no'];
                 $system_order->payment_type = Orders::TYPE_WXPAY;
                 $system_order->user_id = Yii::$app->user->id;
-                $system_order->goods_id = json_encode([$id]); // json_encode
+                $system_order->goods_id = json_encode(['patents' => [$id], 'fees' => array_column($fee,'id')], JSON_FORCE_OBJECT); // TODO 合并的时候注意格式
                 $system_order->goods_type = Orders::USE_PATENT;
                 $system_order->amount = $attributes['total_fee'] / 100;
                 $system_order->created_at = time();
@@ -205,6 +214,10 @@ class PayController extends BaseController
                 $transaction->rollBack();
                 throw $e;
             }
+
+            // 将支付链接写入缓存(过期时间为零点)
+            $ex = strtotime(date('Y-m-d 23:59:59'))-time();
+            $redis->setex('qrcode:'.$id, $ex, $result->code_url);
 
             $qrCode = new QrCode($result->code_url);
             $qrCode->setSize(200);

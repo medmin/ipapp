@@ -24,11 +24,11 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'out_trade_no') ?>
 
-    <?= $form->field($model, 'payment_type') ?>
+    <?//= $form->field($model, 'payment_type') ?>
 
-    <?= $form->field($model, 'user_id') ?>
+    <?//= $form->field($model, 'user_id') ?>
 
-    <?= $form->field($model, 'goods_id') ?>
+    <?//= $form->field($model, 'goods_id') ?>
 
     <?php // echo $form->field($model, 'goods_type') ?>
 

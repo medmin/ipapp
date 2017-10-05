@@ -16,15 +16,28 @@ var searchToggle = function(){
   $("#toggleSearchBtn").trigger("click");
 }
 function finished(obj) {
-  $.post("finish?id="+$(obj).data("id"),function(d){
+  if(confirm("确认已经缴费完成?")){
+    $.post("finish?id="+$(obj).data("id"),function(d){
+      if (d) {
+        $(obj).parents("td").prev().text("已完成");
+        $(obj).remove();
+      }
+    });
+  }
+}
+function detail(obj) {
+  $.get("fee-detail?id="+$(obj).data("id"),function(d){
     if (d) {
-      $(obj).parents("td").prev().text("已完成");
+      $("#orderDetailModalLabel").modal("show");
+      $("#orderDetailModalLabel .modal-title").text($(obj).data("id")+" 费用明细")
+      $("#orderDetailModalLabel .modal-body").html(d);
     }
   });
 }
-function detail(obj) {
-  console.log("ToDo")
-}
+$("#orderDetailModalLabel").on("hidden.bs.modal", function (e) {
+  $("#orderDetailModalLabel .modal-title").text("")
+  $("#orderDetailModalLabel .modal-body").html("");
+})
 ',\yii\web\View::POS_END);
 ?>
 <div class="orders-index">
@@ -67,7 +80,7 @@ function detail(obj) {
                         'label' => '专利(或商标)名称',  // TODO 显示名称还是其他（比如申请号什么的）?
                         'format' => 'raw',
                         'value' => function ($model) {
-                            $goods = json_decode($model->goods_id);
+                            $goods = json_decode($model->goods_id,true)['patents'];
                             $html = '';
                             foreach ($goods as $idx => $ajxxb_id) {
                                 if ($idx != 0) {
@@ -97,7 +110,7 @@ function detail(obj) {
                     [
                         'attribute' => 'status',
                         'value' => function ($model) {
-                            return Orders::status()[$model->status];
+                            return Orders::status()[$model->status]; // TODO 加点颜色好辨认
                         }
                     ],
 
@@ -114,12 +127,17 @@ function detail(obj) {
                                     <li>{finish}</li>
                                     <li>{detail}</li>
                                     <li>{view}</li>
+                                    <li>{delete}</li>
                                 </ul>
                             </div>
                         ',
                         'buttons' => [
                             'view' => function ($url, $model, $key) {
-                                return Html::a('查看', $url);
+//                                return Html::a('查看', $url);
+                                return '';
+                            },
+                            'delete' => function ($url, $model, $key) {
+                                return $model->out_trade_no ? '' : Html::a('删除', $url, ['data-method' => 'post', 'data-confirm' => '确认删除此订单']);
                             },
                             'detail' => function ($url, $model, $key) {
                                 return Html::a('费用详情', 'javascript:void(0);', ['onclick' => 'detail(this)', 'data-id' => $key]);

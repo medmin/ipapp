@@ -116,7 +116,7 @@ class Orders extends \yii\db\ActiveRecord
     //订单处理成功之后更新专利信息
     public function successProcess()
     {
-        $ids = json_decode($this->goods_id,true);
+        $ids = json_decode($this->goods_id,true)['patents']; // 注意格式统一
         foreach ($ids as $id) {
             $isolationLevel = Transaction::SERIALIZABLE;
             $innerTransaction = Yii::$app->db->beginTransaction($isolationLevel);
@@ -156,29 +156,25 @@ class Orders extends \yii\db\ActiveRecord
     /**
      * 获取该订单相关的所有费用信息
      *
+     * 返回格式：
+     * [
+     *     'patentAjxxbID' => [
+     *          ['id' => xxx, 'amount' => xxx, ...],
+     *          ['id' => xxx, 'amount' => xxx, ...],
+     *     ],
+     *     ...
+     * ]
+     *
      * @return array
      */
     public function getFees()
     {
-        $goods_id = json_decode($this->goods_id);
-        $days_diff = (int)date_diff(date_create('@'.$this->created_at),date_create())->format('%a');
-        $target_date = date('Ymd',strtotime(((90-$days_diff)) . ' day'));
-        $today_date = date('Ymd');
-        if ($target_date < $today_date) {
-            $between_condition = ['between', 'due_date', $target_date, $today_date];
-        } else {
-            $between_condition = ['between', 'due_date', $today_date, $target_date];
-        }
+        $fees_id = json_decode($this->goods_id,true)['fees'];
+        $result = UnpaidAnnualFee::find()->where(['in', 'id', $fees_id])->asArray()->all();
         $fees = [];
-        foreach ($goods_id as $ajxxb_id) {
-            $patent = Patents::findOne(['patentAjxxbID' => $ajxxb_id]);
-            $fees[$ajxxb_id][] = UnpaidAnnualFee::find()
-                ->where(['patentAjxxbID' => $patent->patentAjxxbID])
-                ->andWhere($between_condition)
-                ->andWhere(['<>','fee_category',UnpaidAnnualFee::OVERDUE_FINE])
-                ->asArray()
-                ->all();
-        }
+        array_walk($result, function($value, $key) use (&$fees) {
+            $fees[$value['patentAjxxbID']][] = $value;
+        });
         return $fees;
     }
 }
