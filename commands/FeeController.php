@@ -56,16 +56,39 @@ class FeeController extends Controller
                     $fakeid = WxUser::findOne(['userid' => $userID])->fakeid;
                     if(isset($fakeid))
                     {
+                        $fee_type_sql = '
+                                    SELECT fee_type 
+                                    FROM unpaid_annual_fee 
+                                    WHERE patentAjxxbID=\''.$patent->patentAjxxbID.'\' 
+                                    AND status=0 
+                                    AND due_date=\''.date('Ymd', strtotime($days.' days')).'\' 
+                                    ';
+                        $fee_amount_sql = '
+                                    SELECT amount 
+                                    FROM unpaid_annual_fee 
+                                    WHERE patentAjxxbID=\''.$patent->patentAjxxbID.'\' 
+                                    AND status=0 
+                                    AND due_date=\''.date('Ymd', strtotime($days.' days')).'\' 
+                                    ';
+                        $fee_type = implode('，', Yii::$app->db->createCommand($fee_type_sql)->queryColumn());
+                        $fee_amount_s = Yii::$app->db->createCommand($fee_amount_sql)->queryColumn();
+                        $fee_amount = 0;
+                        foreach ($fee_amount_s as $amount)
+                        {
+                            $fee_amount +=$amount;
+                        }
+                        $deadline = $patent->patentFeeDueDate;
                         $data = [
-                            'first' => '缴费测试',
-                            'keyword1' => '缴费测试',
-                            'keyword2' => '缴费测试',
-                            'keyword3' => '缴费测试',
-                            'keyword4' => '缴费测试',
-                            'keyword5' => '缴费测试',
-                            'remark' => '缴费测试',
+                            'first' => '您好，您有一项专利需要缴费',
+                            'keyword1' => $patent->patentTitle, //数据OK
+                            'keyword2' => $fee_type,
+                            'keyword3' => $fee_amount,
+                            'keyword4' => $deadline, //数据OK
+                            'keyword5' => $days, //数据OK
+                            'remark' => '如果有任何疑问，请致电0451-88084686',
                         ];
                         $template_id = 'cGvdscYjjF4DZy7xSRTczQuyGCCQZAF0L9KxBnr8V7k';
+
                         $this->sendWeixinTemplateMessage($fakeid, $data, $template_id);
                     }
                 }
