@@ -42,25 +42,38 @@ class DefaultMenu extends Model
 
         $this->app = new Application($this->options);
 
-
         $this->buttons = [
             [
-                "type" => "view",
                 "name" => "我的进度",
-                "key"  => "SHINEIP_USER_VIEW_MYEVENTS", //key是自定义的
-                'url'  => 'http://kf.shineip.com/'
+                "sub_button" => [
+                    [
+                        "type" => "view",
+                        "name" => "我的进度",
+                        'url'  => 'https://kf.shineip.com/'
+                    ],
+                    [
+                        "type" => "view",
+                        "name" => "我的专利",
+                        'url'  => 'https://kf.shineip.com/users/my-patents'
+                    ],
+                    [
+                        "type" => "view",
+                        "name" => "我要反馈",
+                        'url'  => 'https://kf.shineip.com/site/contact'
+                    ],
+                ],
             ],
             [
                 "type" => "view",
-                "name" => "我的专利",
-                "key"  => "SHINEIP_USER_VIEW_MYPATENTS", //key是自定义的
-                'url'  => 'http://kf.shineip.com/users/my-patents'
+                "name" => "年费监管",
+                "key"  => "SHINEIP_USER_VIEW_MONITOR-PATENTS", //key是自定义的，不知道什么卵用
+                'url'  => 'https://kf.shineip.com/users/monitor-patents'
             ],
             [
                 "type" => "view",
-                "name" => "我要反馈",
-                "key"  => "SHINEIP_USER_VIEW_CONTACT", //key是自定义的
-                'url'  => 'http://kf.shineip.com/site/contact'
+                "name" => "缴费",
+                "key"  => "SHINEIP_USER_MONITOR-UNPAID-LIST", //key是自定义的
+                'url'  => 'https://kf.shineip.com/users/monitor-unpaid-list'
             ]
 
         ];

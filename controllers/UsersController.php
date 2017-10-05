@@ -58,7 +58,7 @@ class UsersController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['personal-settings', 'reset-password', 'my-patents', 'patents', 'follow-patents', 'unfollow-patent', 'records'],
+                        'actions' => ['personal-settings', 'reset-password', 'my-patents', 'monitor-patents', 'monitor-unpaid-list', 'follow-patents', 'unfollow-patent', 'records'],
                         'roles' => ['@']
                     ],
                     [
@@ -338,7 +338,7 @@ class UsersController extends BaseController
      * @param integer $id userID
      * @return string
      */
-    public function actionPatents($id = null)
+    public function actionMonitorPatents($id = null)
     {
         if ($id == null) {
             $id = Yii::$app->user->id;
@@ -346,7 +346,7 @@ class UsersController extends BaseController
         if (Yii::$app->user->identity->userRole === Users::ROLE_CLIENT) {
             $id = Yii::$app->user->id;
         }
-        $dateProvider = new ActiveDataProvider([
+        $dataProvider = new ActiveDataProvider([
             'query' => Patents::find()->where(['in', 'patentID', (new Query())->select('patent_id')->from('annual_fee_monitors')->where(['user_id' => $id])]),
             'pagination' => [
                 'pageSize' => 10,
@@ -358,7 +358,32 @@ class UsersController extends BaseController
             ]
         ]);
 
-        return $this->render('patents', ['dataProvider' => $dateProvider]);
+        return $this->render('monitor-patents', ['dataProvider' => $dataProvider]);
+    }
+
+
+    public function actionMonitorUnpaidList($id = null)
+    {
+        if ($id == null) {
+            $id = Yii::$app->user->id;
+        }
+        if (Yii::$app->user->identity->userRole === Users::ROLE_CLIENT) {
+            $id = Yii::$app->user->id;
+        }
+        $dataProvider = new ActiveDataProvider([
+            'query' => Patents::find()
+                    ->where(['in', 'patentID', (new Query())->select('patent_id')->from('annual_fee_monitors')
+                    ->where(['user_id' => $id])]),
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+            'sort' => [
+                'defaultOrder' => [
+                    'patentFeeDueDate' => SORT_ASC,
+                ]
+            ]
+        ]);
+        return $this->render('monitor-unpaid-list', ['dataProvider' => $dataProvider]);
     }
 
     /**

@@ -1,13 +1,14 @@
 <?php
 /**
- * User: Mr-mao
- * Date: 2017/9/19
- * Time: 19:19
+ * Author: guiyumin, goes by Eric Gui
+ * Date: 2017-10-05
+ * Time: 21:03
+ * Github: https://www.github.com/medmin/ipapp
+ * Email: guiyumin@gmail.com
  */
-
 use yii\widgets\LinkPager;
 
-$this->title = '阳光惠远 | 年费监管';
+$this->title = '阳光惠远 | 缴费清单';
 // $this->params['breadcrumbs'][] = $this->title;
 $this->title = false;
 
@@ -24,13 +25,13 @@ function unfollow(w){
 ', \yii\web\View::POS_END);
 
 $this->registerCss('
-.pay-link {
-    color: #00a1ff;
-    font-size: 12px;
-}
-.pay-link:hover, .pay-link:active, .pay-link:focus{
-    color: #00a1ff;
-}
+//.pay-link {
+//    color: #00a1ff;
+//    font-size: 12px;
+//}
+//.pay-link:hover, .pay-link:active, .pay-link:focus{
+//    color: #00a1ff;
+//}
 a[class="pay-link-disabled"] {
     color: #dd4b39;
     text-decoration: underline;
@@ -57,20 +58,14 @@ if ($this->context->isMicroMessage) {
     <div class="nav-tabs-custom">
         <ul class="nav nav-tabs">
             <li class="active">
-                <a href="#" data-toggle="tab" aria-expanded="true">我的监管</a>
-            </li>
-            <li class="">
-                <a href="<?= \yii\helpers\Url::to('/users/follow-patents')?>">添加监管</a>
-            </li>
-            <li class="">
-                <a href="<?= \yii\helpers\Url::to('/users/records')?>">缴费记录</a>
+                <a href="#" data-toggle="tab" aria-expanded="true">您有如下缴费项目</a>
             </li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane active" id="patents">
                 <?php
                 if (!$dataProvider->models) {
-                    echo '<div class="callout callout-warning"><p><i class="icon fa fa-warning"></i> 暂无监管专利，<a href="'. \yii\helpers\Url::to(['follow-patents']) .'">点击此处进行添加</a></p></div>';
+                    echo '<div class="callout callout-success"><p><i class="icon fa fa-warning"></i> 暂无待缴费项目</p></div>';
                 } else {
                     foreach ($dataProvider->models as $idx => $model) {
 //            echo $this->render('/common/follow-patent', ['model' => $model]);

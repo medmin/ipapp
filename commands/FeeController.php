@@ -82,9 +82,9 @@ class FeeController extends Controller
                             'first' => '您好，您有一项专利需要缴费',
                             'keyword1' => $patent->patentTitle, //数据OK
                             'keyword2' => $fee_type,
-                            'keyword3' => $fee_amount,
+                            'keyword3' => $fee_amount . '元',
                             'keyword4' => $deadline, //数据OK
-                            'keyword5' => $days, //数据OK
+                            'keyword5' => (int)$days >= 0 ? (int)$days.'天' : '已逾期'.((int)$days * (-1)).'天', //数据OK
                             'remark' => '如果有任何疑问，请致电0451-88084686',
                         ];
                         $template_id = 'cGvdscYjjF4DZy7xSRTczQuyGCCQZAF0L9KxBnr8V7k';
@@ -116,7 +116,7 @@ class FeeController extends Controller
         $messageID = $notice->send([
             'touser' => $openid,
             'template_id' => $template_id,
-            'url' => 'http://kf.shineip.com',
+            'url' => 'https://kf.shineip.com/users/patents',
             'data' => $data,
         ]);
 
