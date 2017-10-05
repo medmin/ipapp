@@ -97,7 +97,22 @@ class FeeController extends Controller
             'data' => $data,
         ]);
 
+    }
 
+    public function actionWxtest()
+    {
+        $fakeid = WxUser::findOne(['userid' => 2])->fakeid;
+        $data = [
+            'first' => '缴费测试',
+            'keyword1' => '缴费测试',
+            'keyword2' => '缴费测试',
+            'keyword3' => '缴费测试',
+            'keyword4' => '缴费测试',
+            'keyword5' => '缴费测试',
+            'remark' => '缴费测试',
+        ];
+        $template_id = 'cGvdscYjjF4DZy7xSRTczQuyGCCQZAF0L9KxBnr8V7k';
+        $this->sendWeixinTemplateMessage($fakeid, $data, $template_id);
     }
 
     //必须先执行专利信息爬虫
