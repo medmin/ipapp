@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\models\AnnualFeeMonitors;
 use app\models\Notification;
 use app\models\Patents;
+use app\models\UnpaidAnnualFee;
 use Yii;
 use app\models\Users;
 use app\models\UsersSearch;
@@ -57,7 +58,7 @@ class UsersController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['personal-settings', 'reset-password', 'my-patents', 'patents', 'follow-patents', 'unfollow-patent'],
+                        'actions' => ['personal-settings', 'reset-password', 'my-patents', 'patents', 'follow-patents', 'unfollow-patent', 'records'],
                         'roles' => ['@']
                     ],
                     [
@@ -410,6 +411,27 @@ class UsersController extends BaseController
     public function actionUnfollowPatent($id)
     {
         return AnnualFeeMonitors::findOne(['user_id' => Yii::$app->user->id, 'patent_id' => $id])->delete();
+    }
+
+    /**
+     * 获取用户缴费记录
+     *
+     * @return string
+     */
+    public function actionRecords()
+    {
+        $query = UnpaidAnnualFee::find()
+            ->where(['<>', 'status', UnpaidAnnualFee::UNPAID])
+            ->andWhere(['in', 'unpaid_annual_fee.patentAjxxbID', (new Query())->select('patentAjxxbID')->from('patents')->where(['in', 'patentID', AnnualFeeMonitors::find()->select('patent_id')->where(['user_id' => Yii::$app->user->id])])])
+            ->joinWith('patent');
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+        ]);
+        return $this->render('records', ['dataProvider' => $dataProvider]);
     }
 
     /**

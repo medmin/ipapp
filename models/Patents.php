@@ -213,7 +213,7 @@ class Patents extends \yii\db\ActiveRecord
      */
     public function generateExpiredItems(int $days = 90, bool $paid = true, bool $only_paid = false)
     {
-        $target_date = date('Ymd',strtotime('+' . $days . ' day'));
+        $target_date = date('Ymd',strtotime(($days >= 0 ? '+' : '-') . $days . ' day'));
         if ($paid === true) {
             $pay_condition = $only_paid ? ['status' => UnpaidAnnualFee::PAID] : ['in','status',[UnpaidAnnualFee::UNPAID,UnpaidAnnualFee::PAID]];
         } else {
@@ -227,17 +227,6 @@ class Patents extends \yii\db\ActiveRecord
             ->andWhere(['<>','fee_category',UnpaidAnnualFee::OVERDUE_FINE])
             ->asArray()
             ->all();
-        return $items;
-    }
-
-    /**
-     * 获取过期缴费信息
-     *
-     * @return array
-     */
-    public function generateOverdueItems()
-    {
-        $items = UnpaidAnnualFee::find()->where(['patentAjxxbID' => $this->patentAjxxbID, 'status' => UnpaidAnnualFee::UNPAID])->andWhere(['<','due_date',date('Ymd')])->asArray()->all();
         return $items;
     }
 }
