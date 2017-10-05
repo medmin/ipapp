@@ -56,41 +56,86 @@ class FeeController extends Controller
                     $fakeid = WxUser::findOne(['userid' => $userID])->fakeid;
                     if(isset($fakeid))
                     {
-                        $options = [
-                            'debug'  => YII_DEBUG,
-                            'app_id' => Yii::$app->params['wechat']['id'],
-                            'secret' => Yii::$app->params['wechat']['secret'],
-                            'token'  => Yii::$app->params['wechat']['token'],
-                            'aes_key' => Yii::$app->params['wechat']['aes_key'],
-                            'log' => [
-                                'level' => 'debug',
-                                'file'  => Yii::$app->params['wechat_log_path'], // XXX: 绝对路径！！！！
-                            ]
-                        ];
-                        $app = new Application($options);
-                        $notice = $app->notice;
-
+                        $fee_type_sql = '
+                                    SELECT fee_type 
+                                    FROM unpaid_annual_fee 
+                                    WHERE patentAjxxbID=\''.$patent->patentAjxxbID.'\' 
+                                    AND status=0 
+                                    AND due_date=\''.date('Ymd', strtotime($days.' days')).'\' 
+                                    ';
+                        $fee_amount_sql = '
+                                    SELECT amount 
+                                    FROM unpaid_annual_fee 
+                                    WHERE patentAjxxbID=\''.$patent->patentAjxxbID.'\' 
+                                    AND status=0 
+                                    AND due_date=\''.date('Ymd', strtotime($days.' days')).'\' 
+                                    ';
+                        $fee_type = implode('，', Yii::$app->db->createCommand($fee_type_sql)->queryColumn());
+                        $fee_amount_s = Yii::$app->db->createCommand($fee_amount_sql)->queryColumn();
+                        $fee_amount = 0;
+                        foreach ($fee_amount_s as $amount)
+                        {
+                            $fee_amount +=$amount;
+                        }
+                        $deadline = $patent->patentFeeDueDate;
                         $data = [
-                            'first' => '缴费测试',
-                            'keyword1' => '缴费测试',
-                            'keyword2' => '缴费测试',
-                            'keyword3' => 100,
-                            'keyword4' => '2015.10.10',
-                            'keyword5' => 30,
-                            'remark' => '缴费测试',
+                            'first' => '您好，您有一项专利需要缴费',
+                            'keyword1' => $patent->patentTitle, //数据OK
+                            'keyword2' => $fee_type,
+                            'keyword3' => $fee_amount,
+                            'keyword4' => $deadline, //数据OK
+                            'keyword5' => $days, //数据OK
+                            'remark' => '如果有任何疑问，请致电0451-88084686',
                         ];
+                        $template_id = 'cGvdscYjjF4DZy7xSRTczQuyGCCQZAF0L9KxBnr8V7k';
 
-                        $messageID = $notice->send([
-                            'touser' => $fakeid,
-                            'template_id' => 'cGvdscYjjF4DZy7xSRTczQuyGCCQZAF0L9KxBnr8V7k', //公众号里的模板序号7
-                            'url' => 'http://kf.shineip.com',
-                            'data' => $data,
-                        ]);
+                        $this->sendWeixinTemplateMessage($fakeid, $data, $template_id);
                     }
                 }
             }
         }
 
+    }
+
+    public function sendWeixinTemplateMessage($openid, array $data, string $template_id)
+    {
+        $options = [
+            'debug'  => true,
+            'app_id' => Yii::$app->params['wechat']['id'],
+            'secret' => Yii::$app->params['wechat']['secret'],
+            'token'  => Yii::$app->params['wechat']['token'],
+            'aes_key' => Yii::$app->params['wechat']['aes_key'],
+            'log' => [
+                'level' => 'debug',
+                'file'  => Yii::$app->params['wechat_log_path'], // XXX: 绝对路径！！！！
+            ]
+        ];
+        $app = new Application($options);
+        $notice = $app->notice;
+
+        $messageID = $notice->send([
+            'touser' => $openid,
+            'template_id' => $template_id,
+            'url' => 'http://kf.shineip.com',
+            'data' => $data,
+        ]);
+
+    }
+
+    public function actionWxtest()
+    {
+        $fakeid = WxUser::findOne(['userid' => 2])->fakeid;
+        $data = [
+            'first' => '缴费测试',
+            'keyword1' => '缴费测试',
+            'keyword2' => '缴费测试',
+            'keyword3' => '缴费测试',
+            'keyword4' => '缴费测试',
+            'keyword5' => '缴费测试',
+            'remark' => '缴费测试',
+        ];
+        $template_id = 'cGvdscYjjF4DZy7xSRTczQuyGCCQZAF0L9KxBnr8V7k';
+        $this->sendWeixinTemplateMessage($fakeid, $data, $template_id);
     }
 
     //必须先执行专利信息爬虫
@@ -718,39 +763,6 @@ class FeeController extends Controller
         echo PHP_EOL . 'Voila' . PHP_EOL;
     }
 
-    public function actionWxtest()
-    {
-        $fakeid = WxUser::findOne(['userID' => 2])->fakeid;
-        $options = [
-            'debug'  => true,
-            'app_id' => Yii::$app->params['wechat']['id'],
-            'secret' => Yii::$app->params['wechat']['secret'],
-            'token'  => Yii::$app->params['wechat']['token'],
-            'aes_key' => Yii::$app->params['wechat']['aes_key'],
-            'log' => [
-                'level' => 'debug',
-                'file'  => Yii::$app->params['wechat_log_path'], // XXX: 绝对路径！！！！
-            ]
-        ];
-        $app = new Application($options);
-        $notice = $app->notice;
 
-        $data = [
-            'first' => '缴费测试',
-            'keyword1' => '缴费测试',
-            'keyword2' => '缴费测试',
-            'keyword3' => 100,
-            'keyword4' => '2015.10.10',
-            'keyword5' => 30,
-            'remark' => '缴费测试',
-        ];
-
-        $messageID = $notice->send([
-            'touser' => $fakeid,
-            'template_id' => 'cGvdscYjjF4DZy7xSRTczQuyGCCQZAF0L9KxBnr8V7k', //公众号里的模板序号7
-            'url' => 'http://kf.shineip.com',
-            'data' => $data,
-        ]);
-    }
 
 }

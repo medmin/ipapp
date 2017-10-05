@@ -201,6 +201,7 @@ $("body").on("submit", "#files-upload-form", function(e){
                         'patentApplicationNo',
                         'patentApplicationDate',
                         'patentAjxxbID',
+                        'patentCaseStatus',
 //                    'patentPatentNo',
 //                    'patentNote:ntext',
                         // 'UnixTimestamp:datetime',

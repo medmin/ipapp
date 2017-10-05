@@ -102,7 +102,7 @@ return [
     'My Patents' => '我的专利',
     'Patent User Liaison ID' => '商务专员ID',
     'Patent Application Date' => '专利申请日',
-    'Patent Case Status' => '专利法律状态',
+    'Patent Case Status' => '法律状态',
     'Patent Application Institution' => '专利申请人',
     'Patent Inventors' => '发明人',
     'Patent Agency' => '代理机构',
