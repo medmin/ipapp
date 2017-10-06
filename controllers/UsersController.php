@@ -362,6 +362,12 @@ class UsersController extends BaseController
     }
 
 
+    /**
+     * 效果同上，只是在view层展示只有支付的专利
+     *
+     * @param null $id
+     * @return string
+     */
     public function actionMonitorUnpaidList($id = null)
     {
         if ($id == null) {

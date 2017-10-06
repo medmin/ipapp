@@ -52,32 +52,39 @@ if ($this->context->isMicroMessage) {
         },\'json\');
     })';
     $this->registerJs($js);
+} else {
+$this->registerJs('
+$(".pay-link").click(function(){
+  id = $(this).data("id");
+  url = "/pay/wx-qrcode?id="+id;
+  html = "<p style=\"text-align: center\"><span class=\"badge\" style=\"background: #fff;color: #113521\">使用微信支付</span></p><img src=\'"+url+"\'>";
+  $(this).parent().children(".pay-qrcode").show().html(html);
+});
+');
 }
 ?>
 <div class="patents">
-    <div class="nav-tabs-custom">
-        <ul class="nav nav-tabs">
-            <li class="active">
-                <a href="#" data-toggle="tab" aria-expanded="true">您有如下缴费项目</a>
-            </li>
-        </ul>
-        <div class="tab-content">
-            <div class="tab-pane active" id="patents">
-                <?php
-                if (!$dataProvider->models) {
-                    echo '<div class="callout callout-success"><p><i class="icon fa fa-warning"></i> 暂无待缴费项目</p></div>';
-                } else {
-                    foreach ($dataProvider->models as $idx => $model) {
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <h3 class="box-title">
+                您有如下缴费项目
+            </h3>
+        </div>
+        <div class="box-body">
+            <?php
+            if (!$dataProvider->models) {
+                echo '<div class="callout callout-success"><p><i class="icon fa fa-warning"></i> 暂无待缴费项目</p></div>';
+            } else {
+                foreach ($dataProvider->models as $idx => $model) {
 //            echo $this->render('/common/follow-patent', ['model' => $model]);
-                        echo $this->render('/common/follow-patent_2', ['model' => $model]);
-                    }
-                    echo LinkPager::widget([
-                        'pagination'=>$dataProvider->pagination,
-                        'options' => ['style' => 'margin: 0;', 'class' => 'pagination']
-                    ]);
+                    echo $this->render('/common/unpaid-patent', ['model' => $model]);
                 }
-                ?>
-            </div>
+                echo LinkPager::widget([
+                    'pagination'=>$dataProvider->pagination,
+                    'options' => ['style' => 'margin: 0;', 'class' => 'pagination']
+                ]);
+            }
+            ?>
         </div>
     </div>
 </div>
