@@ -51,6 +51,15 @@ if ($this->context->isMicroMessage) {
         },\'json\');
     })';
     $this->registerJs($js);
+} else {
+$this->registerJs('
+$(".pay-link").click(function(){
+  id = $(this).data("id");
+  url = "/pay/wx-qrcode?id="+id;
+  html = "<p style=\"text-align: center\"><span class=\"badge\" style=\"background: #fff;color: #113521\">使用微信支付</span></p><img src=\'"+url+"\'>";
+  $(this).parent().children(".pay-qrcode").show().html(html);
+});
+');
 }
 ?>
 <div class="patents">

@@ -59,9 +59,9 @@
             if ($this->context->isMicroMessage) {
                 $html .= '<a href="javascript:;" id="pay-btn" class="pay-link" data-id="' . $model->patentAjxxbID . '">立即缴费(￥' . $tmp_array['amount'] . ')</a><div id="wxJS"></div>';
             } else {
-                $html .= '<a href="javascript:;" id="pay-btn" class="pay-link btn btn-success btn-flat" onclick="$(this).parent().children(\'.pay-qrcode\').toggle()">立即缴费(￥' . $tmp_array['amount'] . ')</a>';
+                $html .= '<a href="javascript:;" id="pay-btn" class="pay-link btn btn-success btn-flat" data-id="'. $model->patentAjxxbID .'">立即缴费(￥' . $tmp_array['amount'] . ')</a>';
                 $html .= '<div class="clearfix"></div>';
-                $html .= '<div class="pay-qrcode pull-left" style="display: none;margin-top: 20px;padding: 10px;background: #2ead38;width: 30%;"><p style="text-align: center"><span class="badge" style="background: #fff;color: #113521">使用微信支付</span></p><img src="'. \yii\helpers\Url::to(["pay/wx-qrcode", "id"=>$model->patentAjxxbID]) .'" alt=""></div>';
+                $html .= '<div class="pay-qrcode pull-left" style="display: none;margin-top: 20px;padding: 10px;background: #2ead38;"></div>';
 //                $html .= '<div class="pay-qrcode pull-left" style="display: none;margin-top: 20px;margin-left: 20px;padding: 10px;background: #00a2e3;width: 30%;"><p style="text-align: center"><span class="badge" style="background: #fff;color: #113521">使用支付宝支付</span></p><img src="'. \yii\helpers\Url::to(["pay/ali-qrcode", "id"=>$model->patentAjxxbID]) .'" alt=""></div>';
                 $html .= '<div class="clearfix"></div>';
             }
