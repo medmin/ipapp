@@ -41,7 +41,7 @@ function unfollow(which){
     <div class="nav-tabs-custom">
         <ul class="nav nav-tabs">
             <li class="">
-                <a href="<?= \yii\helpers\Url::to('/users/patents')?>">我的监管</a>
+                <a href="<?= \yii\helpers\Url::to('/users/monitor-patents')?>">我的监管</a>
             </li>
             <li class="active" data-toggle="tab" aria-expanded="true">
                 <a href="#">添加监管</a>
