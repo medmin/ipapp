@@ -32,10 +32,23 @@ class HljController extends Controller
             'verify' => false,
 //            'proxy' => $this->getIp(),
             'timeout' => 60,
-            'form_params' => [],
+            'form_params' => [
+                'area' => 'cn',
+                'synonymous' => 'SYNONYM_UTF8',
+                'strWhere' => '',
+                'strSynonymous' => '1',
+                'strSortMethod' => 'RELEVANCE',
+                'strDefautCols' => '主权项, 名称, 摘要',
+                'iHitPointType' => 115,
+                'strChannels'   => '14,15,16,17',
+                'searchKind'    => 'tableSearch',
+                'txt_I'         => '哈尔滨工业大学'
+            ],
         ];
 
-        $response = $client->request('POST', $hlj_ipo_url, $body);
+        $response = $client->request('POST', $hlj_ipo_url, $requestOptions);
+
+        echo $response->getStatusCode();
 
         $this->stdout('Time Consuming:' . (time() - $start) . ' seconds' . PHP_EOL);
     }
