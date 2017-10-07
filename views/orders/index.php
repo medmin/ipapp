@@ -80,7 +80,8 @@ $("#orderDetailModalLabel").on("hidden.bs.modal", function (e) {
                         'label' => '专利(或商标)名称',  // TODO 显示名称还是其他（比如申请号什么的）?
                         'format' => 'raw',
                         'value' => function ($model) {
-                            $goods = json_decode($model->goods_id,true)['patents'];
+                            $goods_id = json_decode($model->goods_id,true);
+                            $goods = $goods_id['patents'];
                             $html = '';
                             foreach ($goods as $idx => $ajxxb_id) {
                                 if ($idx != 0) {
