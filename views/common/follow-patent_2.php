@@ -69,7 +69,7 @@
         } else {
             if ($tmp_array['color'] == 'info') {
                 // 不展示缴费按钮并且颜色为info样式的时候，说明支付成功,阳光惠远正在处理
-                $html .= '<a href="javascript:;" class="pay-link-disabled">支付成功,后台正在处理</a>';
+                $html .= '<a href="javascript:;" class="pay-link-disabled">支付成功，正在处理</a>';
             } else {
                 $html .= '<a href="javascript:;" class="pay-link-disabled">已逾期(请联系客服)</a>';
             }
