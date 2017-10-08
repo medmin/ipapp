@@ -10,7 +10,7 @@ use app\models\UnpaidAnnualFee;
 $box_type = 'box-default';
 $show_fee = true;
 $fee = UnpaidAnnualFee::findOne(['patentAjxxbID' => $model->patentAjxxbID, 'due_date' => $model->patentFeeDueDate]);
-if ($model->patentCaseStatus == '有效') {
+//if ($model->patentCaseStatus == '有效') {
     // 15天之内红色 90天之内黄色 其他绿色
     $diff_days = (int)date_diff(date_create(date('Ymd')),date_create($model->patentFeeDueDate))->format('%R%a');
     if ($diff_days < 0) {
@@ -25,9 +25,9 @@ if ($model->patentCaseStatus == '有效') {
         $box_type = 'box-success';
         $show_fee = false; // 大于90天不展示续费按钮
     }
-} else {
-    // TODO 非有效期
-}
+//} else {
+//    // TODO 非有效期
+//}
 ?>
 <div class="box box-solid <?= $box_type ?> collapsed-box">
     <div class="box-header">
