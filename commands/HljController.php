@@ -10,6 +10,7 @@ namespace app\commands;
 
 
 use GuzzleHttp\Client;
+use Symfony\Component\DomCrawler\Crawler;
 use yii\console\Controller;
 
 class HljController extends Controller
@@ -48,7 +49,15 @@ class HljController extends Controller
 
         $response = $client->request('POST', $hlj_ipo_url, $requestOptions);
 
-        echo $response->getStatusCode();
+        echo $response->getStatusCode() . PHP_EOL;
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($response->getBody());
+
+        $patent_numbers = $crawler->filter('body > div:nth-child(51) > div > div.span3 > ul:nth-child(1) > li > a');
+        print_r($patent_numbers);
+//        preg_match('/\d+/', $patent_numbers, $matches);
+//        print_r($matches);
 
         $this->stdout('Time Consuming:' . (time() - $start) . ' seconds' . PHP_EOL);
     }
