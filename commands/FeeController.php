@@ -35,10 +35,8 @@ class FeeController extends Controller
          * 查询具体缴费截止日还有 +90, +30, +15, +7, +0, -1天时的专利
          */
         $patentModels = Patents::find()
-            ->where([
-                'patentFeeDueDate' => date('Ymd', strtotime($days.' days')),
-                'patentCaseStatus' => '有效'
-                    ])
+            ->where(['patentFeeDueDate' => date('Ymd', strtotime($days.' days'))])
+            ->andWhere(['<>', 'patentApplicationNo', ''])
             ->all();
 
         foreach ($patentModels as $patent)
