@@ -410,13 +410,17 @@ class UsersController extends BaseController
                 return $model->save();
             }
         } else {
+            $title = trim(Yii::$app->request->getQueryParam('title'));
             $applicationNo = trim(Yii::$app->request->getQueryParam('No'));
             $inventor = trim(Yii::$app->request->getQueryParam('inventor'));
             $institution = trim(Yii::$app->request->getQueryParam('institution'));
-            if (!$applicationNo && !$inventor && !$institution) {
+            if (!$title && !$applicationNo && !$inventor && !$institution) {
                 return $this->render('follow-patents');
             }
-            $query = Patents::find()->where(['patentCaseStatus' => '有效']);
+            $query = Patents::find()->where(['<>','patentApplicationNo', '']);
+            if($title){
+                $query->andWhere(['like', 'patentTitle' , $title]);
+            }
             if ($applicationNo) {
                 $query->andWhere(['patentApplicationNo' => $applicationNo]);
             }
