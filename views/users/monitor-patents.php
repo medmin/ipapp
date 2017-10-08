@@ -65,6 +65,10 @@ $(".pay-link").click(function(){
   html = "<p style=\"text-align: center\"><span class=\"badge\" style=\"background: #fff;color: #113521\">使用微信支付</span></p><img src=\'"+url+"\'>";
   $(this).parent().children(".pay-qrcode").show().html(html);
 });
+');
+}
+// 共有的js
+$this->registerJs('
 $(".c_c").click(function(){
   $.get("show-unpaid-fee?id="+$(this).data("id"),function(d){
     if (d) {
@@ -79,7 +83,6 @@ $("#showFees").on("hidden.bs.modal", function (e) {
   $("#showFees .modal-body").html("");
 })
 ');
-}
 ?>
 <div class="patents">
     <div class="nav-tabs-custom">

@@ -43,7 +43,7 @@ $("body").on("click",".delete-patent",function(){
 ?>
 <div class="box box-info collapsed-box">
     <div class="box-header with-border">
-        <h3 class="box-title">添加监管</h3>
+        <h3 class="box-title"style="display: block;cursor: pointer;" onclick="$(this).next().children().click()" >添加监管</h3>
         <div class="box-tools pull-right">
             <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
             </button>
@@ -73,7 +73,7 @@ $("body").on("click",".delete-patent",function(){
 
 <div class="box box-primary">
     <div class="box-header with-border">
-        <h3 class="box-title">他的监管</h3>
+        <h3 class="box-title" style="display: block;cursor: pointer;" onclick="$(this).next().children().click()">他的监管</h3>
         <div class="box-tools pull-right">
             <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
             </button>
