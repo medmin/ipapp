@@ -55,15 +55,19 @@ function unfollow(which){
                 <div class="box box-info">
                     <form class="form-inline">
                         <div class="box-body">
-                            <div class="form-group col-sm-5">
+                            <div class="form-group col-sm-3">
                                 <label for="No" class="">专利申请号</label>
                                 <input name="No" type="text" class="form-control" id="No" placeholder="专利申请号">
                             </div>
-                            <div class="form-group col-sm-5">
+                            <div class="form-group col-sm-3">
+                                <label for="institution" class="">申请人</label>
+                                <input name="institution" type="text" class="form-control" id="institution" placeholder="专利申请人">
+                            </div>
+                            <div class="form-group col-sm-3">
                                 <label for="inventor" class="">发明人</label>
                                 <input name="inventor" type="text" class="form-control" id="inventor" placeholder="发明人">
                             </div>
-                            <div class="form-group col-sm-2">
+                            <div class="form-group col-sm-3">
                                 <button type="submit" class="btn btn-info">查找</button>
                             </div>
                         </div>

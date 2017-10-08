@@ -9,6 +9,7 @@
 ?>
 <div class="well well-sm no-shadow">
     <p>标题：<?= $model->patentTitle ?></p>
+    <p>申请人：<?= $model->patentApplicationInstitution ?></p>
     <p>发明人：<?= $model->patentInventors ?></p>
     <p>申请号：<?= $model->patentApplicationNo ?></p>
     <div class="">

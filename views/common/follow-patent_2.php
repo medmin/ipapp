@@ -11,6 +11,7 @@
     <i class="fa fa-trash-o pull-right" data-id="<?= $model->patentID ?>" onclick="unfollow(this)" style="cursor: pointer;" title="取消监管"></i>
     <p>申请号：<?= $model->patentApplicationNo ?></p>
     <p>标题：<?= $model->patentTitle ?></p>
+    <p>申请人：<?= $model->patentApplicationInstitution ?></p>
     <p>发明人：<?= $model->patentInventors ?></p>
     <?php
     $fee_info = $model->generateExpiredItems();
@@ -53,7 +54,7 @@
             $tmp_array['status'] = false;
         }
         $detail_show .= '</table>';
-        $html .= '<p>年费状态：<span class="label label-'. $tmp_array['color'] .'" data-toggle="tooltip" data-placement="bottom" title="" data-html="true" data-original-title="'. $detail_show .'" >'. $tmp_array['description'] . '(点击查看明细)' .'</span></p>';
+        $html .= '<p>年费状态：<span class="label label-'. $tmp_array['color'] .'" data-toggle="tooltip" data-placement="bottom" title="" data-html="true" data-original-title="'. $detail_show .'" >'. $tmp_array['description'] . ($this->context->isMobile ? '(点击查看明细)' : ' (明细)') .'</span></p>';
         $html .= '<div>';
         if ($tmp_array['status']) {
             if ($this->context->isMicroMessage) {

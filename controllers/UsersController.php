@@ -412,7 +412,8 @@ class UsersController extends BaseController
         } else {
             $applicationNo = trim(Yii::$app->request->getQueryParam('No'));
             $inventor = trim(Yii::$app->request->getQueryParam('inventor'));
-            if (!$applicationNo && !$inventor) {
+            $institution = trim(Yii::$app->request->getQueryParam('institution'));
+            if (!$applicationNo && !$inventor && !$institution) {
                 return $this->render('follow-patents');
             }
             $query = Patents::find()->where(['patentCaseStatus' => '有效']);
@@ -421,6 +422,9 @@ class UsersController extends BaseController
             }
             if ($inventor) {
                 $query->andWhere(['like', 'patentInventors', $inventor]);
+            }
+            if ($institution) {
+                $query->andWhere(['like', 'patentApplicationInstitution', $institution]);
             }
             $dataProvider = new ActiveDataProvider([
                 'query' => $query,

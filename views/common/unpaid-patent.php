@@ -13,6 +13,7 @@ $fee_info = $model->generateExpiredItems(90,false);
     <i class="fa fa-trash-o pull-right" data-id="<?= $model->patentID ?>" onclick="unfollow(this)" style="cursor: pointer;" title="取消监管"></i>
     <p>申请号：<?= $model->patentApplicationNo ?></p>
     <p>标题：<?= $model->patentTitle ?></p>
+    <p>申请人：<?= $model->patentApplicationInstitution ?></p>
     <p>发明人：<?= $model->patentInventors ?></p>
     <?php
     $html = '';
