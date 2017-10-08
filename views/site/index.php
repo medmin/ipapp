@@ -62,25 +62,25 @@ $this->title = '';
             </div>
             <!-- /.info-box -->
         </div>
-        <div class="col-md-3 col-sm-6 col-xs-12">
-            <div class="info-box">
-                <span class="info-box-icon bg-green"><i class="fa fa-rmb"></i></span>
-                <div class="info-box-content">
-                    <span class="info-box-text">缴费提醒</span>
-                    <b>
-                        <span class="info-box-text">
-                            今日待缴： <b class="text-red">0</b>
-                        </span>
-                        <span class="info-box-text">
-                            7日待缴：0
-                        </span>
-                        <span class="info-box-text">
-                            15日待缴：0
-                        </span>
-                    </b>
-                </div>
-            </div>
-        </div>
+<!--        <div class="col-md-3 col-sm-6 col-xs-12">-->
+<!--            <div class="info-box">-->
+<!--                <span class="info-box-icon bg-green"><i class="fa fa-rmb"></i></span>-->
+<!--                <div class="info-box-content">-->
+<!--                    <span class="info-box-text">缴费提醒</span>-->
+<!--                    <b>-->
+<!--                        <span class="info-box-text">-->
+<!--                            今日待缴： <b class="text-red">0</b>-->
+<!--                        </span>-->
+<!--                        <span class="info-box-text">-->
+<!--                            7日待缴：0-->
+<!--                        </span>-->
+<!--                        <span class="info-box-text">-->
+<!--                            15日待缴：0-->
+<!--                        </span>-->
+<!--                    </b>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
     </div>
 </div>
 <?php endif; ?>

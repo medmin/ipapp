@@ -179,6 +179,7 @@ $this->registerJs($js, \yii\web\View::POS_END);
                                     <li>{wechat}</li>
                                     ' : '').((Yii::$app->user->identity->userRole !== \app\models\Users::ROLE_CLIENT) ? '
                                     <li>{patents}</li>
+                                    <li>{follow}<li>
                                     <li>{schedule}</li>
                                     ' : '').'
                                 </ul>
@@ -200,6 +201,9 @@ $this->registerJs($js, \yii\web\View::POS_END);
                             'schedule' => function ($url, $model, $key) {
                                 return Html::a('主页', \yii\helpers\Url::to(['users/events-schedule', 'user_id' => $key]));
                             },
+                            'follow' => function ($url, $model, $key) {
+                                return Html::a('监管', \yii\helpers\Url::to(['users/monitor-patents', 'id' => $key]));
+                            }
                         ]
                     ],
                 ],

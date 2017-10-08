@@ -54,7 +54,7 @@
             $tmp_array['status'] = false;
         }
         $detail_show .= '</table>';
-        $html .= '<p>年费状态：<span class="label label-'. $tmp_array['color'] .'" data-toggle="tooltip" data-placement="bottom" title="" data-html="true" data-original-title="'. $detail_show .'" >'. $tmp_array['description'] . ($this->context->isMobile ? '(点击查看明细)' : ' (明细)') .'</span></p>';
+        $html .= '<p>年费状态：<span class="label label-'. $tmp_array['color'] .'" data-toggle="tooltip" data-placement="bottom" title="" data-html="true" data-original-title="'. $detail_show .'" >'. $tmp_array['description'] . ($this->context->isMobile ? '(点击查看明细)' : ' (明细)') .'</span><span class="c_c" data-id="'.$model->patentAjxxbID.'">查看未缴年费</span></p>';
         $html .= '<div>';
         if ($tmp_array['status']) {
             if ($this->context->isMicroMessage) {

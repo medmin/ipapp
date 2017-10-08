@@ -59,4 +59,12 @@ class AnnualFeeMonitors extends ActiveRecord
             'created_at' => Yii::t('app', 'Created At'),
         ];
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPatent()
+    {
+        return $this->hasOne(Patents::className(), ['patentID' => 'patent_id']);
+    }
 }

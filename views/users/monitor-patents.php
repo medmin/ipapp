@@ -31,6 +31,12 @@ $this->registerCss('
 //.pay-link:hover, .pay-link:active, .pay-link:focus{
 //    color: #00a1ff;
 //}
+.c_c {
+  text-decoration:underline;
+  color:blue;
+  cursor:pointer;
+  margin-left:5px;
+}
 a[class="pay-link-disabled"] {
     color: #dd4b39;
     text-decoration: underline;
@@ -59,6 +65,19 @@ $(".pay-link").click(function(){
   html = "<p style=\"text-align: center\"><span class=\"badge\" style=\"background: #fff;color: #113521\">使用微信支付</span></p><img src=\'"+url+"\'>";
   $(this).parent().children(".pay-qrcode").show().html(html);
 });
+$(".c_c").click(function(){
+  $.get("show-unpaid-fee?id="+$(this).data("id"),function(d){
+    if (d) {
+      $("#showFees").modal("show");
+      $("#showFees .modal-title").text("未缴费信息");
+      $("#showFees .modal-body").html(d);
+    }
+  });
+})
+$("#showFees").on("hidden.bs.modal", function (e) {
+  $("#showFees .modal-title").text("")
+  $("#showFees .modal-body").html("");
+})
 ');
 }
 ?>
@@ -92,6 +111,23 @@ $(".pay-link").click(function(){
                 }
                 ?>
             </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="orderDetailModal" id="showFees">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="showFees">Modal title</h4>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <!--            <div class="modal-footer">-->
+            <!--                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
+            <!--                <button type="button" class="btn btn-primary">Save changes</button>-->
+            <!--            </div>-->
         </div>
     </div>
 </div>

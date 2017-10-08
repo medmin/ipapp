@@ -6,6 +6,7 @@ use app\models\AnnualFeeMonitors;
 use app\models\Notification;
 use app\models\Patents;
 use app\models\UnpaidAnnualFee;
+use Symfony\Component\Yaml\Tests\A;
 use Yii;
 use app\models\Users;
 use app\models\UsersSearch;
@@ -53,12 +54,12 @@ class UsersController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['index', 'view', 'notify', 'events-schedule'],
+                        'actions' => ['index', 'view', 'notify', 'events-schedule', 'client-monitor-patents', 'patents-search'],
                         'roles' => ['admin', 'manager', 'secadmin']
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['personal-settings', 'reset-password', 'my-patents', 'monitor-patents', 'monitor-unpaid-list', 'follow-patents', 'unfollow-patent', 'records'],
+                        'actions' => ['personal-settings', 'reset-password', 'my-patents', 'monitor-patents', 'monitor-unpaid-list', 'follow-patents', 'unfollow-patent', 'records', 'show-unpaid-fee'],
                         'roles' => ['@']
                     ],
                     [
@@ -395,18 +396,22 @@ class UsersController extends BaseController
     /**
      * 添加监管
      *
+     * @param integer $user_id
      * @return bool|string
      */
-    public function actionFollowPatents()
+    public function actionFollowPatents($user_id = null)
     {
+        if (Yii::$app->user->identity->userRole === Users::ROLE_CLIENT || !$user_id) {
+            $user_id = Yii::$app->user->id;
+        }
         if (Yii::$app->request->isPost) {
             $patent_id = Yii::$app->request->post('id');
-            if (!Patents::findOne($patent_id) || AnnualFeeMonitors::findOne(['user_id' => Yii::$app->user->id, 'patent_id' => $patent_id])) {
+            if (!Patents::findOne($patent_id) || AnnualFeeMonitors::findOne(['user_id' => $user_id, 'patent_id' => $patent_id])) {
                 return false;
             } else {
                 $model = new AnnualFeeMonitors();
                 $model->patent_id = $patent_id;
-                $model->user_id = Yii::$app->user->id;
+                $model->user_id = $user_id;
                 return $model->save();
             }
         } else {
@@ -443,9 +448,15 @@ class UsersController extends BaseController
      * @param integer $id patentID
      * @return false|int
      */
-    public function actionUnfollowPatent($id)
+    public function actionUnfollowPatent($id, $user_id = null)
     {
-        return AnnualFeeMonitors::findOne(['user_id' => Yii::$app->user->id, 'patent_id' => $id])->delete();
+        if (Yii::$app->user->identity->userRole === Users::ROLE_CLIENT || !$user_id) {
+            $user_id = Yii::$app->user->id;
+        }
+        if ($model = AnnualFeeMonitors::findOne(['user_id' => $user_id, 'patent_id' => $id])) {
+            return $model->delete();
+        }
+        return false;
     }
 
     /**
@@ -467,6 +478,49 @@ class UsersController extends BaseController
             ],
         ]);
         return $this->render('records', ['dataProvider' => $dataProvider]);
+    }
+
+    public function actionClientMonitorPatents($user_id)
+    {
+        $dataProvider = new ActiveDataProvider([
+            'query' => AnnualFeeMonitors::find()->joinWith('patent')->where(['user_id' => $user_id]),
+            'pagination' => [
+                'pageSize' => 20,
+            ],
+        ]);
+        return $this->render('/common/client-monitor-patents', ['dataProvider' => $dataProvider ]);
+    }
+
+    public function actionPatentsSearch()
+    {
+        $No = trim(Yii::$app->request->post('No'));
+        $institution = trim(Yii::$app->request->post('institution'));
+        if (!$No && !$institution) {
+            return '';
+        }
+        $query = Patents::find();
+        if ($No) {
+            $query->andWhere(['patentApplicationNo' => Yii::$app->request->post('No')]);
+        }
+        if ($institution) {
+            $query->andWhere(['like', 'patentApplicationInstitution', Yii::$app->request->post('institution')]);
+        }
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => 200,
+            ],
+        ]);
+        return $this->renderPartial('/common/client-search-patents', ['patents' => $dataProvider]);
+    }
+
+    public function actionShowUnpaidFee($id)
+    {
+        $dataProvider = new ActiveDataProvider([
+            'query' => UnpaidAnnualFee::find()->where(['patentAjxxbID' => $id, 'status' => UnpaidAnnualFee::UNPAID])->orderBy(['due_date' => SORT_ASC]),
+            'sort' => false,
+        ]);
+        return $this->renderPartial('/common/unpaid-fee-list', ['models' => $dataProvider]);
     }
 
     /**
