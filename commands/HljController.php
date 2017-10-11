@@ -9,7 +9,9 @@
 namespace app\commands;
 
 
+use app\models\Patents;
 use GuzzleHttp\Client;
+use SebastianBergmann\CodeCoverage\Report\PHP;
 use Symfony\Component\DomCrawler\Crawler;
 use yii\console\Controller;
 
@@ -163,5 +165,110 @@ class HljController extends Controller
         $proxyPass   = "35C23C0BC635ADD0";
 
         return 'http://' . $proxyUser . ':' . $proxyPass . '@' . $proxyServer;
+    }
+
+
+    /**
+     * 导入Excel
+     * 导入之前先执行以下sql
+     * ALTER TABLE `patents` CHANGE `patentTitle` `patentTitle` VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '';
+     */
+    public function actionImport()
+    {
+        $successCount = 0;
+        echo 'Start time: ' . date('y/m/d H:i:s') . PHP_EOL;
+        $path_1 = './runtime/list.xlsx'; // 附件1：哈工大2016年授权专利待核实列表.xls
+        $path_2 = './runtime/one.xls'; //专利列表.xlsx
+        $objReader = \PHPExcel_IOFactory::load($path_1);
+        $sheetData = $objReader->getActiveSheet()->toArray(null,true,true,true);
+        /*
+         * 在.xlsx这个数据表中，F列的时间格式不一样，有的用/有的用-来分割，第122行的F列还多了一个中划线，手动更改
+         */
+        foreach ($sheetData as $idx => $data) {
+            if (strlen($data['C']) == 14) {
+                $applicationNo = str_replace('.','',$data['C']);
+                if (!Patents::findOne(['patentApplicationNo' => $applicationNo])) {
+                    $model = new Patents();
+                    $model->patentAjxxbID = 'AJ000001_' . str_pad((string)$idx,4,'0',STR_PAD_LEFT); //结果类似 AJ000001_0000
+                    $model->patentEacCaseNo = 'AAA'; // 没有唯一，就统一设为AAA
+                    $model->patentType = ''; // 没有类型
+                    $model->patentUserID = 0;
+                    $model->patentAgent = '';
+                    $model->patentProcessManager = '';
+                    $model->patentTitle = $data['D'];
+                    $model->patentApplicationNo = $applicationNo;
+                    $model->patentPatentNo = '';
+                    $model->patentNote = (string)$data['G']; // 将学院信息写到Note中,因为有的可能null，需要讲null转为字符串否则报错
+
+                    //这个日期很恶心，好多格式  2017/5/23 => 05-23-17 有的是string格式 有的是float
+                    if (is_string($data['F'])) {
+                        if (strlen($data['F']) == 8) {
+                            // 如果长度是8 说明是 05-23-14的格式  否则就是 2009-02-16的格式
+                            $model->patentApplicationDate = '20' . substr($data['F'],-2) . substr($data['F'],0,2) . substr($data['F'],3,2);
+                        } else {
+                            $model->patentApplicationDate = str_replace('-','',$data['F']);
+                        }
+                    } else {
+                        // 如果不是字符串格式，那就是float格式，从147行开始就是float
+                        $model->patentApplicationDate = (string)$data['F'];
+                    }
+
+                    $model->patentCaseStatus = '有效'; // 案件状态写为 有效
+                    $model->patentInventors = str_replace(';','、',$data['E']); // 从国知局爬过来的数据统一是顿号分割
+                    $model->patentApplicationInstitution = '哈尔滨工业大学'; // 设置专利权人为 哈尔滨工业大学(这个表数据较少，默认给成这个)
+                    $model->UnixTimestamp = round(microtime(true) * 1000);
+                    if (!$model->save()) {
+                        echo 'Error: ' . $applicationNo . PHP_EOL;
+                        print_r($model->errors);
+                        echo PHP_EOL;
+                    } else {
+//                        echo $model->patentApplicationNo . ' OK'.PHP_EOL;
+                        $successCount ++;
+                    }
+                } else {
+                    echo $applicationNo . ' already exists!' . PHP_EOL;
+                }
+            }
+        }
+        echo 'End ...' . PHP_EOL;
+        $objReader = \PHPExcel_IOFactory::load($path_2);
+        $sheetData = $objReader->getActiveSheet()->toArray(null,true,true,true);
+        foreach ($sheetData as $idx => $data) {
+            if ($idx > 1) {
+                $applicationNo = str_replace('.','',$data['B']);
+                if (!Patents::findOne(['patentApplicationNo' => $applicationNo])) {
+                    $model = new Patents();
+                    $model->patentAjxxbID = 'AJ000002_' . str_pad((string)$idx,4,'0',STR_PAD_LEFT);
+                    $model->patentEacCaseNo = 'AAAA';
+                    $model->patentType = $data['I'];
+                    $model->patentUserID = 0;
+                    $model->patentAgent = '';
+                    $model->patentProcessManager = '';
+                    $model->patentTitle = $data['A'];
+                    $model->patentApplicationNo = $applicationNo;
+                    $model->patentPatentNo = '';
+                    $model->patentNote = $data['H']; // 所属单位写入 Note
+                    $model->patentApplicationDate = str_replace('-','',$data['C']);
+                    $model->patentCaseStatus = '有效'; // 案件状态写为 有效
+                    $model->patentInventors = str_replace(',','、',$data['G']);
+                    $model->patentApplicationInstitution = $data['J'];
+                    $model->UnixTimestamp = round(microtime(true) * 1000);
+                    if (!$model->save()) {
+                        echo 'Error: ' . $applicationNo . PHP_EOL;
+                        print_r($model->errors);
+                        echo PHP_EOL;
+                    } else {
+//                        echo $model->patentApplicationNo . ' OK'.PHP_EOL;
+                        $successCount ++;
+                    }
+                } else {
+                    echo $applicationNo . ' already exists!' . PHP_EOL;
+                }
+            }
+        }
+
+        echo 'Successfully written: '.$successCount.PHP_EOL;
+        echo 'End time: ' . date('y/m/d H:i:s');
+
     }
 }

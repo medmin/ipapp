@@ -52,14 +52,15 @@ class Patents extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['patentAjxxbID', 'patentEacCaseNo', 'patentType', 'UnixTimestamp'], 'required'],
+            [['patentAjxxbID', 'patentEacCaseNo', 'UnixTimestamp'], 'required'],
             ['patentUserID', 'required', 'message' => '需要取消用户绑定请填写 0 '],
             [['patentUserID', 'patentUserLiaisonID', 'UnixTimestamp'], 'integer'],
             [['patentAjxxbID', 'patentEacCaseNo'], 'string', 'max' => 20],
             [['patentType'], 'string', 'max' => 8],
             [['patentUsername'], 'string', 'max' => 16],
             [['patentUserLiaison', 'patentAgent', 'patentProcessManager'], 'string', 'max' => 24],
-            [['patentTitle', 'patentApplicationNo', 'patentPatentNo'], 'string', 'max' => 40],
+            ['patentTitle', 'string', 'max' => 100],
+            [['patentApplicationNo', 'patentPatentNo'], 'string', 'max' => 40],
             [['patentNote', 'patentInventors'], 'string', 'max' => 1000],
             [['patentApplicationDate', 'patentFeeDueDate'], 'string', 'max' => 14],
             [['patentAjxxbID'], 'unique'],
