@@ -78,6 +78,28 @@ class Patentevents extends \yii\db\ActiveRecord
     }
 
     /**
+     * 事务类型列表
+     */
+    public static function eventTypes()
+    {
+        return [
+            0 => '请选择专利事务和微信通知的类型',
+            1 => '新申请受理通知',
+            2 => '初审合格通知',
+            3 => '公开及实审通知',
+            4 => '专利授权通知',
+            5 => '专利被驳回通知',
+            6 => '第1次审核意见通知',
+            7 => '第2次审核意见通知',
+            8 => '第3次审核意见通知',
+            9 => '第4次审核意见通知',
+            10 => '第5次审核意见通知',
+            -1 => '以上均不是，创建事务，不发送微信通知',
+            -2 => '以上均不是，不创建事务，不发送微信通知',
+        ];
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getPatent()

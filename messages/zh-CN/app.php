@@ -129,6 +129,7 @@ return [
     'INACTIVE' => '已完成',
     'PENDING' => '正在进行中',
     'Patentevents TODO' => '待办事项',
+    'Event TYPE' => '事务类型',
 
     // Patents View
     'Patents Progress' => '专利进度',
