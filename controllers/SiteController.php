@@ -121,8 +121,8 @@ class SiteController extends Controller
         $model = new SignupForm();
         if ($model->load(Yii::$app->request->post()) && $user = $model->signup()) {
             if (Yii::$app->getUser()->login($user)) {
-                    return $this->goHome();
-                }
+                return $this->redirect('/users/my-patents');
+            }
         }
 
         return $this->render('signup', [
@@ -150,7 +150,11 @@ class SiteController extends Controller
                 }
                 $userIdentity = Users::findIdentity($wxUser->userID);
                 if(Yii::$app->user->login($userIdentity, 3600 * 24 * 30)){
-                    return $this->goBack();
+                    if (Yii::$app->user->identity->userRole == Users::ROLE_CLIENT) {
+                        return $this->redirect('/users/my-patents');
+                    } else {
+                        return $this->goBack();
+                    }
                 } else {
                     // 这个else 我自己都觉得不会出现，去掉末尾会一直提示缺少return - -
                     Yii::$app->getSession()->set('error','未知错误');
@@ -203,7 +207,7 @@ class SiteController extends Controller
         $model->openid = Yii::$app->getSession()->get('wx_openid', '');
         if ($model->load(Yii::$app->request->post()) && ($user = $model->signup()) !== null){
             if (Yii::$app->getUser()->login($user)) {
-                return $this->goHome();
+                return $this->redirect('/users/my-patents');
             }
         }
         $this->layout = 'main-login';
