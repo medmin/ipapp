@@ -176,6 +176,8 @@ class PatentfilesController extends Controller
         $model->ajxxb_id = $ajxxb_id;
 
         if (Yii::$app->request->isPost) {
+            // 事务类型
+            $model->eventType = Yii::$app->request->post('UploadForm')['eventType'];
             $model->patentFiles = UploadedFile::getInstances($model, 'patentFiles');
             if ($model->upload()) {
                 // file is uploaded successfully
@@ -185,8 +187,10 @@ class PatentfilesController extends Controller
                 return Json::encode(['code' => 1, 'msg' => json_encode($model->errors, JSON_UNESCAPED_UNICODE)]);
             }
         }
+        // 事务类型列表
+        $eventTypes = Patentevents::eventTypes();
 
-        return $this->render('upload', ['model' => $model]);
+        return $this->render('upload', ['model' => $model, 'eventTypes'=>$eventTypes]);
     }
 
     /**
