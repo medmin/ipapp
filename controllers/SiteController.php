@@ -99,7 +99,11 @@ class SiteController extends Controller
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+            if (Yii::$app->user->identity->userRole == Users::ROLE_CLIENT && Yii::$app->getUser()->getReturnUrl() == Yii::$app->getHomeUrl()) {
+                return $this->redirect('/users/my-patents');
+            } else {
+                return $this->goBack();
+            }
         }
         return $this->render('login', [
             'model' => $model,
