@@ -183,7 +183,7 @@ class PatentsController extends Controller
         if (Yii::$app->user->identity->userRole == Users::ROLE_CLIENT) {
             $where_condition += ['eventUserID' => Yii::$app->user->id];
         }
-        $events = Patentevents::find()->where($where_condition)->orderBy(['eventCreatUnixTS' => SORT_DESC])->all();
+        $events = Patentevents::find()->where($where_condition)->andWhere(['in', 'eventContentID', ['05', '07', 'file', 'deleteFile']])->orderBy(['eventCreatUnixTS' => SORT_DESC])->all();
 
         return $this->render('main', ['models' => $events]);
     }

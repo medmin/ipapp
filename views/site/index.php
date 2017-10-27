@@ -9,7 +9,7 @@ $this->title = '';
 ?>
 <?php if (Yii::$app->user->identity->userRole == \app\models\Users::ROLE_CLIENT): ?>
     <?php
-    $events = app\models\Patentevents::find()->where(['eventUserID' => Yii::$app->user->id])->orderBy(['eventCreatUnixTS' => SORT_DESC])->all();
+    $events = app\models\Patentevents::find()->where(['eventUserID' => Yii::$app->user->id])->andWhere(['in', 'eventContentID', ['05', '07', 'file', 'deleteFile']])->orderBy(['eventCreatUnixTS' => SORT_DESC])->all();
     $patents = \app\models\Patents::find()->where(['patentUserID' => Yii::$app->user->id])->count();
     if (!$events && !$patents) {
         $html = '<div class="alert alert-warning alert-dismissible">';
