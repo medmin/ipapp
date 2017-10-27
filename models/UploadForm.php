@@ -116,40 +116,6 @@ class UploadForm extends Model
                         {
                             throw new \Exception();
                         }
-
-                        // 判断是否发送微信通知
-                        if ($this->eventType != -1) {
-                            // 发送微信通知
-                            $user = WxUser::findOne(['userid' => $patent->patentUserID]);
-                            if ($user) {
-                                $options = [
-                                    'debug'  => YII_DEBUG,
-                                    'app_id' => Yii::$app->params['wechat']['id'],
-                                    'secret' => Yii::$app->params['wechat']['secret'],
-                                    'token'  => Yii::$app->params['wechat']['token'],
-                                    'aes_key' => Yii::$app->params['wechat']['aes_key'],
-                                    'log' => [
-                                        'level' => 'debug',
-                                        'file'  => Yii::$app->params['wechat_log_path'], // XXX: 绝对路径！！！！
-                                    ]
-                                ];
-                                $app = new Application($options);
-                                $notice = $app->notice;
-
-                                $data = [
-                                    'first' => '您好，您的专利有新进展',
-                                    'keyword1' => $patent->patentTitle, //数据OK
-                                    'keyword2' => Patentevents::eventTypes()[$this->eventType],
-                                    'remark' => '如果有任何疑问，请拨打0451-88084686',
-                                ];
-                                $messageID = $notice->send([
-                                    'touser' => $user->fakeid,
-                                    'template_id' => TemplateForm::PROJECT_PROGRESS_NOTIFICATION,
-                                    'url' => 'https://kf.shineip.com/',
-                                    'data' => $data,
-                                ]);
-                            }
-                        }
                     }
 
 
@@ -165,6 +131,39 @@ class UploadForm extends Model
 
 
                 $file->saveAs($fileObj->filePath);
+            }
+            // 判断是否发送微信通知
+            if (!in_array($this->eventType, [-1, -2])) {
+                // 发送微信通知
+                $user = WxUser::findOne(['userid' => $patent->patentUserID]);
+                if ($user) {
+                    $options = [
+                        'debug'  => YII_DEBUG,
+                        'app_id' => Yii::$app->params['wechat']['id'],
+                        'secret' => Yii::$app->params['wechat']['secret'],
+                        'token'  => Yii::$app->params['wechat']['token'],
+                        'aes_key' => Yii::$app->params['wechat']['aes_key'],
+                        'log' => [
+                            'level' => 'debug',
+                            'file'  => Yii::$app->params['wechat_log_path'], // XXX: 绝对路径！！！！
+                        ]
+                    ];
+                    $app = new Application($options);
+                    $notice = $app->notice;
+
+                    $data = [
+                        'first' => '您好，您的专利有新进展',
+                        'keyword1' => $patent->patentTitle, //数据OK
+                        'keyword2' => Patentevents::eventTypes()[$this->eventType],
+                        'remark' => '如果有任何疑问，请拨打0451-88084686',
+                    ];
+                    $messageID = $notice->send([
+                        'touser' => $user->fakeid,
+                        'template_id' => TemplateForm::PROJECT_PROGRESS_NOTIFICATION,
+                        'url' => 'https://kf.shineip.com/',
+                        'data' => $data,
+                    ]);
+                }
             }
             return true;
         } else {
