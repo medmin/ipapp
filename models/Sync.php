@@ -308,7 +308,7 @@ class Sync extends Model
                                     $thisOnePatent->patentApplicationNo
                                 );
 
-                                $thisOnePatent->patentApplicationNo = $ajxxbOneSingleRow['shenqingh'] ?? 'Not Available Yet';
+                                $thisOnePatent->patentApplicationNo = $ajxxbOneSingleRow['shenqingh'] ?? '';
                                 $thisOnePatent->patentApplicationDate = $ajxxbOneSingleRow['shenqingr'];
                                 $thisOnePatent->UnixTimestamp = $ajxxbOneSingleRow['modtime'] ?? 0 ;
                                 $thisOnePatent->save();
@@ -356,7 +356,7 @@ class Sync extends Model
                                 //可以新增一个函数，如果zhubanr是空，就发邮件 给张金珠，提醒要分配主办人了
                                 $patent->patentAgent = $ajxxbOneSingleRow['zhubanr'];
                                 $patent->patentTitle = $ajxxbOneSingleRow['zhuanlizwmc'] ?? '尚未定义专利名称或标题';
-                                $patent->patentApplicationNo = $ajxxbOneSingleRow['shenqingh'] ?? 'Not Available Yet';
+                                $patent->patentApplicationNo = $ajxxbOneSingleRow['shenqingh'] ?? '';
                                 $patent->patentApplicationDate = $ajxxbOneSingleRow['shenqingr'];
                                 $patent->UnixTimestamp = $ajxxbOneSingleRow['modtime'] ?? 0 ;
                                 $patent->save();
