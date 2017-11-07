@@ -25,4 +25,9 @@ class SyncController extends Controller
         (new \app\models\Sync())->newSyncPatentevents();
         $this->stdout('Complete' . PHP_EOL);
     }
+
+    public function actionTest($id)
+    {
+        echo (new \app\models\Sync())->syncSinglePatent($id);
+    }
 }

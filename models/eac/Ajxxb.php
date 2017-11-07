@@ -13,6 +13,10 @@ use yii\db\ActiveRecord;
  * @property string $wofangwh
  * @property string $youxiaobj
  * @property string $zhubanr
+ * @property string $zhuanlilx
+ * @property string $zhuanlizwmc
+ * @property string $shenqingh
+ * @property string $shenqingr
  * @property integer $modtime
  */
 class Ajxxb extends ActiveRecord

@@ -8,11 +8,14 @@
 namespace app\models;
 
 //use phpDocumentor\Reflection\Types\Null_;
+use EasyWeChat\Js\Js;
 use yii\base\Model;
 use Yii;
 use app\models\eac\Ajxxb;
 use app\models\eac\Rwsl;
 use yii\db\Transaction;
+use yii\helpers\Json;
+
 //use app\queues\SendEmailJob;
 
 class Sync extends Model
@@ -497,6 +500,80 @@ class Sync extends Model
             throw $e;
         }
         return true;
+    }
+
+    public function syncSinglePatent(string $eac_case_no)
+    {
+        $ajxxb = Ajxxb::findOne(['wofangwh' => $eac_case_no]);
+        if (!$ajxxb) {
+            return Json::encode(['status' => false, 'message' => $eac_case_no . '案卷号不存在']);
+        }
+        $patent = Patents::findOne(['patentAjxxbID' => $ajxxb->aj_ajxxb_id]);
+        if ($patent) {
+            if ($ajxxb->youxiaobj == '01') {
+                switch ($ajxxb->zhuanlilx) {
+                    case '01':
+                        $patent->patentType = '发明专利';
+                        break;
+                    case '02':
+                        $patent->patentType = '实用新型';
+                        break;
+                    case '03':
+                        $patent->patentType = '外观设计';
+                        break;
+                    default:
+                        $patent->patentType = '暂无类型'; // 数据库不可以为空，这个地方应该改为'',但是应该都是有类型的
+                }
+                $patent->patentEacCaseNo = $ajxxb->wofangwh; //这里是我方卷号，AAA或BAA开头
+                $patent->patentAgent = $ajxxb->zhubanr;
+                $patent->patentTitle = $ajxxb->zhuanlizwmc ?? ''; // 标题可以是空的
+                $patent->patentApplicationNo = $ajxxb->shenqingh ?? '';
+                $patent->patentApplicationDate = $ajxxb->shenqingr ?? '';
+                $patent->UnixTimestamp = $ajxxb->modtime ?? 0 ;
+                if ($patent->save()) {
+                    return Json::encode(['status' => true, 'message' => 'OK']);
+                } else {
+                    return Json::encode(['status' => false, 'message' => json_encode($patent->errors)]); // 查看错误消息
+                }
+            } else {
+                //老记录，但youxiaobj不是01了，要删除
+                Patentevents::deleteAll(['patentAjxxbID' => $ajxxb->aj_ajxxb_id]);
+                $patent->delete();
+                return Json::encode(['status' => true, 'message' => $eac_case_no . '该专利是无效的,已在本系统删除']);
+            }
+        } else {
+            if ($ajxxb->youxiaobj == '01') {
+                // 有效的话就插入
+                $patent = new Patents();
+                $patent->patentAjxxbID = $ajxxb->aj_ajxxb_id;
+                switch ($ajxxb->zhuanlilx) {
+                    case '01':
+                        $patent->patentType = '发明专利';
+                        break;
+                    case '02':
+                        $patent->patentType = '实用新型';
+                        break;
+                    case '03':
+                        $patent->patentType = '外观设计';
+                        break;
+                    default:
+                        $patent->patentType = '暂无类型'; // 数据库不可以为空，这个地方应该改为''
+                }
+                $patent->patentEacCaseNo = $ajxxb->wofangwh; //这里是我方卷号，AAA或BAA开头
+                $patent->patentAgent = $ajxxb->zhubanr;
+                $patent->patentTitle = $ajxxb->zhuanlizwmc ?? ''; // 标题可以是空的
+                $patent->patentApplicationNo = $ajxxb->shenqingh ?? '';
+                $patent->patentApplicationDate = $ajxxb->shenqingr ?? '';
+                $patent->UnixTimestamp = $ajxxb->modtime ?? 0 ;
+                if ($patent->save()) {
+                    return Json::encode(['status' => true, 'message' => 'OK']);
+                } else {
+                    return Json::encode(['status' => false, 'message' => json_encode($patent->errors)]);
+                }
+            } else {
+                return Json::encode(['status' => false, 'message' => $eac_case_no . '不是有效案件']);
+            }
+        }
     }
 
 }

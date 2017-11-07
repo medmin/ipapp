@@ -69,7 +69,7 @@ class HljController extends Controller
         $total = 19439;
         $pagerecord = 500; // 最多500
 
-        for ($i=1; $i <= ceil($total/$pagerecord); $i++) {
+        for ($i=1; $i <= 1; $i++) {
             $client = new Client();
             $options = [
                 'headers' => [
@@ -79,7 +79,7 @@ class HljController extends Controller
                     'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
                     'Accept-Language' => 'zh-CN,zh;q=0.8',
                     'Connection' => 'keep-alive',
-                    'Cookie' => 'hasshown=1; _gscs_1547464065=073765259g5j6c90|pv:3; _gscbrs_1547464065=1; tencentSig=7451088896; _qddaz=QD.xuzlxr.ai4dpc.j8fo6daj; _gscu_1547464065=043244422dtr4j90; IESESSION=alive; _qddamta_4001880860=4-0; _qdda=4-1.1xjlcv; _qddab=4-1znut3.j96ujj65; JSESSIONID=2D1806418A9437B8B04824CE6B864364; _qddaz=QD.xuzlxr.ai4dpc.j8fo6daj; _gscu_1547464065=043244422dtr4j90; IESESSION=alive; _qdda=4-1.1xjlcv; _qddab=4-1znut3.j96ujj65',
+                    'Cookie' => 'tencentSig=4818557952; JSESSIONID='.$this->getJessionID().'; _qddaz=QD.xuzlxr.ai4dpc.j8fo6daj; _gscu_1547464065=043244422dtr4j90; IESESSION=alive; _qddamta_4001880860=4-0; _qdda=4-1.1d0eof; _qddab=4-1912wz.j9aobqjv', // _qddab 每天
                     'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36'
                 ],
                 'form_params' => [
@@ -122,6 +122,25 @@ class HljController extends Controller
         }
     }
 
+    public function getJessionID()
+    {
+        $ch = curl_init('http://db.hlipo.gov.cn:8080/ipsss/showSearchForm.do?area=cn');
+        curl_setopt($ch, CURLOPT_REFERER, "http://db.hlipo.gov.cn:8080/ipsss/");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['host' => 'http://db.hlipo.gov.cn:8080']);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // get headers too with this line
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+        $result = curl_exec($ch);
+        // get cookie
+        // multi-cookie variant contributed by @Combuster in comments
+        preg_match_all('/^Set-Cookie:\s*([^;\r\n]*)/mi', $result, $matches);
+        $cookies = array();
+        foreach($matches[1] as $item) {
+            parse_str($item, $cookie);
+            $cookies = array_merge($cookies, $cookie);
+        }
+        return $cookies['JSESSIONID'];
+    }
 
     /**
      * 导入Excel
