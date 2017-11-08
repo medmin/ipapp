@@ -53,7 +53,9 @@ class Patents extends \yii\db\ActiveRecord
     {
         return [
             [['patentAjxxbID', 'patentEacCaseNo', 'UnixTimestamp'], 'required'],
-            ['patentUserID', 'required', 'message' => '需要取消用户绑定请填写 0 '],
+//            ['patentUserID', 'required', 'message' => '需要取消用户绑定请填写 0'],
+            ['patentUserID', 'default', 'value' => 0],
+            ['patentProcessManager', 'default', 'value' => ''],
             [['patentUserID', 'patentUserLiaisonID', 'UnixTimestamp'], 'integer'],
             [['patentAjxxbID', 'patentEacCaseNo'], 'string', 'max' => 20],
             [['patentType'], 'string', 'max' => 8],
