@@ -19,6 +19,7 @@ use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use app\queues\SendEmailJob;
 use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
 
 /**
  * UsersController implements the CRUD actions for Users model.
@@ -318,19 +319,13 @@ class UsersController extends BaseController
      */
     public function actionMyPatents()
     {
-        $dataProvider = new ActiveDataProvider([
-            'query' => Patents::find()->where(['patentUserID' => Yii::$app->user->id]),
-            'pagination' => [
-                'pageSize' => 10,
-            ],
-            'sort' => [
-                'defaultOrder' => [
-                    'UnixTimestamp' => SORT_DESC,
-                ]
-            ]
-        ]);
+        // 查询绑定的专利
+        $patents = Patents::find()
+            ->where(['patentUserID' => Yii::$app->user->id])
+            ->asArray()
+            ->all();
 
-        return $this->render('my-patents', ['dataProvider' => $dataProvider]);
+        return $this->render('my-patents', ['patents' => $patents]);
     }
 
     /**
@@ -347,19 +342,62 @@ class UsersController extends BaseController
         if (Yii::$app->user->identity->userRole === Users::ROLE_CLIENT) {
             $id = Yii::$app->user->id;
         }
-        $dataProvider = new ActiveDataProvider([
-            'query' => Patents::find()->where(['in', 'patentID', (new Query())->select('patent_id')->from('annual_fee_monitors')->where(['user_id' => $id])]),
-            'pagination' => [
-                'pageSize' => 10,
-            ],
-            'sort' => [
-                'defaultOrder' => [
-                    'patentFeeDueDate' => SORT_ASC,
-                ]
-            ]
-        ]);
 
-        return $this->render('monitor-patents', ['dataProvider' => $dataProvider]);
+        // 实例化guzzle
+        $client = new \GuzzleHttp\Client(['base_uri' => 'http://api.shineip.com/']);
+        // 查询所有监管的申请号
+        $application_nos = AnnualFeeMonitors::find()
+            ->select(['application_no'])
+            ->where(['user_id' => Yii::$app->user->id])
+            ->asArray()
+            ->column();
+
+        // 通过api获取数据
+        foreach ($application_nos as $application_no) {
+            // 获取专利信息
+            try {
+                $response = $client->request('GET', '/patents/view/'.$application_no);
+                $patent = json_decode($response->getBody(), true);
+                switch ($patent['general_status']) {
+                    case '无效':
+                        $patent['general_status_color'] = '#999';
+                        break;
+                    case '在审':
+                        $patent['general_status_color'] = '#f39c12';
+                        break;
+                    default:
+                        $patent['general_status_color'] = '#17a46d';
+                        break;
+                }
+                $patents[$application_no] = $patent;
+            } catch (\Exception $e) {
+                continue;
+            }
+            // 获取费用信息
+            try {
+                $response = $client->request('GET', "/patents/{$application_no}/unpaid-fees");
+                $patents[$application_no]['fee_info'] = json_decode($response->getBody(), true);
+            }
+            catch (\Exception $e) {
+
+            }
+        }
+
+        return $this->render('monitor-patents', ['patents' => $patents]);
+
+        // $dataProvider = new ActiveDataProvider([
+        //     'query' => Patents::find()->where(['in', 'patentApplicationNo', (new Query())->select('application_no')->from('annual_fee_monitors')->where(['user_id' => $id])]),
+        //     'pagination' => [
+        //         'pageSize' => 10,
+        //     ],
+        //     'sort' => [
+        //         'defaultOrder' => [
+        //             'patentFeeDueDate' => SORT_ASC,
+        //         ]
+        //     ]
+        // ]);
+
+        // return $this->render('monitor-patents', ['dataProvider' => $dataProvider]);
     }
 
 
@@ -405,44 +443,56 @@ class UsersController extends BaseController
             $user_id = Yii::$app->user->id;
         }
         if (Yii::$app->request->isPost) {
-            $patent_id = Yii::$app->request->post('id');
-            if (!Patents::findOne($patent_id) || AnnualFeeMonitors::findOne(['user_id' => $user_id, 'patent_id' => $patent_id])) {
+            $application_no = Yii::$app->request->post('application_no');
+            // if (!Patents::findOne($patent_id) || AnnualFeeMonitors::findOne(['user_id' => $user_id, 'patent_id' => $patent_id])) {
+            if (AnnualFeeMonitors::findOne(['user_id' => $user_id, 'application_no' => $application_no])) {
                 return false;
             } else {
                 $model = new AnnualFeeMonitors();
-                $model->patent_id = $patent_id;
+                $model->application_no = $application_no;
                 $model->user_id = $user_id;
                 return $model->save();
             }
         } else {
-            $title = trim(Yii::$app->request->getQueryParam('title'));
-            $applicationNo = trim(Yii::$app->request->getQueryParam('No'));
-            $inventor = trim(Yii::$app->request->getQueryParam('inventor'));
-            $institution = trim(Yii::$app->request->getQueryParam('institution'));
-            if (!$title && !$applicationNo && !$inventor && !$institution) {
-                return $this->render('follow-patents');
+            $application_no = trim(Yii::$app->request->getQueryParam('application_no'));
+            // 通过api获取数据
+            $client = new \GuzzleHttp\Client(['base_uri' => 'http://api.shineip.com/']);
+            try {
+                $response = $client->request('GET', '/patents/view/'.$application_no);
+                $patents[] = json_decode($response->getBody(), true);
+            } catch (\Exception $e) {
+                $patents = [];
             }
-            $query = Patents::find()->where(['<>','patentApplicationNo', '']);
-            if($title){
-                $query->andWhere(['like', 'patentTitle' , $title]);
-            }
-            if ($applicationNo) {
-                $query->andWhere(['patentApplicationNo' => $applicationNo]);
-            }
-            if ($inventor) {
-                $query->andWhere(['like', 'patentInventors', $inventor]);
-            }
-            if ($institution) {
-                $query->andWhere(['like', 'patentApplicationInstitution', $institution]);
-            }
-            $dataProvider = new ActiveDataProvider([
-                'query' => $query,
-                'pagination' => [
-                    'pageSize' => 10,
-                ],
-            ]);
+            return $this->render('follow-patents', ['patents' => $patents]);
 
-            return $this->render('follow-patents', ['dataProvider' => $dataProvider]);
+            // $title = trim(Yii::$app->request->getQueryParam('title'));
+            // $applicationNo = trim(Yii::$app->request->getQueryParam('No'));
+            // $inventor = trim(Yii::$app->request->getQueryParam('inventor'));
+            // $institution = trim(Yii::$app->request->getQueryParam('institution'));
+            // if (!$title && !$applicationNo && !$inventor && !$institution) {
+            //     return $this->render('follow-patents');
+            // }
+            // $query = Patents::find()->where(['<>','patentApplicationNo', '']);
+            // if($title){
+            //     $query->andWhere(['like', 'patentTitle' , $title]);
+            // }
+            // if ($applicationNo) {
+            //     $query->andWhere(['patentApplicationNo' => $applicationNo]);
+            // }
+            // if ($inventor) {
+            //     $query->andWhere(['like', 'patentInventors', $inventor]);
+            // }
+            // if ($institution) {
+            //     $query->andWhere(['like', 'patentApplicationInstitution', $institution]);
+            // }
+            // $dataProvider = new ActiveDataProvider([
+            //     'query' => $query,
+            //     'pagination' => [
+            //         'pageSize' => 10,
+            //     ],
+            // ]);
+
+            // return $this->render('follow-patents', ['dataProvider' => $dataProvider]);
         }
     }
 
@@ -452,12 +502,12 @@ class UsersController extends BaseController
      * @param integer $id patentID
      * @return false|int
      */
-    public function actionUnfollowPatent($id, $user_id = null)
+    public function actionUnfollowPatent($application_no, $user_id = null)
     {
         if (Yii::$app->user->identity->userRole === Users::ROLE_CLIENT || !$user_id) {
             $user_id = Yii::$app->user->id;
         }
-        if ($model = AnnualFeeMonitors::findOne(['user_id' => $user_id, 'patent_id' => $id])) {
+        if ($model = AnnualFeeMonitors::findOne(['user_id' => $user_id, 'application_no' => $application_no])) {
             return $model->delete();
         }
         return false;
@@ -518,13 +568,35 @@ class UsersController extends BaseController
         return $this->renderPartial('/common/client-search-patents', ['patents' => $dataProvider]);
     }
 
-    public function actionShowUnpaidFee($id)
+    public function actionShowUnpaidFee($application_no)
     {
-        $dataProvider = new ActiveDataProvider([
-            'query' => UnpaidAnnualFee::find()->where(['patentAjxxbID' => $id, 'status' => UnpaidAnnualFee::UNPAID])->orderBy(['due_date' => SORT_ASC]),
-            'sort' => false,
+        // 实例化guzzle
+        $client = new \GuzzleHttp\Client(['base_uri' => 'http://api.shineip.com/']);
+        // 获取费用信息
+        try {
+            $response = $client->request('GET', "/patents/{$application_no}/unpaid-fees");
+            $fee_info = json_decode($response->getBody(), true);
+        }
+        catch (\Exception $e) {
+            $fee_info = [];
+        }
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $fee_info,
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+            'sort' => [
+                'attributes' => ['id', 'name'],
+            ],
         ]);
+
         return $this->renderPartial('/common/unpaid-fee-list', ['models' => $dataProvider]);
+
+        // $dataProvider = new ActiveDataProvider([
+        //     'query' => UnpaidAnnualFee::find()->where(['patentAjxxbID' => 'AJ151100_1100', 'status' => UnpaidAnnualFee::UNPAID])->orderBy(['due_date' => SORT_ASC]),
+        //     'sort' => false,
+        // ]);
+        // return $this->renderPartial('/common/unpaid-fee-list', ['models' => $dataProvider]);
     }
 
     /**

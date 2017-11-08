@@ -17,8 +17,8 @@ $this->registerJs('
 // 年费监管
 function follow(which){
   url = "'. \yii\helpers\Url::to(['/users/follow-patents']) .'";
-  id = $(which).data("id");
-  $.post(url,{id:id},function(d){
+  application_no = $(which).data("application_no");
+  $.post(url,{application_no:application_no},function(d){
     if(d == true) {
       $(which).removeClass("btn-primary").addClass("btn-success disabled").attr("disabled", true).text("监管中");
     }
@@ -26,7 +26,7 @@ function follow(which){
 }
 // 取消监管
 function unfollow(which){
-  url = "'. \yii\helpers\Url::to(['/users/unfollow-patent']) .'"+"?id="+$(which).data("id");
+  url = "'. \yii\helpers\Url::to(['/users/unfollow-patent']) .'"+"?application_no="+$(which).data("application_no");
   $.post(url,function(d){
     if(d == false){
       console.log("没有监管过该专利");
@@ -55,22 +55,22 @@ function unfollow(which){
                 <div class="box box-info">
                     <form class="form-inline">
                         <div class="box-body">
-                            <div class="form-group col-sm-3">
+                            <!-- <div class="form-group col-sm-3">
                                 <label for="title" class="">专利名称</label>
                                 <input name="title" type="text" class="form-control" id="title" placeholder="专利名称">
-                            </div>
+                            </div> -->
                             <div class="form-group col-sm-3">
-                                <label for="No" class="">专利申请号</label>
-                                <input name="No" type="text" class="form-control" id="No" placeholder="专利申请号">
+                                <label for="application_no" class="">专利申请号</label>
+                                <input name="application_no" type="text" class="form-control" id="application_no" placeholder="专利申请号">
                             </div>
-                            <div class="form-group col-sm-3">
+                            <!-- <div class="form-group col-sm-3">
                                 <label for="institution" class="">申请人</label>
                                 <input name="institution" type="text" class="form-control" id="institution" placeholder="专利申请人">
                             </div>
                             <div class="form-group col-sm-3">
                                 <label for="inventor" class="">发明人</label>
                                 <input name="inventor" type="text" class="form-control" id="inventor" placeholder="发明人">
-                            </div>
+                            </div> -->
 
                         </div>
                         <div class="box-body">
@@ -81,24 +81,19 @@ function unfollow(which){
                     </form>
                 </div>
                 <?php
-                if (isset($dataProvider)) {
+                if (isset($patents)) {
                     $html = '<div class="box box-primary">';
-                    if (!$dataProvider->models) {
+                    if (!$patents) {
                         $html .= '<div class="box-header">没有找到相关专利</div>';
                         $html .= '<div class="box-body"></div>';
                     } else {
-                        $html .= "<div class=\"box-header with-border\">共查找到：<span class=\"text-red\">{$dataProvider->count}</span> 条记录</div>";
+                        $html .= "<div class=\"box-header with-border\">共查找到：<span class=\"text-red\">".count($patents)."</span> 条记录</div>";
                         $html .= '<div class="box-body">';
-                        foreach ($dataProvider->models as $model) {
-                            $html .= $this->render('/common/follow-patent-search', ['model' => $model]);
+                        foreach ($patents as $patent) {
+                            $html .= $this->render('/common/follow-patent-search', ['patent' => $patent]);
                         }
                         $html .= '</div>';
                         $html .= '<div class="box-footer clearfix" style="padding: 0 10px;">';
-                        $html .=  LinkPager::widget([
-                            'pagination' => $dataProvider->pagination,
-                            'hideOnSinglePage' => true,
-                            'options' => ['style' => 'margin: 10px 0 0 0;', 'class' => 'pagination']
-                        ]);
                         $html .= '</div>';
                     }
                     $html .= '</div>';

@@ -15,7 +15,7 @@ $this->title = false;
 $this->registerJs('
 function unfollow(w){
   if(window.confirm("确定取消监管?")){
-    $.post("'. \yii\helpers\Url::to(['/users/unfollow-patent']) .'"+"?id="+$(w).data("id"),function(d){
+    $.post("'. \yii\helpers\Url::to(['/users/unfollow-patent']) .'"+"?application_no="+$(w).data("application_no"),function(d){
       if(d){
         $(w).parents(".patent-info").hide(1000);
       }

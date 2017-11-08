@@ -42,8 +42,7 @@ class AnnualFeeMonitors extends ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'patent_id'], 'required'],
-            [['user_id', 'patent_id'], 'integer'],
+            [['user_id', 'application_no'], 'required'],
         ];
     }
 

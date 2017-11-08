@@ -20,15 +20,12 @@ $this->registerCss('
 ?>
 <div class="my-patents">
     <?php
-    if (!$dataProvider->models) {
+    if (!$patents) {
         echo '<div class="callout callout-warning"><p><i class="icon fa fa-warning"></i> 抱歉您暂时没有专利记录</p></div>';
     } else {
-        foreach ($dataProvider->models as $idx => $model) {
-            echo $this->render('/patents/patents-list', ['model' => $model, 'idx' => $idx + 1]);
+        foreach ($patents as $idx => $patent) {
+            echo $this->render('/patents/patents-list', ['patent' => $patent, 'idx' => $idx + 1]);
         }
-        echo LinkPager::widget([
-            'pagination'=>$dataProvider->pagination,
-        ]);
     }
     ?>
 </div>

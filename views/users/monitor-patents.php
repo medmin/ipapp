@@ -14,7 +14,7 @@ $this->title = false;
 $this->registerJs('
 function unfollow(w){
   if(window.confirm("确定取消监管?")){
-    $.post("'. \yii\helpers\Url::to(['/users/unfollow-patent']) .'"+"?id="+$(w).data("id"),function(d){
+    $.post("'. \yii\helpers\Url::to(['/users/unfollow-patent']) .'"+"?application_no="+$(w).data("application_no"),function(d){
       if(d){
         $(w).parents(".patent-info").hide(1000);
       }
@@ -60,8 +60,8 @@ if ($this->context->isMicroMessage) {
 } else {
 $this->registerJs('
 $(".pay-link").click(function(){
-  id = $(this).data("id");
-  url = "/pay/wx-qrcode?id="+id;
+  application_no = $(this).data("application_no");
+  url = "/pay/wx-qrcode?application_no="+application_no;
   html = "<p style=\"text-align: center\"><span class=\"badge\" style=\"background: #fff;color: #113521\">使用微信支付</span></p><img src=\'"+url+"\'>";
   $(this).parent().children(".pay-qrcode").show().html(html);
 });
@@ -70,7 +70,7 @@ $(".pay-link").click(function(){
 // 共有的js
 $this->registerJs('
 $(".c_c").click(function(){
-  $.get("show-unpaid-fee?id="+$(this).data("id"),function(d){
+  $.get("show-unpaid-fee?application_no="+$(this).data("application_no"),function(d){
     if (d) {
       $("#showFees").modal("show");
       $("#showFees .modal-title").text("未缴费信息");
@@ -100,17 +100,12 @@ $("#showFees").on("hidden.bs.modal", function (e) {
         <div class="tab-content">
             <div class="tab-pane active" id="patents">
                 <?php
-                if (!$dataProvider->models) {
+                if (!$patents) {
                     echo '<div class="callout callout-warning"><p><i class="icon fa fa-warning"></i> 暂无监管专利，<a href="'. \yii\helpers\Url::to(['follow-patents']) .'">点击此处进行添加</a></p></div>';
                 } else {
-                    foreach ($dataProvider->models as $idx => $model) {
-//            echo $this->render('/common/follow-patent', ['model' => $model]);
-                        echo $this->render('/common/follow-patent_2', ['model' => $model]);
+                    foreach ($patents as $idx => $patent) {
+                        echo $this->render('/common/follow-patent_2', ['patent' => $patent]);
                     }
-                    echo LinkPager::widget([
-                        'pagination'=>$dataProvider->pagination,
-                        'options' => ['style' => 'margin: 0;', 'class' => 'pagination']
-                    ]);
                 }
                 ?>
             </div>
