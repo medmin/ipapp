@@ -260,7 +260,7 @@ class PatentsController extends Controller
             'query' => $query,
             'sort' => [
                 'defaultOrder' => ['patentFeeDueDate' => SORT_ASC],
-                'attributes' => ['patentFeeDueDate', 'UnixTimestamp', 'patentType', 'patentAgent', 'patentProcessManager', 'patentApplicationDate'],
+                'attributes' => ['patentFeeDueDate'],
             ]
         ]);
 
