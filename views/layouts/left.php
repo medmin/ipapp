@@ -68,6 +68,7 @@
                         ['label' => '待办事务' . ($todo_count > 0 ? ('(' . $todo_count . ')') : ''), 'icon' => 'pencil', 'url' => \yii\helpers\Url::to(['/patentevents/todo'])],
                         ['label' => '缴费管理', 'icon' => 'rmb', 'url' => \yii\helpers\Url::to(['orders/index'])],
                         ['label' => '专利文件列表', 'icon' => 'folder-open-o', 'url' => \yii\helpers\Url::to(['patentfiles/index'])],
+                        ['label' => '即将到期', 'icon' => 'folder-open-o', 'url' => \yii\helpers\Url::to(['patents/expiring'])],
 //                        [
 //                            'label' => '系统工具',
 //                            'icon' => 'share',
