@@ -11,7 +11,7 @@ use yii\widgets\LinkPager;
 /* @var $dataProvider  */
 
 $this->title = '阳光惠远 | 专利查找';
-$this->title = false;
+$this->blocks['content-header'] = '';
 
 $this->registerJs('
 // 年费监管

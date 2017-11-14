@@ -1,11 +1,10 @@
 <?php
-use yii\widgets\LinkPager;
 
 /* @var $this yii\web\View */
 
 $this->title = Yii::t('app', 'My Patents');
 // $this->params['breadcrumbs'][] = $this->title;
-$this->title = false;
+$this->blocks['content-header'] = '';
 
 $this->registerJs('
 var collapseToggle = function(idx){

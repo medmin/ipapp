@@ -5,10 +5,8 @@
  * Time: 20:34
  */
 
-use yii\widgets\LinkPager;
-
 $this->title = '阳光惠远 | 缴费记录';
- $this->params['breadcrumbs'][] = $this->title;
+$this->blocks['content-header'] = '';
 ?>
 <div class="records">
     <div class="nav-tabs-custom">
@@ -54,10 +52,11 @@ $this->title = '阳光惠远 | 缴费记录';
                             'format' => 'raw',
                             'value' => function ($model) {
                                 $fees = json_decode($model->detailed_expenses,true);
-                                $html = '';
+                                $html = '<table width="100%">';
                                 foreach ($fees as $fee) {
-                                    $html .= '<p>' . $fee['type'] . '<span style="margin-left: 30px">' . $fee['amount'] . '</span>' . '元</p>';
+                                    $html .= '<tr><td>' . $fee['type'] . '</td><td width="30%" ">' . $fee['amount'] . '元</td></tr>';
                                 }
+                                $html .= '</table>';
                                 return $html;
                             }
                         ]

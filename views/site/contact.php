@@ -40,7 +40,11 @@ $this->params['breadcrumbs'][] = $this->title;
                         <?= $form->field($model, 'body')->textarea(['rows' => 6])->label(false) ?>
 
                         <?= $form->field($model, 'verifyCode')->widget(Captcha::className(), [
-                            'template' => '<div class="row"><div class="col-lg-3">{image}</div><div class="col-lg-6">{input}</div></div>',
+                            'template' => '<div class="row"><div class="col-sm-2">{image}</div><div class="col-sm-8">{input}</div></div>',
+                            'imageOptions' => [
+                                'style' => 'cursor: pointer',
+                                'title' => '点击刷新'
+                            ]
                         ]) ?>
 
                         <div class="form-group">

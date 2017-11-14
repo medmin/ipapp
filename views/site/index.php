@@ -5,7 +5,8 @@ use yii\helpers\Html;
 
 /* @var $this yii\web\View */
 
-$this->title = '';
+$this->title = '阳光惠远客服中心';
+$this->blocks['content-header'] = '';
 ?>
 <?php if (Yii::$app->user->identity->userRole == \app\models\Users::ROLE_CLIENT): ?>
     <?php

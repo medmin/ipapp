@@ -10,7 +10,7 @@ use yii\widgets\LinkPager;
 
 $this->title = '阳光惠远 | 缴费清单';
 // $this->params['breadcrumbs'][] = $this->title;
-$this->title = false;
+$this->blocks['content-header'] = '';
 
 $this->registerJs('
 function unfollow(w){

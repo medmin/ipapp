@@ -6,9 +6,10 @@ use yii\widgets\DetailView;
 /* @var $this yii\web\View */
 /* @var $model app\models\Patentfiles */
 
-$this->title = '文件详情' . $model->fileID;
+$this->title = '文件详情';
 $this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Patentfiles'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
+$this->params['breadcrumbs'][] = $model->fileID;
 ?>
 <div class="patentfiles-view">
     <div class="box box-info">
