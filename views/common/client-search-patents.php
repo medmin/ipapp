@@ -13,22 +13,15 @@ echo \yii\grid\GridView::widget([
         ['class' => 'yii\grid\SerialColumn'],
         [
             'label' => '专利名称',
-            'format' => 'raw',
-            'value' => function ($model) {
-                return \yii\helpers\Html::a($model->patentTitle,\yii\helpers\Url::to(['patents/view', 'id' => $model->patentID]));
-            }
+            'attribute' => 'title'
         ],
         [
             'label' => '申请人',
-            'value' => function ($model) {
-                return $model->patentApplicationInstitution;
-            }
+            'attribute' => 'applicants'
         ],
         [
             'label' => '申请号',
-            'value' => function ($model) {
-                return $model->patentApplicationNo;
-            }
+            'attribute' => 'application_no'
         ],
         [
             'class' => 'yii\grid\ActionColumn',
@@ -36,7 +29,7 @@ echo \yii\grid\GridView::widget([
             'template' => '{add}',
             'buttons' => [
                 'add' => function ($url, $model, $key) {
-                    return \yii\helpers\Html::button('监管', ['class' => 'btn btn-success follow-patent', 'data-id' => $key]);
+                    return \yii\helpers\Html::button('监管', ['class' => 'btn btn-success follow-patent', 'data-id' => $model['application_no']]);
                 }
             ]
         ],

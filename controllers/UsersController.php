@@ -6,20 +6,18 @@ use app\models\AnnualFeeMonitors;
 use app\models\Notification;
 use app\models\Patents;
 use app\models\UnpaidAnnualFee;
-use Symfony\Component\Yaml\Tests\A;
 use Yii;
 use app\models\Users;
 use app\models\UsersSearch;
 use yii\db\Query;
 use yii\helpers\Json;
-use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
-use app\queues\SendEmailJob;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
+use GuzzleHttp\Client;
 
 /**
  * UsersController implements the CRUD actions for Users model.
@@ -344,7 +342,7 @@ class UsersController extends BaseController
         }
 
         // 实例化guzzle
-        $client = new \GuzzleHttp\Client(['base_uri' => Yii::$app->params['api_base_uri']]);
+        $client = new Client(['base_uri' => Yii::$app->params['api_base_uri']]);
         // 查询所有监管的申请号
         $application_nos = AnnualFeeMonitors::find()
             ->select(['application_no'])
@@ -456,7 +454,7 @@ class UsersController extends BaseController
         } else {
             $application_no = trim(Yii::$app->request->getQueryParam('application_no'));
             // 通过api获取数据
-            $client = new \GuzzleHttp\Client(['base_uri' => Yii::$app->params['api_base_uri']]);
+            $client = new Client(['base_uri' => Yii::$app->params['api_base_uri']]);
             try {
                 $response = $client->request('GET', '/patents/view/'.$application_no);
                 $patents[] = json_decode($response->getBody(), true);
@@ -464,35 +462,6 @@ class UsersController extends BaseController
                 $patents = [];
             }
             return $this->render('follow-patents', ['patents' => $patents]);
-
-            // $title = trim(Yii::$app->request->getQueryParam('title'));
-            // $applicationNo = trim(Yii::$app->request->getQueryParam('No'));
-            // $inventor = trim(Yii::$app->request->getQueryParam('inventor'));
-            // $institution = trim(Yii::$app->request->getQueryParam('institution'));
-            // if (!$title && !$applicationNo && !$inventor && !$institution) {
-            //     return $this->render('follow-patents');
-            // }
-            // $query = Patents::find()->where(['<>','patentApplicationNo', '']);
-            // if($title){
-            //     $query->andWhere(['like', 'patentTitle' , $title]);
-            // }
-            // if ($applicationNo) {
-            //     $query->andWhere(['patentApplicationNo' => $applicationNo]);
-            // }
-            // if ($inventor) {
-            //     $query->andWhere(['like', 'patentInventors', $inventor]);
-            // }
-            // if ($institution) {
-            //     $query->andWhere(['like', 'patentApplicationInstitution', $institution]);
-            // }
-            // $dataProvider = new ActiveDataProvider([
-            //     'query' => $query,
-            //     'pagination' => [
-            //         'pageSize' => 10,
-            //     ],
-            // ]);
-
-            // return $this->render('follow-patents', ['dataProvider' => $dataProvider]);
         }
     }
 
@@ -500,6 +469,7 @@ class UsersController extends BaseController
      * 取消监管
      *
      * @param string $application_no
+     * @param string|null $user_id
      * @return false|int
      */
     public function actionUnfollowPatent($application_no, $user_id = null)
@@ -520,7 +490,6 @@ class UsersController extends BaseController
      */
     public function actionRecords()
     {
-        echo '暂时不可用';exit;
         $query = UnpaidAnnualFee::find()
             ->where(['<>', 'status', UnpaidAnnualFee::UNPAID])
             ->andWhere(['in', 'unpaid_annual_fee.patentAjxxbID', (new Query())->select('patentAjxxbID')->from('patents')->where(['in', 'patentID', AnnualFeeMonitors::find()->select('patent_id')->where(['user_id' => Yii::$app->user->id])])])
@@ -535,10 +504,35 @@ class UsersController extends BaseController
         return $this->render('records', ['dataProvider' => $dataProvider]);
     }
 
+    /**
+     * 管理员查看用户监管页
+     *
+     * @param $user_id
+     * @return string
+     */
     public function actionClientMonitorPatents($user_id)
     {
-        $dataProvider = new ActiveDataProvider([
-            'query' => AnnualFeeMonitors::find()->joinWith('patent')->where(['user_id' => $user_id]),
+        $client = new Client(['base_uri' => Yii::$app->params['api_base_uri']]);
+        $monitors = AnnualFeeMonitors::find()
+            ->select(['application_no', 'created_at'])
+            ->where(['user_id' => $user_id])
+            ->orderBy('created_at DESC')
+            ->asArray()
+            ->all();
+        $resultData = [];
+        foreach ($monitors as $value) {
+            try {
+                $response = $client->request('GET', '/patents/view/'.$value['application_no']);
+                $patent = json_decode($response->getBody(), true);
+                $patent['monitor_date'] = $value['created_at'];
+                $resultData[] = $patent;
+            } catch (\Exception $e) {
+                Yii::error($e->getMessage());
+                continue;
+            }
+        }
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $resultData,
             'pagination' => [
                 'pageSize' => 20,
             ],
@@ -546,6 +540,11 @@ class UsersController extends BaseController
         return $this->render('/common/client-monitor-patents', ['dataProvider' => $dataProvider ]);
     }
 
+    /**
+     * 管理员搜索专利给用户添加
+     *
+     * @return string
+     */
     public function actionPatentsSearch()
     {
         $No = trim(Yii::$app->request->post('No'));
@@ -553,20 +552,21 @@ class UsersController extends BaseController
         if (!$No && !$institution) {
             return '';
         }
-        $query = Patents::find();
-        if ($No) {
-            $query->andWhere(['patentApplicationNo' => Yii::$app->request->post('No')]);
+        $client = new Client(['base_uri' => Yii::$app->params['api_base_uri']]);
+        $resultData = [];
+        try {
+            $response = $client->request('GET', '/patents/view/'.$No);
+            $resultData[] = json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage());
         }
-        if ($institution) {
-            $query->andWhere(['like', 'patentApplicationInstitution', Yii::$app->request->post('institution')]);
-        }
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $resultData,
             'pagination' => [
-                'pageSize' => 200,
+                'pageSize' => 20,
             ],
         ]);
-        return $this->renderPartial('/common/client-search-patents', ['patents' => $dataProvider]);
+        return $this->renderPartial('/common/client-search-patents', ['patents' => $dataProvider]); // 目前支持支精确查找,只返回一条结果
     }
 
     /**

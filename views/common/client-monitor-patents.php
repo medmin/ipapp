@@ -23,14 +23,14 @@ $("body").on("click",".follow-patent",function(){
   var url = "/users/follow-patents?user_id=";
   var user_id = "'.Yii::$app->request->getQueryParam("user_id").'";
   var c_text = $(this);
-  $.post(url+user_id, {id:$(this).data("id")}, function(d){
+  $.post(url+user_id, {application_no:$(this).data("id")}, function(d){
     if (d){
       c_text.text("监管中").addClass("disabled")
     }
   })
 })
 $("body").on("click",".delete-patent",function(){
-  var url = "/users/unfollow-patent?id="+$(this).data("id")+"&user_id=";
+  var url = "/users/unfollow-patent?application_no="+$(this).data("id")+"&user_id=";
   var user_id = "'.Yii::$app->request->getQueryParam("user_id").'";
   var d_tr = $(this).parents("tr");
   $.post(url+user_id, function(d){
@@ -56,15 +56,16 @@ $("body").on("click",".delete-patent",function(){
                     <label for="No">专利号</label>
                     <input type="text" class="form-control" placeholder="专利号" name="No" id="No">
                 </div>
-                <div class="form-group col-md-6">
-                    <label for="institution">申请人</label>
-                    <input type="text" class="form-control" placeholder="申请人" name="institution" id="institution">
-                </div>
+<!--                <div class="form-group col-md-6">-->
+<!--                    <label for="institution">申请人</label>-->
+<!--                    <input type="text" class="form-control" placeholder="申请人" name="institution" id="institution">-->
+<!--                </div>-->
                 <div class="form-group col-md-12">
                     <button class="btn btn-success" type="button" onclick="search()">搜索</button>
                 </div>
             </form>
         </div>
+        <div class="clearfix"></div>
         <div class="patents-search-result">
 
         </div>
@@ -86,21 +87,16 @@ $("body").on("click",".delete-patent",function(){
                 ['class' => 'yii\grid\SerialColumn'],
                 [
                     'label' => '专利名称',
-                    'format' => 'raw',
-                    'value' => function ($model) {
-                        return \yii\helpers\Html::a($model->patent->patentTitle,\yii\helpers\Url::to(['patents/view', 'id' => $model->patent->patentID]));
-                    }
+                    'attribute' => 'title'
                 ],
                 [
                     'label' => '申请人',
-                    'value' => function ($model) {
-                        return $model->patent->patentApplicationInstitution;
-                    }
+                    'attribute' => 'applicants'
                 ],
                 [
                     'label' => '监管日期',
                     'value' => function ($model) {
-                        return date('Y-m-d H:i', $model->created_at);
+                        return date('Y-m-d H:i', $model['monitor_date']);
                     }
                 ],
                 [
@@ -109,7 +105,7 @@ $("body").on("click",".delete-patent",function(){
                     'template' => '{delete}',
                     'buttons' => [
                         'delete' => function ($url, $model, $key) {
-                            return \yii\helpers\Html::button('删除',['class' => 'btn btn-warning delete-patent', 'data-id' => $model->patent->patentID]);
+                            return \yii\helpers\Html::button('删除',['class' => 'btn btn-warning delete-patent', 'data-id' => $model['application_no']]);
                         }
                     ]
                 ],
