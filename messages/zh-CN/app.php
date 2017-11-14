@@ -86,6 +86,7 @@ return [
 
     //Patents
     'Patents' => '专利列表',
+    'Expiring' => '即将到期',
     'Create Patents' => '添加专利信息',
     'Patent Eac Case No' => '案卷号',
     'Patent Type' => '专利类型',

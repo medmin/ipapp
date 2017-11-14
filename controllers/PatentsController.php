@@ -12,6 +12,7 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use app\queues\SendEmailJob;
+use yii\data\ActiveDataProvider;
 
 /**
  * PatentsController implements the CRUD actions for Patents model.
@@ -35,7 +36,7 @@ class PatentsController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['create', 'delete'],
+                        'actions' => ['create', 'delete', 'expiring'],
                         'roles' => ['admin']
                     ],
                     [
@@ -232,6 +233,41 @@ class PatentsController extends Controller
         header('Cache-Control: max-age=0');
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
         $objWriter->save('php://output');
+    }
+
+    /**
+     * 即将到期的专利
+     */
+    public function actionExpiring($date_type = 1)
+    {
+        $query = Patents::find();
+
+        $start_time = date('Ymd');
+        switch ($date_type) {
+            case 1:
+                $end_time = date('Ymd', strtotime('+7 days'));
+                break;
+            case 2:
+                $end_time = date('Ymd', strtotime('+15 days'));
+                break;
+            case 3:
+                $end_time = date('Ymd', strtotime('+30 days'));
+                break;
+        }
+        $query->where(['between', 'patentFeeDueDate', $start_time, $end_time]);
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'sort' => [
+                'defaultOrder' => ['patentFeeDueDate' => SORT_ASC],
+                'attributes' => ['patentFeeDueDate'],
+            ]
+        ]);
+
+        return $this->render('expiring', [
+            'dataProvider' => $dataProvider,
+            'date_type' => $date_type,
+        ]);
     }
 
     /**
