@@ -126,36 +126,6 @@ class Orders extends \yii\db\ActiveRecord
         ];
     }
 
-    //订单处理成功之后更新专利信息
-    public function successProcess()
-    {
-        $ids = json_decode($this->goods_id,true)['patents']; // 注意格式统一
-        foreach ($ids as $id) {
-            $isolationLevel = Transaction::SERIALIZABLE;
-            $innerTransaction = Yii::$app->db->beginTransaction($isolationLevel);
-            try {
-                $patent = Patents::findOne(['patentAjxxbID' => $id]);
-                // 更新unpaid表,注意参数
-                $unpaid = $patent->generateExpiredItems(90,false);
-                $count = UnpaidAnnualFee::updateAll(['status' => UnpaidAnnualFee::PAID, 'paid_at' => $_SERVER['REQUEST_TIME']],['in', 'id', array_column($unpaid,'id')]); // 这个返回值是更改的行数
-                if (!$count) {
-                    throw new ServerErrorHttpException('专利费用更新出错');
-                }
-                // 更新patent
-                $next_fee_date = ((int)substr($patent->patentFeeDueDate,0,4) + 1) . substr($patent->patentFeeDueDate,4);
-                $patent->patentFeeDueDate = $next_fee_date; //TODO 如果一个专利缴完最后一年的保护费，那么他的下一年会更新到第 21 年，这样如果用户处于第 20 年的最后三个月，他的专利颜色也是会变，但是没有缴费按钮(因为没有相应的信息)，这个其实可以不用考虑，颜色变了但没有缴费说明他的专利保护期就要到了。 - -
-                if (!$patent->save()) {
-                    throw new ServerErrorHttpException('专利状态更新失败');
-                }
-                $innerTransaction->commit();
-            } catch (\Exception $e) {
-                $innerTransaction->rollBack();
-                throw $e;
-            }
-        }
-        return true;
-    }
-
     /**
      * 关联用户
      * 
@@ -164,30 +134,5 @@ class Orders extends \yii\db\ActiveRecord
     public function getUser()
     {
         return $this->hasOne(Users::className(), ['userID' => 'user_id']);
-    }
-
-    /**
-     * 获取该订单相关的所有费用信息
-     *
-     * 返回格式：
-     * [
-     *     'patentAjxxbID' => [
-     *          ['id' => xxx, 'amount' => xxx, ...],
-     *          ['id' => xxx, 'amount' => xxx, ...],
-     *     ],
-     *     ...
-     * ]
-     *
-     * @return array
-     */
-    public function getFees()
-    {
-        $fees_id = json_decode($this->goods_id,true)['fees'];
-        $result = UnpaidAnnualFee::find()->where(['in', 'id', $fees_id])->asArray()->all();
-        $fees = [];
-        array_walk($result, function($value, $key) use (&$fees) {
-            $fees[$value['patentAjxxbID']][] = $value;
-        });
-        return $fees;
     }
 }

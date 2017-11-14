@@ -15,16 +15,6 @@ $this->registerJs('
 var searchToggle = function(){
   $("#toggleSearchBtn").trigger("click");
 }
-function finished(obj) {
-  if(confirm("确认已经缴费完成?")){
-    $.post("finish?id="+$(obj).data("id"),function(d){
-      if (d) {
-        $(obj).parents("td").prev().text("已完成");
-        $(obj).remove();
-      }
-    });
-  }
-}
 function detail(obj) {
   $.get("fee-detail?id="+$(obj).data("id"),function(d){
     if (d) {
@@ -76,22 +66,10 @@ $("#orderDetailModalLabel").on("hidden.bs.modal", function (e) {
                             return Html::a($model->user->userUsername, ['/users/view', 'id' => $model->user->userID], ['style' => 'color:#333']);
                         }
                     ],
-//                    [
-//                        'label' => '专利(或商标)名称',  // TODO 显示名称还是其他（比如申请号什么的）?
-//                        'format' => 'raw',
-//                        'value' => function ($model) {
-//                            $goods = json_decode($model->goods_id,true)['patents'];
-//                            $html = '';
-//                            foreach ($goods as $idx => $ajxxb_id) {
-//                                if ($idx != 0) {
-//                                    $html .= '</br>';
-//                                }
-//                                $patent = Patents::findOne(['patentAjxxbID' => $ajxxb_id]); // TODO DB 开支可能会比较大
-//                                $html .= Html::a($patent->patentTitle,['/patents/view', 'id' => $patent->patentID], ['style' => 'overflow: hidden;text-overflow: ellipsis;white-space: nowrap;width: 200px;display: block;', 'title' => $patent->patentTitle]);
-//                            }
-//                            return $html;
-//                        }
-//                    ],
+                    [
+                        'label' => '专利申请号',
+                        'attribute' => 'goods_id'
+                    ],
                     [
                         'attribute' => 'goods_type',
                         'value' => function ($model) {
@@ -113,7 +91,16 @@ $("#orderDetailModalLabel").on("hidden.bs.modal", function (e) {
                             return Orders::status()[$model->status]; // TODO 加点颜色好辨认
                         }
                     ],
-
+                    [
+                        'label' => '支付时间',
+                        'value' => function ($model) {
+                            if ($model->paid_at == 0) {
+                                return null;
+                            } else {
+                                return date('Y-m-d H:i:s', $model->paid_at);
+                            }
+                        }
+                    ],
                     [
                         'class' => 'yii\grid\ActionColumn',
                         'header' => Yii::t('app', 'Operation'),
@@ -124,7 +111,6 @@ $("#orderDetailModalLabel").on("hidden.bs.modal", function (e) {
                                     <span class="fa fa-caret-down"></span>
                                 </button>
                                 <ul class="dropdown-menu pull-right" role="menu">
-                                    <li>{finish}</li>
                                     <li>{detail}</li>
                                     <li>{view}</li>
                                     <li>{delete}</li>
@@ -142,13 +128,6 @@ $("#orderDetailModalLabel").on("hidden.bs.modal", function (e) {
                             'detail' => function ($url, $model, $key) {
                                 return Html::a('费用详情', 'javascript:void(0);', ['onclick' => 'detail(this)', 'data-id' => $key]);
                             },
-                            'finish' => function ($url, $model, $key) {
-                                if ($model->status == Orders::STATUS_PAID) {
-                                    return Html::a('交易完成', 'javascript:void(0);',['onclick' => 'finished(this)', 'data-id' => $key]);
-                                } else {
-                                    return '';
-                                }
-                            }
                         ],
                     ],
                 ],
