@@ -76,22 +76,22 @@ $("#orderDetailModalLabel").on("hidden.bs.modal", function (e) {
                             return Html::a($model->user->userUsername, ['/users/view', 'id' => $model->user->userID], ['style' => 'color:#333']);
                         }
                     ],
-                    [
-                        'label' => '专利(或商标)名称',  // TODO 显示名称还是其他（比如申请号什么的）?
-                        'format' => 'raw',
-                        'value' => function ($model) {
-                            $goods = json_decode($model->goods_id,true)['patents'];
-                            $html = '';
-                            foreach ($goods as $idx => $ajxxb_id) {
-                                if ($idx != 0) {
-                                    $html .= '</br>';
-                                }
-                                $patent = Patents::findOne(['patentAjxxbID' => $ajxxb_id]); // TODO DB 开支可能会比较大
-                                $html .= Html::a($patent->patentTitle,['/patents/view', 'id' => $patent->patentID], ['style' => 'overflow: hidden;text-overflow: ellipsis;white-space: nowrap;width: 200px;display: block;', 'title' => $patent->patentTitle]);
-                            }
-                            return $html;
-                        }
-                    ],
+//                    [
+//                        'label' => '专利(或商标)名称',  // TODO 显示名称还是其他（比如申请号什么的）?
+//                        'format' => 'raw',
+//                        'value' => function ($model) {
+//                            $goods = json_decode($model->goods_id,true)['patents'];
+//                            $html = '';
+//                            foreach ($goods as $idx => $ajxxb_id) {
+//                                if ($idx != 0) {
+//                                    $html .= '</br>';
+//                                }
+//                                $patent = Patents::findOne(['patentAjxxbID' => $ajxxb_id]); // TODO DB 开支可能会比较大
+//                                $html .= Html::a($patent->patentTitle,['/patents/view', 'id' => $patent->patentID], ['style' => 'overflow: hidden;text-overflow: ellipsis;white-space: nowrap;width: 200px;display: block;', 'title' => $patent->patentTitle]);
+//                            }
+//                            return $html;
+//                        }
+//                    ],
                     [
                         'attribute' => 'goods_type',
                         'value' => function ($model) {

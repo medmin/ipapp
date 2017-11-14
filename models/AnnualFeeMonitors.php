@@ -11,7 +11,7 @@ use yii\behaviors\TimestampBehavior;
  *
  * @property integer $id
  * @property integer $user_id
- * @property integer $patent_id
+ * @property string $application_no
  * @property integer $created_at
  */
 class AnnualFeeMonitors extends ActiveRecord
@@ -54,7 +54,7 @@ class AnnualFeeMonitors extends ActiveRecord
         return [
             'id' => Yii::t('app', 'ID'),
             'user_id' => Yii::t('app', 'User ID'),
-            'patent_id' => Yii::t('app', 'Patent ID'),
+            'application_no' => Yii::t('app', 'Application No'),
             'created_at' => Yii::t('app', 'Created At'),
         ];
     }

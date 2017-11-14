@@ -9,8 +9,22 @@
 
 echo \yii\grid\GridView::widget([
     'dataProvider' => $models,
+    'options' => [
+        'id' => 'unpaid-fees',
+        'class' => 'grid-view',
+    ],
     'columns' => [
-        ['class' => 'yii\grid\SerialColumn'],
+        [
+            'class' => 'yii\grid\CheckboxColumn',
+            'name' => 'id',
+            'header' => '',
+            'checkboxOptions' => function ($model, $key, $index, $column) {
+                return [
+                    'value' => $model['id'],
+                    'data-amount' => $model['amount'],
+                ];
+            }
+        ],
         [
             'label' => '费用类型',
             'attribute' => 'type'

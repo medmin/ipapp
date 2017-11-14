@@ -344,7 +344,7 @@ class UsersController extends BaseController
         }
 
         // 实例化guzzle
-        $client = new \GuzzleHttp\Client(['base_uri' => 'http://api.shineip.com/']);
+        $client = new \GuzzleHttp\Client(['base_uri' => Yii::$app->params['api_base_uri']]);
         // 查询所有监管的申请号
         $application_nos = AnnualFeeMonitors::find()
             ->select(['application_no'])
@@ -352,6 +352,7 @@ class UsersController extends BaseController
             ->asArray()
             ->column();
 
+        $patents = [];
         // 通过api获取数据
         foreach ($application_nos as $application_no) {
             // 获取专利信息
@@ -417,7 +418,7 @@ class UsersController extends BaseController
         }
         $dataProvider = new ActiveDataProvider([
             'query' => Patents::find()
-                    ->where(['in', 'patentID', (new Query())->select('patent_id')->from('annual_fee_monitors')
+                    ->where(['in', 'patentApplicationNo', (new Query())->select('application_no')->from('annual_fee_monitors')
                     ->where(['user_id' => $id])]),
             'pagination' => [
                 'pageSize' => 10,
@@ -444,7 +445,6 @@ class UsersController extends BaseController
         }
         if (Yii::$app->request->isPost) {
             $application_no = Yii::$app->request->post('application_no');
-            // if (!Patents::findOne($patent_id) || AnnualFeeMonitors::findOne(['user_id' => $user_id, 'patent_id' => $patent_id])) {
             if (AnnualFeeMonitors::findOne(['user_id' => $user_id, 'application_no' => $application_no])) {
                 return false;
             } else {
@@ -456,7 +456,7 @@ class UsersController extends BaseController
         } else {
             $application_no = trim(Yii::$app->request->getQueryParam('application_no'));
             // 通过api获取数据
-            $client = new \GuzzleHttp\Client(['base_uri' => 'http://api.shineip.com/']);
+            $client = new \GuzzleHttp\Client(['base_uri' => Yii::$app->params['api_base_uri']]);
             try {
                 $response = $client->request('GET', '/patents/view/'.$application_no);
                 $patents[] = json_decode($response->getBody(), true);
@@ -499,7 +499,7 @@ class UsersController extends BaseController
     /**
      * 取消监管
      *
-     * @param integer $id patentID
+     * @param string $application_no
      * @return false|int
      */
     public function actionUnfollowPatent($application_no, $user_id = null)
@@ -520,6 +520,7 @@ class UsersController extends BaseController
      */
     public function actionRecords()
     {
+        echo '暂时不可用';exit;
         $query = UnpaidAnnualFee::find()
             ->where(['<>', 'status', UnpaidAnnualFee::UNPAID])
             ->andWhere(['in', 'unpaid_annual_fee.patentAjxxbID', (new Query())->select('patentAjxxbID')->from('patents')->where(['in', 'patentID', AnnualFeeMonitors::find()->select('patent_id')->where(['user_id' => Yii::$app->user->id])])])
@@ -568,10 +569,16 @@ class UsersController extends BaseController
         return $this->renderPartial('/common/client-search-patents', ['patents' => $dataProvider]);
     }
 
+    /**
+     * 获取未缴年费
+     *
+     * @param $application_no
+     * @return string
+     */
     public function actionShowUnpaidFee($application_no)
     {
         // 实例化guzzle
-        $client = new \GuzzleHttp\Client(['base_uri' => 'http://api.shineip.com/']);
+        $client = new \GuzzleHttp\Client(['base_uri' => Yii::$app->params['api_base_uri']]);
         // 获取费用信息
         try {
             $response = $client->request('GET', "/patents/{$application_no}/unpaid-fees");
@@ -583,7 +590,7 @@ class UsersController extends BaseController
         $dataProvider = new ArrayDataProvider([
             'allModels' => $fee_info,
             'pagination' => [
-                'pageSize' => 10,
+                'pageSize' => 50,
             ],
             'sort' => [
                 'attributes' => ['id', 'name'],

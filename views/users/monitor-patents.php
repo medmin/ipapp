@@ -45,35 +45,15 @@ a[class="pay-link-disabled"] {
 }
 ');
 
-if ($this->context->isMicroMessage) {
-    $js = '
-    $(\'#pay-btn\').click(function(){
-	var url = "'. \yii\helpers\Url::to(["pay/payment"]).'";
-        $.post(url, {pay_type:\'WXPAY\',id:$(this).data(\'id\')}, function(d) {
-            if(d.done == true) {
-                $(\'#wxJS\').html(d.data);
-                callpay();
-            }
-        },\'json\');
-    })';
-    $this->registerJs($js);
-} else {
-$this->registerJs('
-$(".pay-link").click(function(){
-  application_no = $(this).data("application_no");
-  url = "/pay/wx-qrcode?application_no="+application_no;
-  html = "<p style=\"text-align: center\"><span class=\"badge\" style=\"background: #fff;color: #113521\">使用微信支付</span></p><img src=\'"+url+"\'>";
-  $(this).parent().children(".pay-qrcode").show().html(html);
-});
-');
-}
 // 共有的js
 $this->registerJs('
 $(".c_c").click(function(){
-  $.get("show-unpaid-fee?application_no="+$(this).data("application_no"),function(d){
+  var application_no = $(this).data("application_no");
+  $.get("show-unpaid-fee?application_no="+application_no,function(d){
     if (d) {
       $("#showFees").modal("show");
       $("#showFees .modal-title").text("未缴费信息");
+      $("#showFees input[name=\'annual-fee-application-no\']").val(application_no)
       $("#showFees .modal-body").html(d);
     }
   });
@@ -81,8 +61,54 @@ $(".c_c").click(function(){
 $("#showFees").on("hidden.bs.modal", function (e) {
   $("#showFees .modal-title").text("")
   $("#showFees .modal-body").html("");
+  $("#showFees input[name=\'annual-fee-application-no\']").val("");
 })
 ');
+// 缴费页面复选框
+$this->registerJs('
+$("body").on("click", "#unpaid-fees tr td", function(){
+  if ($(this).index() > 0) {
+      var checkbox = $(this).parent("tr").find(":checkbox");
+      checkbox.prop("checked", !checkbox.prop("checked"));
+  }
+});
+$("body").on("click", "#unpaid-fees tr", function () {
+  var sum = 0;
+  $("#unpaid-fees input:checkbox:checked").each(function(){
+      sum += $(this).data("amount");
+  });
+  $("#annual-fees-total").text(sum);
+});
+$(".pay-link-o").click(function(){
+  var id_values = [];
+  var application_no = $("#showFees input[name=\'annual-fee-application-no\']").val();
+  $("#unpaid-fees input:checkbox:checked").each(function(){
+      id_values.push($(this).val())
+  });
+  if (id_values.length == 0) {
+    alert("请选择至少一个缴费项");
+    return false;
+  }
+  
+  var url = "/pay/submit?application_no=" + application_no;
+  $.post(url, {"ids[]":id_values}, function(d){
+    if (d.done == false) {
+      alter(d.msg)
+    }
+    // 如果是微信浏览器
+    if (navigator.userAgent.toLowerCase().match(/MicroMessenger/i) == "micromessenger") {
+      $.getJSON("/pay/wx-pay?id="+d.data, function(r){
+        if (r.done == true) {
+          $("#wxJS").html(d.data);
+          callpay();
+        }
+      });
+    } else {
+      window.location.href = d.data; 
+    }
+  }, "json");
+})
+', \yii\web\View::POS_END);
 ?>
 <div class="patents">
     <div class="nav-tabs-custom">
@@ -112,20 +138,24 @@ $("#showFees").on("hidden.bs.modal", function (e) {
         </div>
     </div>
 </div>
+<div id="wxJS"></div>
 <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="orderDetailModal" id="showFees">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="showFees">Modal title</h4>
+                <input type="text" name="annual-fee-application-no" hidden title="" value="">
             </div>
             <div class="modal-body">
 
             </div>
-            <!--            <div class="modal-footer">-->
-            <!--                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
-            <!--                <button type="button" class="btn btn-primary">Save changes</button>-->
-            <!--            </div>-->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default">年费总计：<span id="annual-fees-total">0</span>元</button>
+<!--                            <button type="button" class="btn btn-default">服务费总计：<span id="service-charge-total">0</span>元</button>-->
+<!--                            <button type="button" class="btn btn-default">费用总计：<span id="total">0</span>元</button>-->
+                            <button type="button" class="btn btn-primary pay-link-o">立即缴费</button>
+                        </div>
         </div>
     </div>
 </div>

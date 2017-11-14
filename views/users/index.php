@@ -202,7 +202,7 @@ $this->registerJs($js, \yii\web\View::POS_END);
                                 return Html::a('主页', \yii\helpers\Url::to(['users/events-schedule', 'user_id' => $key]));
                             },
                             'follow' => function ($url, $model, $key) {
-                                return Html::a('监管专利', \yii\helpers\Url::to(['users/client-monitor-patents', 'user_id' => $key]));
+//                                return Html::a('监管专利', \yii\helpers\Url::to(['users/client-monitor-patents', 'user_id' => $key]));
                             }
                         ]
                     ],
