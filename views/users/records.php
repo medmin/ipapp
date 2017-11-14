@@ -7,9 +7,8 @@
 
 use yii\widgets\LinkPager;
 
-$this->title = '阳光惠远 | 年费监管';
-// $this->params['breadcrumbs'][] = $this->title;
-$this->title = false;
+$this->title = '阳光惠远 | 缴费记录';
+ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="records">
     <div class="nav-tabs-custom">
@@ -31,27 +30,17 @@ $this->title = false;
                     'columns' => [
                         ['class' => 'yii\grid\SerialColumn'],
                         [
-                            'label' => '专利名称',
-                            'value' => function ($model) {
-                                return $model->patent->patentTitle;
-                            }
-                        ],
-                        [
-                            'label' => '缴费类型',
-                            'value' => function ($model) {
-                                return $model->fee_type;
-                            }
+                            'label' => '申请号',
+                            'attribute' => 'goods_id'
                         ],
                         [
                             'label' => '金额',
-                            'value' => function ($model) {
-                                return $model->amount;
-                            }
+                            'attribute' => 'amount'
                         ],
                         [
                             'label' => '支付状态',
                             'value' => function ($model) {
-                                return $model->status == \app\models\UnpaidAnnualFee::FINISHED ? '已完成' : '正在处理';
+                                return \app\models\Orders::status()[$model->status];
                             }
                         ],
                         [
@@ -60,6 +49,18 @@ $this->title = false;
                                 return date('Y-m-d H:i',$model->paid_at);
                             }
                         ],
+                        [
+                            'label' => '订单详情',
+                            'format' => 'raw',
+                            'value' => function ($model) {
+                                $fees = json_decode($model->detailed_expenses,true);
+                                $html = '';
+                                foreach ($fees as $fee) {
+                                    $html .= '<p>' . $fee['type'] . '<span style="margin-left: 30px">' . $fee['amount'] . '</span>' . '元</p>';
+                                }
+                                return $html;
+                            }
+                        ]
                     ],
                 ]); ?>
             </div>

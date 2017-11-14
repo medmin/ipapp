@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\AnnualFeeMonitors;
 use app\models\Notification;
+use app\models\Orders;
 use app\models\Patents;
 use app\models\UnpaidAnnualFee;
 use Yii;
@@ -490,17 +491,13 @@ class UsersController extends BaseController
      */
     public function actionRecords()
     {
-        $query = UnpaidAnnualFee::find()
-            ->where(['<>', 'status', UnpaidAnnualFee::UNPAID])
-            ->andWhere(['in', 'unpaid_annual_fee.patentAjxxbID', (new Query())->select('patentAjxxbID')->from('patents')->where(['in', 'patentID', AnnualFeeMonitors::find()->select('patent_id')->where(['user_id' => Yii::$app->user->id])])])
-            ->joinWith('patent');
-
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-            'pagination' => [
-                'pageSize' => 10,
-            ],
-        ]);
+       $dataProvider = new ActiveDataProvider([
+           'query' => Orders::find()->where(['user_id' => Yii::$app->user->id]),
+           'pagination' => [
+               'pageSize' => 20
+           ],
+           'sort' => false,
+       ]);
         return $this->render('records', ['dataProvider' => $dataProvider]);
     }
 
