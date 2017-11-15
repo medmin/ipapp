@@ -99,7 +99,7 @@ $(".pay-link-o").click(function(){
     if (navigator.userAgent.toLowerCase().match(/MicroMessenger/i) == "micromessenger") {
       $.getJSON("/pay/wx-pay?id="+d.data, function(r){
         if (r.done == true) {
-          $("#wxJS").html(d.data);
+          $("#wxJS").html(r.data);
           callpay();
         }
       });
