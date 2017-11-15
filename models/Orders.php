@@ -56,9 +56,14 @@ class Orders extends \yii\db\ActiveRecord
     const STATUS_PAID = 1;
 
     /**
-     * 未支付(过期)
+     * 支付失败(比如微信通信成功但是付款未成功)
      */
-    const STATUS_UNPAID = 2;
+    const STATUS_PAID_FAIL = -1;
+
+    /**
+     * 订单关闭(过期或者失败的订单需要关闭)
+     */
+    const STATUS_CLOSE = -5;
 
     /**
      * 已完成(我方已缴费)
@@ -114,7 +119,8 @@ class Orders extends \yii\db\ActiveRecord
         return [
             self::STATUS_PENDING => '未付款',
             self::STATUS_PAID => '已支付',
-            self::STATUS_UNPAID => '已过期',
+            self::STATUS_PAID_FAIL => '支付失败',
+            self::STATUS_CLOSE => '已关闭',
             self::STATUS_FINISHED =>'已完成',
         ];
     }

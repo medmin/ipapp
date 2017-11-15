@@ -242,7 +242,6 @@ class PayController extends BaseController
         try {
             $system_order->out_trade_no = $notify->transaction_id;
             $system_order->payment_type = Orders::TYPE_WXPAY;
-            $system_order->user_id = Yii::$app->user->id;
             $system_order->paid_at = time();
             $system_order->status = Orders::STATUS_PAID;
             if (!$system_order->update()) {
@@ -268,8 +267,7 @@ class PayController extends BaseController
         $transaction = Yii::$app->db->beginTransaction($isolationLevel);
         try {
             $system_order->payment_type = Orders::TYPE_WXPAY;
-            $system_order->status = Orders::STATUS_UNPAID;
-            $system_order->user_id = Yii::$app->user->id;
+            $system_order->status = Orders::STATUS_PAID_FAIL;
             if (!$system_order->update()) {
                 throw new ServerErrorHttpException('系统内部订单更新出错');
             }

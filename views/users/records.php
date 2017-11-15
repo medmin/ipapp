@@ -35,12 +35,12 @@ $this->blocks['content-header'] = '';
                             'label' => '金额',
                             'attribute' => 'amount'
                         ],
-                        [
-                            'label' => '支付状态',
-                            'value' => function ($model) {
-                                return \app\models\Orders::status()[$model->status];
-                            }
-                        ],
+//                        [
+//                            'label' => '支付状态',
+//                            'value' => function ($model) {
+//                                return \app\models\Orders::status()[$model->status];
+//                            }
+//                        ],
                         [
                             'label' => '支付时间',
                             'value' => function ($model) {

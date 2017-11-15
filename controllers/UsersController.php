@@ -492,7 +492,7 @@ class UsersController extends BaseController
     public function actionRecords()
     {
        $dataProvider = new ActiveDataProvider([
-           'query' => Orders::find()->where(['user_id' => Yii::$app->user->id]),
+           'query' => Orders::find()->where(['user_id' => Yii::$app->user->id, 'status' => Orders::STATUS_PAID]),
            'pagination' => [
                'pageSize' => 20
            ],

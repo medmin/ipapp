@@ -3,7 +3,6 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 use app\models\Orders;
-use app\models\Patents;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\OrdersSearch */
@@ -87,8 +86,14 @@ $("#orderDetailModalLabel").on("hidden.bs.modal", function (e) {
 //                    'updated_at',
                     [
                         'attribute' => 'status',
+                        'format' => 'html',
                         'value' => function ($model) {
-                            return Orders::status()[$model->status]; // TODO 加点颜色好辨认
+                            if ($model->status == Orders::STATUS_PAID) {
+                                $style = ['color' => 'green'];
+                            } else {
+                                $style = ['color' => 'gray'];
+                            }
+                            return Html::tag('span', Orders::status()[$model->status], ['style' => $style]);
                         }
                     ],
                     [
