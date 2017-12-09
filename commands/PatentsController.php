@@ -19,13 +19,13 @@ class PatentsController extends Controller
     {
         // 建立爬虫
         $crawler = new YanCrawler([
-            'concurrency' => 10, // 并发线程数
+            'concurrency' => 5, // 并发线程数
             'is_init' => 1, // 是否初始化爬取队列
             'log_prefix' => 'patents:update-due-date', // 日志前缀
             'redis_prefix' => 'patents:update-due-date', // redis前缀
             'timeout' => 5.0,   // 爬取网页超时时间
             'log_step' => 5, // 每爬取多少页面记录一次日志
-            'base_uri' => 'http://api.shineip.com',
+            'base_uri' => Yii::$app->params['api_base_uri'],
             'retry_count' => 0,
             'queue_len' => '',
             'interval' => 0, // 爬取间隔时间
