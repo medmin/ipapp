@@ -6,7 +6,7 @@ use app\models\AnnualFeeMonitors;
 use app\models\Notification;
 use app\models\Orders;
 use app\models\Patents;
-use app\models\UnpaidAnnualFee;
+use app\models\UserLevel;
 use Yii;
 use app\models\Users;
 use app\models\UsersSearch;
@@ -54,12 +54,12 @@ class UsersController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['index', 'view', 'notify', 'events-schedule', 'client-monitor-patents', 'patents-search'],
+                        'actions' => ['index', 'view', 'notify', 'events-schedule', 'client-monitor-patents', 'patents-search', 'assignment', 'delete-assignment'],
                         'roles' => ['admin', 'manager', 'secadmin']
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['personal-settings', 'reset-password', 'my-patents', 'monitor-patents', 'monitor-unpaid-list', 'follow-patents', 'unfollow-patent', 'records', 'show-unpaid-fee'],
+                        'actions' => ['personal-settings', 'reset-password', 'my-patents', 'monitor-patents', 'monitor-unpaid-list', 'follow-patents', 'unfollow-patent', 'records', 'show-unpaid-fee', 'search'],
                         'roles' => ['@']
                     ],
                     [
@@ -195,6 +195,90 @@ class UsersController extends BaseController
     }
 
     /**
+     * 搜索用户，根据是否为邮箱或者数字来判断查找方式，返回用户简单数据
+     *
+     * @param $username
+     * @return string
+     */
+    public function actionSearch($username)
+    {
+        if ((filter_var($username, FILTER_VALIDATE_EMAIL) && ($user = Users::findByEmail($username)))
+            || (filter_var($username, FILTER_VALIDATE_INT) && ($user = Users::findByID($username)))) {
+            return Json::encode(['error' => false, 'id' => $user->userID, 'username' => $user->userUsername, 'fullname' => $user->userFullname, 'email' => $user->userEmail]);
+        }
+        return Json::encode(['error' => true]);
+    }
+
+    /**
+     * 给用户分配上下级
+     *
+     * @return string
+     */
+    public function actionAssignment()
+    {
+        $post = Yii::$app->request->post();
+        if ($post['type'] == 'sub') {
+            if (UserLevel::findOne(['user_id' => $post['user_id'], 'parent_id' => $post['id']])) {
+                return Json::encode(['error' => true, 'message' => '不能将上级设为下级']);
+            }
+            if (UserLevel::findOne(['user_id' => $post['id'], 'parent_id' => $post['user_id']])) {
+                return Json::encode(['error' => true, 'message' => '重复添加下级']);
+            }
+            $r = new UserLevel();
+            $r->user_id = $post['id'];
+            $r->parent_id = $post['user_id'];
+            if ($r->save()) {
+                return Json::encode(['error' => false]);
+            }
+        } elseif ($post['type'] == 'superior') {
+            if (UserLevel::findOne(['user_id' => $post['id'], 'parent_id' => $post['user_id']])) {
+                return Json::encode(['error' => true, 'message' => '不能将下级设为上级']);
+            }
+            if (UserLevel::findOne(['user_id' => $post['user_id'], 'parent_id' => $post['id']])) {
+                return Json::encode(['error' => true, 'message' => '重复添加上级']);
+            }
+            $r = new UserLevel();
+            $r->user_id = $post['user_id'];
+            $r->parent_id = $post['id'];
+            if ($r->save()) {
+                return Json::encode(['error' => false]);
+            }
+        } else {
+            return Json::encode(['error' => true, 'message' => '未知类型']);
+        }
+        return Json::encode(['error' => true, 'message' => '']);
+    }
+
+    /**
+     * 取消用户上下级关系
+     *
+     * @return string
+     */
+    public function actionDeleteAssignment()
+    {
+        $post = Yii::$app->request->post();
+        if ($post['type'] == 'sub') {
+            $r = UserLevel::findOne(['parent_id' => $post['user_id'], 'user_id' => $post['id']]);
+            if ($r) {
+                $r->delete();
+                return Json::encode(['error' => false, 'message' => 'ok']);
+            } else {
+                return Json::encode(['error' => true, 'message' => '用户不存在']);
+            }
+        } elseif ($post['type'] == 'superior') {
+            $r = UserLevel::findOne(['parent_id' => $post['id'], 'user_id' => $post['user_id']]);
+            if ($r) {
+                $r->delete();
+                return Json::encode(['error' => false, 'message' => 'ok']);
+            } else {
+                return Json::encode(['error' => true, 'message' => '用户不存在']);
+            }
+        } else {
+            return Json::encode(['error' => true, 'message' => '未知类型']);
+        }
+    }
+
+    /**
      * 个人资料修改页
      *
      * @return string
@@ -323,8 +407,8 @@ class UsersController extends BaseController
             ->where(['patentUserID' => Yii::$app->user->id])
             ->asArray()
             ->all();
-
-        return $this->render('my-patents', ['patents' => $patents]);
+        $children_patents = Users::childrenPatents(Yii::$app->user->id);
+        return $this->render('my-patents', ['patents' => array_merge($patents, $children_patents)]);
     }
 
     /**

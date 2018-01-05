@@ -1,6 +1,6 @@
 <?php
 use app\models\UnpaidAnnualFee;
-/* @var $model app\models\Patents */
+/* @var $patent app\models\Patents */
 /* @var $idx integer */
 
 /* @var $box_type string */
@@ -37,7 +37,7 @@ $fee = [];
 <!--            <i class="fa fa-file-o"></i>-->
             <?= $idx ?> .
             <h3 class="box-title">
-                <?= $patent['patentTitle'] ?>
+                <?= $patent['patentTitle'] . (isset($patent['patentUserParentFullname']) ? ('（' . $patent['patentUserParentFullname'] . '）') :'') ?>
             </h3>
         </a>
 

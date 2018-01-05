@@ -8,6 +8,7 @@ use Yii;
  * This is the model class for table "users".
  *
  * @property integer $userID
+ * @property integer $userParentID
  * @property string $userUsername
  * @property string $userPassword
  * @property string $userOrganization
@@ -384,5 +385,63 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
                 Patentevents::updateAll(['eventUserLiaisonID' => $this->userLiaisonID, 'eventUserLiaison' => $this->userLiaisonID ? Users::findOne($this->userLiaisonID)->userFullname : ''], ['eventUserID' => $this->userID]);
             }
         }
+    }
+
+    /**
+     * 获取上级
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSuperior()
+    {
+        return $this->hasMany(Users::className(), ['userID' => 'parent_id'])->viaTable('user_level', ['user_id' => 'userID']);
+    }
+
+    /**
+     * 获取下级
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSubordinate()
+    {
+        return $this->hasMany(Users::className(), ['userID' => 'user_id'])->viaTable('user_level', ['parent_id' => 'userID']);
+    }
+
+    /**
+     * 获取用户所有子专利
+     *
+     * patentUserParentFullname字段的含义是：如果 A 管理 B，B 管理 C，那么 A 看到的 C 的专利的这个字段显示的 B 的名字，而 B 看到的就直接是 C 的名字
+     *
+     * 返回结果示例：
+     *      [
+     *          [
+     *              patentID => 1,
+     *              ... // 所有的patents字段
+     *              patentUserParentFullname => 'doze'
+     *          ],
+     *          [
+     *              patentID => 2,
+     *              ... //
+     *              patentUserParentFullname => 'gui'
+     *          ]
+     *      ]
+     *
+     * @param $user_id
+     * @param array $result
+     * @param string $parent_name
+     * @return array
+     */
+    public static function childrenPatents($user_id, &$result = [], $parent_name = '')
+    {
+        $user_ids = UserLevel::find()->where(['parent_id' => $user_id])->select('user_id')->column();
+        foreach ($user_ids as $user_id) {
+            $child_patents = Patents::find()->where(['patentUserID' => $user_id])->asArray()->all();
+            array_walk($child_patents, function($patent) use (&$result, $parent_name, $user_id) {
+                $patent['patentUserParentFullname'] = $parent_name ?: (Users::findOne($user_id)->userFullname);
+                $result[] = $patent;
+            });
+            self::childrenPatents($user_id, $result, Users::findOne($user_id)->userFullname);
+        }
+        return $result;
     }
 }
