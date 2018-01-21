@@ -8,80 +8,74 @@
  */
 namespace app\commands;
 
-use app\models\Patents;
-use app\models\UnpaidAnnualFee;
+use app\models\AnnualFeeMonitors;
 use app\models\WxUser;
-use Symfony\Component\CssSelector;
-use Symfony\Component\DomCrawler\Crawler;
 use yii\console\Controller;
 use Yii;
-use Facebook\WebDriver\Chrome\ChromeDriver;
-use Facebook\WebDriver\Chrome\ChromeOptions;
-use yii\db\Exception;
-use yii\db\Transaction;
 use GuzzleHttp\Client;
-use GuzzleHttp\Pool;
 use EasyWeChat\Foundation\Application;
 
 class FeeController extends Controller
 {
     //首先要每天更新一下Patents表里的缴费截止日这个字段，patentFeeDueDate
 
+    /**
+     * 查询具体缴费截止日还有 +90, +30, +15, +7, +0, -1天时的专利
+     *
+     * @param string $days
+     */
     public function actionWarning(string $days)
     {
-        /**
-         * @var $patent Patents
-         *
-         * 查询具体缴费截止日还有 +90, +30, +15, +7, +0, -1天时的专利
-         */
-        $patentModels = Patents::find()
-            ->where(['patentFeeDueDate' => date('Ymd', strtotime($days.' days'))])
-            ->andWhere(['<>', 'patentApplicationNo', ''])
-            ->all();
-
-        foreach ($patentModels as $patent)
-        {
-            $patentUserID = Yii::$app->db
-                ->createCommand(
-                    'SELECT DISTINCT patentUserID From patents WHERE patentAjxxbID=\''.$patent->patentAjxxbID.'\''
-                )
-                ->queryColumn();
-
-            if (isset($patentUserID))
-            {
-                foreach ($patentUserID as $userID)
-                {
-                    $user = WxUser::findOne(['userid' => $userID]);
-                    if($user && isset($user->fakeid))
-                    {
-                        // 通过api获取费用信息
-                        $client = new \GuzzleHttp\Client(['base_uri' => Yii::$app->params['api_base_uri']]);
+        try {
+            // 通过api获取所有到期的专利号
+            $due_client = new Client(['base_uri' => Yii::$app->params['api_base_uri']]);
+            $due_response = $due_client->request('GET', "/patents/due/" . (int)$days);
+            $due_result = json_decode($due_response->getBody(), true);
+            /**
+             * @var $monitor AnnualFeeMonitors
+             *
+             * 遍历申请号查看对应用户，然后发送通知
+             */
+            foreach ($due_result as $application_no) {
+                $monitors_model = AnnualFeeMonitors::find()->where(['application_no' => $application_no])->all();
+                foreach ($monitors_model as $monitor) {
+                    $user = WxUser::findOne(['userID' => $monitor->user_id]);
+                    if ($user && isset($user->fakeid)) {
                         try {
-                            $response = $client->request('GET', "/patents/".$patent->patentApplicationNo."/latest-unpaid-fee");
-                            $fee_info = json_decode($response->getBody(), true);
-                            if (empty($fee_info)) continue; // 如果获取到的专利没有费用信息就跳出循环
+                            // 用户存在，那就通过api获取费用以及基本信息(用来查看title)
+                            $patent_client = new Client(['base_uri' => Yii::$app->params['api_base_uri']]);
+                            $patent_response = $patent_client->request('GET', '/patents/view/'.$application_no);
+                            $patent_info = json_decode($patent_response->getBody(), true);
+                            $fee_client = new Client(['base_uri' => Yii::$app->params['api_base_uri']]);
+                            $fee_response = $response = $fee_client->request('GET', "/patents/".$application_no."/latest-unpaid-fee");
+                            $fee_info = json_decode($fee_response->getBody(), true);
+                            if (empty($patent_info) || empty($fee_info)) continue; // 如果获取到的专利没有费用信息就跳出循环
+
+                            // 微信提示相关参数
+                            $deadline = date('Ymd', strtotime($days.' days'));
+                            $data = [
+                                'first' => '您好，您有一项专利需要缴费',
+                                'keyword1' => $patent_info['title'], //数据OK
+                                'keyword2' => $fee_info['type'],
+                                'keyword3' => $fee_info['amount'] . '元',
+                                'keyword4' => $deadline, //数据OK
+                                'keyword5' => (int)$days >= 0 ? (int)$days.'天' : '已逾期'.((int)$days * (-1)).'天', //数据OK
+                                'remark' => '如果有任何疑问，请致电0451-88084686',
+                            ];
+                            $template_id = 'cGvdscYjjF4DZy7xSRTczQuyGCCQZAF0L9KxBnr8V7k';
+                            $this->sendWeixinTemplateMessage($user->fakeid, $data, $template_id);
                         }
                         catch (\Exception $e) {
                             Yii::error($e->getMessage());
-                            continue; // 如果请求失败(404或者其他)也跳出循环
+                            continue;
                         }
-                        $deadline = $patent->patentFeeDueDate;
-                        $data = [
-                            'first' => '您好，您有一项专利需要缴费',
-                            'keyword1' => $patent->patentTitle, //数据OK
-                            'keyword2' => $fee_info['type'],
-                            'keyword3' => $fee_info['amount'] . '元',
-                            'keyword4' => $deadline, //数据OK
-                            'keyword5' => (int)$days >= 0 ? (int)$days.'天' : '已逾期'.((int)$days * (-1)).'天', //数据OK
-                            'remark' => '如果有任何疑问，请致电0451-88084686',
-                        ];
-                        $template_id = 'cGvdscYjjF4DZy7xSRTczQuyGCCQZAF0L9KxBnr8V7k';
-                        $this->sendWeixinTemplateMessage($user->fakeid, $data, $template_id);
                     }
                 }
             }
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage());
+            exit;
         }
-
     }
 
     public function sendWeixinTemplateMessage($openid, array $data, string $template_id)
@@ -123,6 +117,17 @@ class FeeController extends Controller
         ];
         $template_id = 'cGvdscYjjF4DZy7xSRTczQuyGCCQZAF0L9KxBnr8V7k';
         $this->sendWeixinTemplateMessage($fakeid, $data, $template_id);
+    }
+
+    public function actionTest()
+    {
+        $monitors_model = AnnualFeeMonitors::find()->where(['application_no' => '2014106327464'])->all();
+        foreach ($monitors_model as $monitor) {
+            $user = WxUser::findOne(['userid' => $monitor->user_id]);
+            if ($user && isset($user->fakeid)) {
+                echo $user->fakeid . PHP_EOL;
+            }
+        }
     }
 
 }
