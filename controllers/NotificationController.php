@@ -37,7 +37,7 @@ class NotificationController extends Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['index', 'view', 'create', 'update'],
+                        'actions' => ['index', 'view', 'create', 'update', 'wechat-log'],
                         'roles' => ['admin']
                     ],
                     [
@@ -57,6 +57,21 @@ class NotificationController extends Controller
     public function actionIndex()
     {
         $searchModel = new NotificationSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+        return $this->render('index', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
+    /**
+     * 微信日志查看
+     * @return mixed
+     */
+    public function actionWechatLog()
+    {
+        $searchModel = new NotificationSearch(['scenario' => 'wechat_log']);
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [

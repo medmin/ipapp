@@ -385,7 +385,7 @@ class UsersController extends BaseController
         $allNotifies = new ActiveDataProvider([
             'query' => Notification::find()->where(['receiver' => Yii::$app->user->id]),
             'pagination' => [
-                'pageSize' => 1000, // 稍后处理分页问题 TODO
+                'pageSize' => 20,
             ],
             'sort' => [
                 'defaultOrder' => [

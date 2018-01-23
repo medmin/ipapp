@@ -64,7 +64,7 @@ class FeeController extends Controller
                             ];
                             $template_id = 'cGvdscYjjF4DZy7xSRTczQuyGCCQZAF0L9KxBnr8V7k';
                             $this->sendWeixinTemplateMessage($user->fakeid, $data, $template_id);
-                            \app\models\Notification::saveWechatNoticeLog($user->userID, $application_no, $data); // 记录一下发送日志
+                            \app\models\Notification::saveWechatNoticeLog($user->userID, array_merge($data, ['application_no' => $application_no])); // 记录一下发送日志
                         }
                         catch (\Exception $e) {
                             Yii::error($e->getMessage());

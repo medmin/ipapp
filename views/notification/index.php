@@ -7,32 +7,60 @@ use yii\grid\GridView;
 /* @var $searchModel app\models\NotificationSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = Yii::t('app', 'Notifications');
+$this->title = Yii::$app->controller->action->id == 'wechat-log' ? '微信模板发送日志' : '留言信息';
 $this->params['breadcrumbs'][] = $this->title;
+$this->registerJs('
+var searchToggle = function(){
+  $("#toggleSearchBtn").trigger("click");
+}
+',\yii\web\View::POS_END);
 ?>
 <div class="notification-index">
+    <div class="box box-default collapsed-box">
+        <div class="box-header with-border">
+            <a href="javascript:;" onclick="searchToggle()" style="display: block;"><h3 class="box-title"><small>搜索</small></h3></a>
+            <div class="box-tools box-right">
+                <button id="toggleSearchBtn" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="box-body">
+            <?php  echo $this->render('_search', ['model' => $searchModel, 'action' => Yii::$app->controller->action->id]); ?>
+        </div>
+    </div>
+    <div class="box box-primary">
+        <div class="box-body">
+            <?= GridView::widget([
+                'dataProvider' => $dataProvider,
+//                'filterModel' => $searchModel,
+                'columns' => [
+                    ['class' => 'yii\grid\SerialColumn'],
 
-    <h1><?= Html::encode($this->title) ?></h1>
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
+//                  'id',
+//                  'sender',
+                    [
+                        'attribute' => 'receiver',
+                        'label' => '接收用户',
+                        'value' => function ($model) {
+                            return Html::a($model->receiverInfo->userUsername, ['/users/view', 'id' => $model->receiverInfo->userID]);
+                        },
+                        'format' => 'raw'
+                    ],
+                    [
+                        'attribute' => 'content',
+                        'value' => function ($model) {
+                            return str_replace('，','</br>',$model->content);
+                        },
+                        'format' => 'raw'
+                    ],
+//                   'type',
+                    'createdAt:datetime',
+//                    'status',
 
-    <p>
-        <?= Html::a(Yii::t('app', 'Create Notification'), ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
-    <?= GridView::widget([
-        'dataProvider' => $dataProvider,
-        'filterModel' => $searchModel,
-        'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
+//            ['class' => 'yii\grid\ActionColumn'],
+                ],
+            ]); ?>
+        </div>
+    </div>
 
-            'id',
-            'sender',
-            'receiver',
-            'content',
-            'type',
-            // 'createdAt',
-            // 'status',
-
-            ['class' => 'yii\grid\ActionColumn'],
-        ],
-    ]); ?>
 </div>

@@ -67,16 +67,15 @@ class Notification extends \yii\db\ActiveRecord
      * 微信模板消息的日志记录
      *
      * @param $id
-     * @param $application_no
      * @param array $data
      */
-    public static function saveWechatNoticeLog($id, $application_no, array $data)
+    public static function saveWechatNoticeLog($id, array $data)
     {
         $model = new self();
         $model->sender = 0;
         $model->receiver = $id;
         $model->type = self::TYPE_WECHAT_NOTICE;
-        $model->content = '专利年费缴费提醒，专利号：'.$application_no.'，专利名称：'.$data['keyword1'].'，缴费年次：'.$data['keyword2'].'，应缴金额：'.$data['keyword3'].'，最迟缴费日：'.$data['keyword4'].'，剩余天数：'.$data['keyword5'];
+        $model->content = '专利年费缴费提醒，专利号：'.$data['application_no'].'，专利名称：'.$data['keyword1'].'，缴费年次：'.$data['keyword2'].'，应缴金额：'.$data['keyword3'].'，最迟缴费日：'.$data['keyword4'].'，剩余天数：'.$data['keyword5'];
 //        $model->status = 1;
         $model->save();
     }
@@ -88,5 +87,14 @@ class Notification extends \yii\db\ActiveRecord
     public function getUser()
     {
         return $this->hasOne(Users::className(), ['userID' => 'sender']);
+    }
+
+    /**
+     * 获取接收方用户信息
+     * @return \yii\db\ActiveQuery
+     */
+    public function getReceiverInfo()
+    {
+        return $this->hasOne(Users::className(), ['userID' => 'receiver']);
     }
 }
