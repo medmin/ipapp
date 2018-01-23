@@ -20,6 +20,7 @@ class Notification extends \yii\db\ActiveRecord
     const TYPE_FEEDBACK = 1;
     const TYPE_EMAIL = 2;
     const TYPE_NOTICE = 3;
+    const TYPE_WECHAT_NOTICE = 4;
 
     /**
      * @inheritdoc
@@ -60,6 +61,24 @@ class Notification extends \yii\db\ActiveRecord
     public static function ignore()
     {
         Notification::updateAll(['status' => 1], ['receiver' => Yii::$app->user->id, 'status' => 0]);
+    }
+
+    /**
+     * 微信模板消息的日志记录
+     *
+     * @param $id
+     * @param $application_no
+     * @param array $data
+     */
+    public static function saveWechatNoticeLog($id, $application_no, array $data)
+    {
+        $model = new self();
+        $model->sender = 0;
+        $model->receiver = $id;
+        $model->type = self::TYPE_WECHAT_NOTICE;
+        $model->content = '专利年费缴费提醒，专利号：'.$application_no.'，专利名称：'.$data['keyword1'].'，缴费年次：'.$data['keyword2'].'，应缴金额：'.$data['keyword3'].'，最迟缴费日：'.$data['keyword4'].'，剩余天数：'.$data['keyword5'];
+//        $model->status = 1;
+        $model->save();
     }
 
     /**

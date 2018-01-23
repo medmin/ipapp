@@ -64,6 +64,7 @@ class FeeController extends Controller
                             ];
                             $template_id = 'cGvdscYjjF4DZy7xSRTczQuyGCCQZAF0L9KxBnr8V7k';
                             $this->sendWeixinTemplateMessage($user->fakeid, $data, $template_id);
+                            \app\models\Notification::saveWechatNoticeLog($user->userID, $application_no, $data); // 记录一下发送日志
                         }
                         catch (\Exception $e) {
                             Yii::error($e->getMessage());
@@ -117,17 +118,6 @@ class FeeController extends Controller
         ];
         $template_id = 'cGvdscYjjF4DZy7xSRTczQuyGCCQZAF0L9KxBnr8V7k';
         $this->sendWeixinTemplateMessage($fakeid, $data, $template_id);
-    }
-
-    public function actionTest()
-    {
-        $monitors_model = AnnualFeeMonitors::find()->where(['application_no' => '2014106327464'])->all();
-        foreach ($monitors_model as $monitor) {
-            $user = WxUser::findOne(['userid' => $monitor->user_id]);
-            if ($user && isset($user->fakeid)) {
-                echo $user->fakeid . PHP_EOL;
-            }
-        }
     }
 
 }
