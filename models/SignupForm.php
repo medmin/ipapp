@@ -9,6 +9,7 @@ namespace app\models;
 
 use yii\base\Model;
 use Yii;
+use yii\web\User;
 
 class SignupForm extends Model
 {
@@ -31,18 +32,18 @@ class SignupForm extends Model
     public function rules()
     {
         return [
-            [['username', 'email'], 'trim'],
-            [['username', 'email', 'password', 'cellPhone', 'repeatPassword'], 'required'],
+            [['email'], 'trim'],
+            [['email', 'password', 'cellPhone', 'repeatPassword', 'name'], 'required'],
             ['repeatPassword', 'compare', 'compareAttribute'=>'password', 'message' => Yii::t('app','The two passwords differ')],
-            ['username', 'unique', 'targetAttribute' => 'userUsername', 'targetClass' => '\app\models\Users', 'message' => Yii::t('app','This username has already been taken')],
-            ['username', 'string', 'min' => 2, 'max' => 16],
+//            ['username', 'unique', 'targetAttribute' => 'userUsername', 'targetClass' => '\app\models\Users', 'message' => Yii::t('app','This username has already been taken')],
+//            ['username', 'string', 'min' => 2, 'max' => 16],
             ['email', 'email'],
             ['email', 'string', 'max' => 255],
             ['email', 'unique', 'targetAttribute' => 'userEmail', 'targetClass' => '\app\models\Users', 'message' => Yii::t('app','This email has already been taken')],
             ['password', 'string', 'min' => 6],
             ['cellPhone', 'match', 'pattern' => '/^1[3-9][0-9]{9}$/', 'message' => Yii::t('app', 'Incorrect phone number')], // 如有 11 和 12 开头的再更改
 //            ['citizenID', 'unique', 'targetAttribute' => 'userCitizenID', 'targetClass' => '\app\models\Users', 'message' => Yii::t('app','This citizenID number has already been taken')],
-            [['citizenID', 'organization', 'name', 'landLine', 'address', 'liaison', 'note'], 'default', 'value' => 'N/A'],
+            [['citizenID', 'organization', 'landLine', 'address', 'liaison', 'note'], 'default', 'value' => ''],
 //            [['organization', 'name', 'cellPhone', 'landLine', 'address', 'liaison', 'note'], 'required'],
             [['organization', 'name', 'landLine', 'address', 'liaison', 'note'], 'string', 'max' => 255],
         ];
@@ -76,7 +77,7 @@ class SignupForm extends Model
         }
 
         $user = new Users();
-        $user->userUsername = $this->username;
+        $user->userUsername = '阳光惠远_'. (string)mt_rand(10, 99) . (Users::find()->max('userID') . '_' .  (string)mt_rand(0, 99));
         $user->setPassword($this->password);
         $user->userCitizenID = $this->citizenID;
         $user->userOrganization = $this->organization;
@@ -88,13 +89,12 @@ class SignupForm extends Model
         $user->userLiaison = $this->liaison;
         $user->userRole = Users::ROLE_CLIENT;
         $user->userNote = $this->note;
-        if ($this->liaison !== 'N/A') {
+        $user->userLiaisonID = 0;
+        if ($this->liaison !== '') {
             $liaison = Users::findByFullName($this->liaison);
             if ($liaison) {
                 $user->userLiaisonID = $liaison->userID;
             }
-        }else{
-            $user->userLiaisonID = 0;
         }
         $user->UnixTimestamp = time() * 1000;
         $user->generateAuthKey();

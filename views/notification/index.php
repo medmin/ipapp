@@ -7,7 +7,7 @@ use yii\grid\GridView;
 /* @var $searchModel app\models\NotificationSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = Yii::$app->controller->action->id == 'wechat-log' ? '微信模板发送日志' : '留言信息';
+$this->title = Yii::$app->controller->action->id == 'wechat-log' ? '微信模板消息发送日志' : '留言信息';
 $this->params['breadcrumbs'][] = $this->title;
 $this->registerJs('
 var searchToggle = function(){

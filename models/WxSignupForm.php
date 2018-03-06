@@ -84,22 +84,21 @@ class WxSignupForm extends Model
             /**
              * 创建用户
              */
-            $users_count = Users::find()->count() + 1234 + mt_rand(21, 99) ;
             $user = new Users();
-            $user->userUsername = '阳光惠远_' . $users_count;
+            $user->userUsername = '阳光惠远_'. (string)mt_rand(10, 99) . (Users::find()->max('userID') . '_' .  (string)mt_rand(0, 99));
             $user->setPassword($this->password);
             $user->userEmail = $this->email;
             $user->userFullname = $this->fullname;
-            // 以下信息可空
-            $user->userCitizenID = 'N/A';
-            $user->userOrganization = 'N/A';
             $user->userCellphone = $this->cellphone;
-            $user->userLandline = 'N/A';
-            $user->userAddress = 'N/A'; // 可写微信地址
-            $user->userLiaison = 'N/A';
+            // 以下信息可空
+            $user->userCitizenID = '';
+            $user->userOrganization = '';
+            $user->userLandline = '';
+            $user->userAddress = ''; // 可写微信地址
+            $user->userLiaison = '';
             $user->userRole = Users::ROLE_CLIENT;
             $user->userLiaisonID = 0;
-            $user->userNote = 'N/A';
+            $user->userNote = '';
             $user->UnixTimestamp = time() * 1000;
             $user->generateAuthKey();
             if (!$user->save()) {

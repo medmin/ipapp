@@ -35,7 +35,8 @@ $this->registerJs('
             }else if(data.code == -3) {
                 $(".new-password").addClass("has-error").find(".help-block").text(data.message);
             }else {
-                alert("修改成功")
+                alert("修改成功");
+                location.reload();
             }
         },"json");
         return false;
@@ -62,7 +63,7 @@ $this->registerJs('
                 <?php } ?>
                 <?php $form = ActiveForm::begin() ?>
 
-                <?= $form->field($model, 'userUsername')->textInput() ?>
+                <?= $form->field($model, 'userUsername')->textInput()->label('用户名(可用作登录账号)') ?>
 
                 <?= $form->field($model, 'userCitizenID')->textInput() ?>
 

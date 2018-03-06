@@ -59,7 +59,7 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function rules()
     {
         return [
-            [['userUsername', 'userPassword', 'userOrganization', 'userFullname', 'userCitizenID', 'userEmail', 'userCellphone', 'userLandline', 'userAddress', 'userLiaison', 'userLiaisonID', 'userRole', 'userNote', 'authKey', 'UnixTimestamp'], 'required'],
+            [['userUsername', 'userPassword', 'userFullname', 'userEmail', 'userCellphone', 'userLiaisonID', 'userRole', 'UnixTimestamp'], 'required'],
             [['userUsername', 'userEmail'], 'unique'],
             [['userLiaisonID', 'userRole', 'UnixTimestamp'], 'integer'],
             ['userEmail', 'email'],
@@ -148,7 +148,7 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 
             return $lastChar === $token;
         };
-        if ($this->$attribute !== 'N/A' && (!preg_match('/^\d{17}[0-9xX]$/', $this->$attribute) || !$checkIDCode($this->$attribute))) {
+        if (($this->$attribute !== '') && (!preg_match('/^\d{17}[0-9xX]$/', $this->$attribute) || !$checkIDCode($this->$attribute))) {
             $this->addError($attribute, '请填写正确的身份证号码');
         }
     }
@@ -206,7 +206,7 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
-     * 通过用户名或者邮箱来登录
+     * Finds user by username or email
      *
      * @param $usernameOrEmail
      * @return Users|null
@@ -249,6 +249,17 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function findByCitizenID($citizenID)
     {
         return static::findOne(['userCitizenID' => $citizenID]);
+    }
+
+    /**
+     * Finds user by cellphone
+     *
+     * @param $phoneNumber
+     * @return static
+     */
+    public function findByCellphone($phoneNumber)
+    {
+        return static::findOne(['userCellphone' => $phoneNumber]);
     }
 
     /**

@@ -42,10 +42,6 @@ $this->registerJs("
         <!--        <p class="login-box-msg">Register a new membership</p>-->
         <?php $form = ActiveForm::begin(['id' => 'login-form', 'enableClientValidation' => true]); ?>
 
-        <?= $form
-            ->field($model, 'username', $fieldOptions('user'))
-            ->label(false)
-            ->textInput(['placeholder' => $model->getAttributeLabel('username') ]) ?>
 
         <?= $form
             ->field($model, 'email', $fieldOptions('envelope'))
@@ -68,6 +64,11 @@ $this->registerJs("
             ->textInput(['placeholder' => '必填：' .$model->getAttributeLabel('cellPhone')]) ?>
 
         <?= $form
+            ->field($model,'name', $fieldOptions('user'))
+            ->label(false)
+            ->textInput(['placeholder' => '必填：' . $model->getAttributeLabel('name')]) ?>
+
+        <?= $form
             ->field($model, 'citizenID',$fieldOptions('info-sign'))
             ->label(false)
             ->textInput(['placeholder' => $model->getAttributeLabel('citizenID')]) ?>
@@ -77,32 +78,28 @@ $this->registerJs("
             ->label(false)
             ->textInput(['placeholder' => $model->getAttributeLabel('organization')]) ?>
 
-        <?= $form
-            ->field($model,'name', $fieldOptions('info-sign'))
-            ->label(false)
-            ->textInput(['placeholder' => $model->getAttributeLabel('name')]) ?>
+<!--        --><?//= $form
+//            ->field($model,'landLine', $fieldOptions('phone-alt'))
+//            ->label(false)
+//            ->textInput(['placeholder' => $model->getAttributeLabel('landLine')]) ?>
 
-        <?= $form
-            ->field($model,'landLine', $fieldOptions('phone-alt'))
-            ->label(false)
-            ->textInput(['placeholder' => $model->getAttributeLabel('landLine')]) ?>
-
-        <?= $form
-            ->field($model,'address', $fieldOptions('map-marker'))
-            ->label(false)
-            ->textInput(['placeholder' => $model->getAttributeLabel('address')]) ?>
+<!--        --><?//= $form
+//            ->field($model,'address', $fieldOptions('map-marker'))
+//            ->label(false)
+//            ->textInput(['placeholder' => $model->getAttributeLabel('address')]) ?>
 
         <div class="row">
-            <div class="col-xs-8">
-                <div class="checkbox icheck">
-                    <label class="monitor">
-                        <input type="checkbox" id="agree"> 我同意 <a href="javascript:;">注册条款</a>
-                    </label>
-                </div>
+            <div class="col-xs-8" style="padding-top: 10px">
+<!--                <div class="checkbox icheck">-->
+<!--                    <label class="monitor">-->
+<!--                        <input type="checkbox" id="agree"> 我同意 <a href="javascript:;">注册条款</a>-->
+<!--                    </label>-->
+<!--                </div>-->
+                <?= Html::a('已有账号,点此登录', 'site/login') ?>
             </div>
             <!-- /.col -->
             <div class="col-xs-4">
-                <?= Html::submitInput('注册', ['class' => 'btn btn-primary btn-block btn-flat', 'name' => 'register-button', 'disabled' => true]) ?>
+                <?= Html::submitInput('注册', ['class' => 'btn btn-primary btn-block btn-flat', 'name' => 'register-button', 'disabled' => false]) ?>
             </div>
             <!-- /.col -->
         </div>
