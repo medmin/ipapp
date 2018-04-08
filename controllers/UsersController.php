@@ -224,6 +224,9 @@ class UsersController extends BaseController
             if (UserLevel::findOne(['user_id' => $post['id'], 'parent_id' => $post['user_id']])) {
                 return Json::encode(['error' => true, 'message' => '重复添加下级']);
             }
+            if ($post['id'] == $post['user_id']) {
+                return Json::encode(['error' => true, 'message' => '不能将下级设置为用户自己']);
+            }
             $r = new UserLevel();
             $r->user_id = $post['id'];
             $r->parent_id = $post['user_id'];
@@ -236,6 +239,9 @@ class UsersController extends BaseController
             }
             if (UserLevel::findOne(['user_id' => $post['user_id'], 'parent_id' => $post['id']])) {
                 return Json::encode(['error' => true, 'message' => '重复添加上级']);
+            }
+            if ($post['id'] == $post['user_id']) {
+                return Json::encode(['error' => true, 'message' => '不能将上级设置为用户自己']);
             }
             $r = new UserLevel();
             $r->user_id = $post['user_id'];
@@ -380,10 +386,10 @@ class UsersController extends BaseController
      */
     public function actionNotify()
     {
-        $model = Notification::find()->where(['receiver' => Yii::$app->user->id, 'status' => 0])->all();
+        $model = Notification::find()->where(['receiver' => Yii::$app->user->id, 'status' => 0])->andWhere(['<>', 'type', Notification::TYPE_WECHAT_NOTICE])->all();
         Notification::ignore();
         $allNotifies = new ActiveDataProvider([
-            'query' => Notification::find()->where(['receiver' => Yii::$app->user->id]),
+            'query' => Notification::find()->where(['receiver' => Yii::$app->user->id])->andWhere(['<>', 'type', Notification::TYPE_WECHAT_NOTICE]),
             'pagination' => [
                 'pageSize' => 20,
             ],
