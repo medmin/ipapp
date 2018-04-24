@@ -42,7 +42,7 @@ var searchToggle = function(){
                         'attribute' => 'receiver',
                         'label' => '接收用户',
                         'value' => function ($model) {
-                            return Html::a($model->receiverInfo->userUsername, ['/users/view', 'id' => $model->receiverInfo->userID]);
+                            return isset($model->receiverInfo) ? Html::a($model->receiverInfo->userUsername . '（' . $model->receiverInfo->userFullname . '）', ['/users/view', 'id' => $model->receiverInfo->userID]) : '<b style="color: #ff9b9b">该用户已被删除</b>';
                         },
                         'format' => 'raw'
                     ],
