@@ -329,6 +329,9 @@ class Sync extends Model
                                     $event->delete();
                                 }
 
+                                // 删除相应的文件(主要是表结构有外键，不删不行啊)
+                                Patentfiles::deleteAll(['patentAjxxbID' => $ajxxbOneSingleRow['aj_ajxxb_id']]);
+
                                 $thisOnePatent->delete();
                             }
                         }
