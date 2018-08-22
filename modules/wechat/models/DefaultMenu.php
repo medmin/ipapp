@@ -64,18 +64,29 @@ class DefaultMenu extends Model
                 ],
             ],
             [
-                "type" => "view",
-                "name" => "年费监管",
-                "key"  => "SHINEIP_USER_VIEW_MONITOR-PATENTS", //key是自定义的，不知道什么卵用
-                'url'  => 'https://kf.shineip.com/users/monitor-patents'
+                "name" => "年费",
+                "sub_button" => [
+                    [
+                        "type" => "view",
+                        "name" => "年费监管",
+                        // "key"  => "SHINEIP_USER_VIEW_MONITOR-PATENTS", //key是自定义的，不知道什么卵用
+                        'url'  => 'https://kf.shineip.com/users/monitor-patents'
+                    ],
+                    [
+                        "type" => "view",
+                        "name" => "缴费",
+                        // "key"  => "SHINEIP_USER_MONITOR-UNPAID-LIST", //key是自定义的
+                        'url'  => 'https://kf.shineip.com/users/monitor-unpaid-list'
+                    ],
+                ]
             ],
             [
-                "type" => "view",
-                "name" => "缴费",
-                "key"  => "SHINEIP_USER_MONITOR-UNPAID-LIST", //key是自定义的
-                'url'  => 'https://kf.shineip.com/users/monitor-unpaid-list'
+                "type" => "miniprogram",
+                "name" => "法务咨询",
+                "url" => Yii::$app->params['miniprogram_legal']['url'], //低版本不支持小程序时的跳转路径
+                "appid" => Yii::$app->params['miniprogram_legal']['appid'],
+                "pagepath" => Yii::$app->params['miniprogram_legal']['pagepath']
             ]
-
         ];
 
         $this->menu = $this->app->menu;
