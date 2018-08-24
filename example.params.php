@@ -52,6 +52,7 @@ $params = [
 
     // 小程序 法务咨询
     'miniprogram_legal' => [
+        'name' => '法律机器人',
         'appid' => '',
         'url' => '',
         'pagepath' => ''

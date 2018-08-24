@@ -82,7 +82,7 @@ class DefaultMenu extends Model
             ],
             [
                 "type" => "miniprogram",
-                "name" => "法务咨询",
+                "name" => Yii::$app->params['miniprogram_legal']['name'],
                 "url" => Yii::$app->params['miniprogram_legal']['url'], //低版本不支持小程序时的跳转路径
                 "appid" => Yii::$app->params['miniprogram_legal']['appid'],
                 "pagepath" => Yii::$app->params['miniprogram_legal']['pagepath']
