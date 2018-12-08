@@ -65,7 +65,7 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             ['userEmail', 'email'],
             ['userCitizenID', 'validateCitizenID'],
             [['userNote'], 'string'],
-            [['userUsername'], 'string', 'max' => 16],
+            [['userUsername'], 'string', 'max' => 100],
             [['userPassword'], 'string', 'max' => 100],
             [['userOrganization', 'userEmail'], 'string', 'max' => 40],
             [['userFullname', 'userLiaison'], 'string', 'max' => 24],

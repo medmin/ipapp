@@ -59,7 +59,7 @@ class Patents extends \yii\db\ActiveRecord
             [['patentUserID', 'patentUserLiaisonID', 'UnixTimestamp'], 'integer'],
             [['patentAjxxbID', 'patentEacCaseNo'], 'string', 'max' => 20],
             [['patentType'], 'string', 'max' => 8],
-            [['patentUsername'], 'string', 'max' => 16],
+            [['patentUsername'], 'string', 'max' => 100],
             [['patentUserLiaison', 'patentAgent', 'patentProcessManager'], 'string', 'max' => 24],
             ['patentTitle', 'string', 'max' => 100],
             [['patentApplicationNo', 'patentPatentNo'], 'string', 'max' => 40],
